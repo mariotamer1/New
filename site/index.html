@@ -12,7 +12,7 @@
 <link rel="canonical" href="https://ygmpainting.com/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -278,6 +278,12 @@
   .vscrub-copy[data-align="right"]{justify-content:flex-end; text-align:right; padding-right:clamp(24px,6vw,70px);}
   .vscrub-copy .story-eyebrow{color:var(--ochre-light);}
   .vscrub-copy h2{font-size:clamp(2.88rem,6.4vw,4.8rem); max-width:16ch; margin:0; line-height:1.02; letter-spacing:-0.025em;}
+  /* only the final caption ("Colors That Create Memories") switches face — the
+     other two captions in this same component keep the site's Fraunces */
+  #vscrubCopy3 h2{
+    font-family:'Instrument Serif', 'Fraunces', serif; font-style:italic; font-weight:400;
+    line-height:1.04; letter-spacing:-0.018em;
+  }
   .vscrub-progress{
     position:absolute; left:0; right:0; bottom:26px; z-index:2;
     display:flex; justify-content:center;
