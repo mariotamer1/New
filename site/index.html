@@ -74,7 +74,8 @@
   h1,h2,h3,.display{
     font-family:'Fraunces', Georgia, serif;
     font-weight:600;
-    line-height:1.08;
+    /* fallback for any heading below without its own size-specific tracking/leading */
+    line-height:1.15;
     letter-spacing:-0.01em;
   }
 
@@ -168,6 +169,7 @@
     font-variation-settings:'opsz' 144;
     text-rendering:optimizeLegibility;
     -webkit-font-smoothing:antialiased;
+    line-height:1.0; letter-spacing:-0.03em; /* biggest type on the page — tightest leading, most negative tracking */
   }
   .hero-sub{
     margin-top:26px; max-width:38ch; font-size:18px; color:var(--ink-dim);
@@ -230,7 +232,7 @@
     padding:clamp(28px,4vw,54px);
   }
   .story-eyebrow{font-size:13px; color:var(--ochre-light); margin-bottom:10px;}
-  .story-copy h3{font-family:'Fraunces',serif; font-size:clamp(1.7rem,3.4vw,2.5rem); color:#fff; font-weight:600; line-height:1.1;}
+  .story-copy h3{font-family:'Fraunces',serif; font-size:clamp(1.7rem,3.4vw,2.5rem); color:#fff; font-weight:600; line-height:1.1; letter-spacing:-0.014em;}
   .story-copy p{margin-top:12px; color:rgba(255,255,255,0.78); font-size:15px; max-width:44ch;}
   .story-arrow{
     position:absolute; top:50%; transform:translateY(-50%); z-index:4;
@@ -249,7 +251,7 @@
   }
   .story-dots button.active{background:var(--ochre-light); transform:scale(1.25);}
   .story-heading{max-width:640px; margin:0 auto 46px; padding:0 clamp(20px,5vw,56px); text-align:left;}
-  .story-heading h2{font-size:clamp(2rem, 4vw, 3rem); color:var(--ink);}
+  .story-heading h2{font-size:clamp(2rem, 4vw, 3rem); color:var(--ink); line-height:1.08; letter-spacing:-0.018em;}
 
   /* ---------- scroll-scrubbed video ---------- */
   .vscrub{position:relative; background:var(--bg);}
@@ -275,7 +277,7 @@
   .vscrub-copy[data-align="left"]{justify-content:flex-start; text-align:left; padding-left:clamp(24px,6vw,70px);}
   .vscrub-copy[data-align="right"]{justify-content:flex-end; text-align:right; padding-right:clamp(24px,6vw,70px);}
   .vscrub-copy .story-eyebrow{color:var(--ochre-light);}
-  .vscrub-copy h2{font-size:clamp(2.88rem,6.4vw,4.8rem); max-width:16ch; margin:0;}
+  .vscrub-copy h2{font-size:clamp(2.88rem,6.4vw,4.8rem); max-width:16ch; margin:0; line-height:1.02; letter-spacing:-0.025em;}
   .vscrub-progress{
     position:absolute; left:0; right:0; bottom:26px; z-index:2;
     display:flex; justify-content:center;
@@ -318,7 +320,7 @@
   /* ---------- section headers ---------- */
   .section-head{max-width:640px; margin-bottom:64px;}
   .section-tag{color:var(--ochre-light); font-size:14px; margin-bottom:14px;}
-  .section-head h2{font-size:clamp(2rem, 4vw, 3rem); color:var(--ink);}
+  .section-head h2{font-size:clamp(2rem, 4vw, 3rem); color:var(--ink); line-height:1.08; letter-spacing:-0.018em;}
   .section-head p{margin-top:18px; color:var(--ink-dim); font-size:16.5px; max-width:52ch;}
 
   .band{padding:120px 0;}
@@ -349,7 +351,7 @@
   .service-card-inner{transition:transform .35s var(--ease);}
   .service-card:hover .service-card-inner{transform:translateY(-4px);}
   .service-index{font-size:13px; color:var(--ink-faint); font-family:'Fraunces',serif;}
-  .service-card h3{font-size:22px; margin-top:22px; color:var(--ink); font-weight:600;}
+  .service-card h3{font-size:22px; margin-top:22px; color:var(--ink); font-weight:600; line-height:1.25; letter-spacing:-0.005em;}
   .service-card p{margin-top:12px; color:var(--ink-dim); font-size:15px;}
 
   /* ---------- color palette (per-swatch hover pop) ---------- */
@@ -391,8 +393,10 @@
   /* ---------- before/after ---------- */
   .ba-shell{
     position:relative; aspect-ratio:16/9; border-radius:4px; overflow:hidden;
-    border:1px solid var(--line); user-select:none;
+    border:1px solid var(--line); user-select:none; touch-action:none;
+    cursor:ew-resize;
   }
+  .ba-handle:focus-visible{outline:2px solid var(--ochre-light); outline-offset:3px;}
   .ba-layer{position:absolute; inset:0; display:flex; align-items:flex-end; padding:26px;}
   .ba-before{
     background:linear-gradient(0deg, rgba(10,11,12,0.5), rgba(10,11,12,0.05)),
@@ -403,6 +407,7 @@
     background:linear-gradient(0deg, rgba(10,11,12,0.35), rgba(10,11,12,0.05)),
       url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="rgb(16,18,20)"/><polygon points="200,55 325,150 75,150" fill="rgb(30,55,66)"/><rect x="100" y="150" width="200" height="122" fill="rgb(34,90,110)"/><rect x="185" y="200" width="30" height="72" fill="rgb(24,20,16)"/><rect x="128" y="180" width="34" height="34" fill="rgb(210,230,238)" opacity="0.85"/><rect x="238" y="180" width="34" height="34" fill="rgb(210,230,238)" opacity="0.85"/></svg>') center/cover;
     clip-path:inset(0 0 0 50%); z-index:2;
+    justify-content:flex-end; /* the tag sits at the visible (right) side — the left edge is what the clip hides */
   }
   .ba-tag{
     font-size:13px; letter-spacing:0.02em; color:#fff; background:rgba(0,0,0,0.35);
@@ -473,7 +478,7 @@
       url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="rgb(22,24,27)"/><rect x="150" y="140" width="100" height="90" rx="6" fill="rgb(34,73,90)"/><rect x="140" y="130" width="120" height="16" rx="4" fill="rgb(61,113,136)"/><rect x="255" y="90" width="14" height="80" rx="4" fill="rgb(90,60,40)" transform="rotate(18 262 130)"/><polygon points="255,80 275,85 265,110 245,105" fill="rgb(61,113,136)"/><line x1="180" y1="240" x2="180" y2="270" stroke="rgb(34,73,90)" stroke-width="6" stroke-linecap="round"/><line x1="210" y1="240" x2="210" y2="262" stroke="rgb(34,73,90)" stroke-width="6" stroke-linecap="round"/></svg>') center/cover;
     position:relative; overflow:hidden;
   }
-  .split h2{font-size:clamp(1.9rem,3.6vw,2.7rem); margin-bottom:24px;}
+  .split h2{font-size:clamp(1.9rem,3.6vw,2.7rem); margin-bottom:24px; line-height:1.1; letter-spacing:-0.016em;}
   .feature-list{display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:34px;}
   .feature-item{padding:18px 0; border-top:1px solid var(--line); font-size:15px; color:var(--ink-dim);}
   .feature-item strong{display:block; color:var(--ink); font-weight:600; margin-bottom:5px; font-size:15.5px;}
@@ -486,7 +491,7 @@
     align-items:start;
   }
   .process-item .num{font-family:'Fraunces',serif; font-size:15px; color:var(--ochre-light); padding-top:6px;}
-  .process-item h3{font-size:21px; color:var(--ink); margin-bottom:8px;}
+  .process-item h3{font-size:21px; color:var(--ink); margin-bottom:8px; line-height:1.25; letter-spacing:-0.004em;}
   .process-item p{color:var(--ink-dim); font-size:15px; max-width:52ch;}
 
   /* ---------- testimonials ---------- */
@@ -596,15 +601,24 @@
 
   /* ---------- quick estimate modal ---------- */
   .qe-overlay{
-    position:fixed; inset:0; z-index:600; background:rgba(8,9,10,0.72); backdrop-filter:blur(6px);
+    position:fixed; inset:0; z-index:600; background:rgba(8,9,10,0.72); backdrop-filter:blur(0px);
     display:none; align-items:center; justify-content:center; padding:24px;
+    opacity:0; transition:opacity .35s var(--ease), backdrop-filter .35s var(--ease);
   }
-  .qe-overlay.open{display:flex;}
+  /* display is managed via inline style from JS (not this class) so the close
+     transition below has time to play instead of snapping to display:none instantly */
+  .qe-overlay.open{opacity:1; backdrop-filter:blur(6px);}
   .qe-modal{
     width:100%; max-width:480px; background:var(--bg-raised); border:1px solid rgba(198,138,62,0.35);
     border-radius:8px; padding:clamp(26px,4vw,40px); position:relative; max-height:90vh; overflow-y:auto;
     box-shadow:0 30px 80px rgba(0,0,0,0.5);
+    /* materializes in rather than snapping — a glass surface arriving, not a plain fade */
+    opacity:0; transform:scale(0.94) translateY(10px); filter:blur(8px);
+    transition:opacity .4s var(--ease), transform .4s var(--ease), filter .4s var(--ease);
   }
+  .qe-overlay.open .qe-modal{opacity:1; transform:scale(1) translateY(0); filter:blur(0);}
+  /* the sitewide prefers-reduced-motion rule (near the top of this stylesheet) already
+     collapses this transition to near-instant, so no separate override is needed here */
   .qe-close{
     position:absolute; top:18px; right:18px; background:none; border:none; color:var(--ink-faint); font-size:22px;
   }
@@ -877,6 +891,26 @@
   </div>
 </section>
 
+<!-- ================= BEFORE / AFTER ================= -->
+<section class="band band-alt band-line">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="section-tag">See the difference</p>
+      <h2>Drag to compare.</h2>
+      <p>The kind of transformation a fresh coat actually makes — see it for yourself.</p>
+    </div>
+    <div class="reveal" style="max-width:820px;">
+      <div class="ba-shell" id="baShell">
+        <div class="ba-layer ba-before"><span class="ba-tag">Before</span></div>
+        <div class="ba-layer ba-after" id="baAfter"><span class="ba-tag">After</span></div>
+        <div class="ba-handle" id="baHandle" role="slider" tabindex="0"
+             aria-label="Before and after comparison" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"></div>
+      </div>
+      <p class="ba-caption">Exterior siding repaint — drag the handle, or focus it and use the arrow keys.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ================= TESTIMONIALS ================= -->
 <section class="band band-alt band-line" id="reviews">
   <div class="wrap">
@@ -1012,15 +1046,27 @@
     var qeFormWrap = document.getElementById('qeFormWrap');
     var qeSuccess = document.getElementById('qeSuccess');
 
+    var qeCloseTimer = null;
+
     function openQuickEstimate(e){
       if(e) e.preventDefault();
       if(!qeOverlay) return;
-      qeOverlay.classList.add('open');
+      if(qeCloseTimer){ clearTimeout(qeCloseTimer); qeCloseTimer = null; }
       if(qeFormWrap) qeFormWrap.style.display = 'block';
       if(qeSuccess) qeSuccess.style.display = 'none';
+      qeOverlay.style.display = 'flex';
+      /* force a layout flush so the class add below transitions from this state
+         instead of jumping straight to .open (display:none has no prior frame to animate from) */
+      void qeOverlay.offsetHeight;
+      qeOverlay.classList.add('open');
     }
     function closeQuickEstimate(){
-      if(qeOverlay) qeOverlay.classList.remove('open');
+      if(!qeOverlay) return;
+      qeOverlay.classList.remove('open');
+      qeCloseTimer = window.setTimeout(function(){
+        qeOverlay.style.display = 'none';
+        qeCloseTimer = null;
+      }, 400); /* matches the .qe-modal transform/filter transition duration above */
     }
 
     var openBtns = document.querySelectorAll('.js-open-estimate');
@@ -1101,16 +1147,24 @@
   } catch(e) {}
 
   try {
-    /* hero parallax strokes */
+    /* hero parallax strokes — rAF-gated so writes land on the display's own clock,
+       not on every raw scroll event (which can fire faster than a frame) */
     if(!reduceMotion){
-      window.addEventListener('scroll', function(){
+      var strokeTicking = false;
+      var s1 = document.getElementById('stroke1');
+      var s2 = document.getElementById('stroke2');
+      var s3 = document.getElementById('stroke3');
+      function applyStrokeParallax(){
+        strokeTicking = false;
         var y = window.scrollY;
-        var s1 = document.getElementById('stroke1');
-        var s2 = document.getElementById('stroke2');
-        var s3 = document.getElementById('stroke3');
         if(s1) s1.setAttribute('transform','translate(0,' + (y*0.08) + ')');
         if(s2) s2.setAttribute('transform','translate(0,' + (y*0.15) + ')');
         if(s3) s3.setAttribute('transform','translate(0,' + (y*0.11) + ')');
+      }
+      window.addEventListener('scroll', function(){
+        if(strokeTicking) return;
+        strokeTicking = true;
+        requestAnimationFrame(applyStrokeParallax);
       }, {passive:true});
     }
   } catch(e) {}
@@ -1189,9 +1243,17 @@
       if(vscrubCopy3) vscrubCopy3.classList.toggle('show', progress > 0.68);
     }
 
+    /* rAF-gate the scroll listener: multiple scroll events between frames
+       coalesce into a single updateVScrub() call on the next paint */
+    var vscrubTicking = false;
+    function scheduleVScrub(){
+      if(vscrubTicking) return;
+      vscrubTicking = true;
+      requestAnimationFrame(function(){ vscrubTicking = false; updateVScrub(); });
+    }
     if(vscrubTrack){
-      window.addEventListener('scroll', updateVScrub, {passive:true});
-      window.addEventListener('resize', updateVScrub);
+      window.addEventListener('scroll', scheduleVScrub, {passive:true});
+      window.addEventListener('resize', scheduleVScrub);
     }
   } catch(e) {}
 
@@ -1222,6 +1284,59 @@
         paletteCaption.classList.remove('active');
       });
     });
+  } catch(e) {}
+
+  try {
+    /* before/after slider — 1:1 pointer tracking, not a scripted animation:
+       the split follows the pointer's exact x position every frame, using
+       pointer capture so a drag that leaves the shell's bounds keeps tracking */
+    var baShell = document.getElementById('baShell');
+    var baAfter = document.getElementById('baAfter');
+    var baHandle = document.getElementById('baHandle');
+    if(baShell && baAfter && baHandle){
+      var baPercent = 50;
+      var baPending = false;
+      var baDragging = false;
+
+      function baApply(){
+        baPending = false;
+        baAfter.style.clipPath = 'inset(0 0 0 ' + baPercent + '%)';
+        baHandle.style.left = baPercent + '%';
+        baHandle.setAttribute('aria-valuenow', String(Math.round(baPercent)));
+      }
+      function baSchedule(){
+        if(baPending) return;
+        baPending = true;
+        requestAnimationFrame(baApply);
+      }
+      function baSetFromClientX(clientX){
+        var rect = baShell.getBoundingClientRect();
+        var pct = ((clientX - rect.left) / rect.width) * 100;
+        baPercent = Math.min(100, Math.max(0, pct));
+        baSchedule();
+      }
+
+      baShell.addEventListener('pointerdown', function(e){
+        baDragging = true;
+        baShell.setPointerCapture(e.pointerId);
+        baSetFromClientX(e.clientX); /* respond on pointer-down, not release */
+      });
+      baShell.addEventListener('pointermove', function(e){
+        if(!baDragging) return;
+        baSetFromClientX(e.clientX);
+      });
+      function baRelease(){ baDragging = false; }
+      baShell.addEventListener('pointerup', baRelease);
+      baShell.addEventListener('pointercancel', baRelease);
+
+      baHandle.addEventListener('keydown', function(e){
+        var step = e.shiftKey ? 10 : 4;
+        if(e.key === 'ArrowLeft'){ baPercent = Math.max(0, baPercent - step); baSchedule(); e.preventDefault(); }
+        else if(e.key === 'ArrowRight'){ baPercent = Math.min(100, baPercent + step); baSchedule(); e.preventDefault(); }
+      });
+
+      baApply();
+    }
   } catch(e) {}
 
   try {
