@@ -287,36 +287,6 @@
   }
   .vscrub-progress i b{position:absolute; left:0; top:0; height:100%; width:0%; background:var(--ochre-light);}
 
-  /* ---------- pop boxes (trust markers, arrive as the video pins away) ---------- */
-  .pop-boxes{background:var(--bg); padding:88px 0 96px; border-bottom:1px solid var(--line);}
-  .pop-grid{
-    display:grid; grid-template-columns:repeat(4, 1fr); gap:18px;
-  }
-  @media (max-width:960px){.pop-grid{grid-template-columns:1fr 1fr;}}
-  @media (max-width:560px){.pop-grid{grid-template-columns:1fr;}}
-  .pop-box-shell{
-    padding:5px; border-radius:16px;
-    background:linear-gradient(155deg, rgba(243,239,228,0.09), rgba(243,239,228,0.02));
-    border:1px solid var(--line);
-    box-shadow:0 24px 48px -28px rgba(0,0,0,0.55);
-  }
-  .pop-box-core{
-    height:100%; border-radius:11px; padding:28px 24px;
-    background:linear-gradient(165deg, var(--bg-raised), #17191d);
-    box-shadow:inset 0 1px 0 rgba(243,239,228,0.08), inset 0 0 0 1px rgba(0,0,0,0.25);
-  }
-  .pop-box-stat{
-    font-family:'Fraunces',serif; font-weight:600; font-size:clamp(1.5rem,2.4vw,1.9rem);
-    color:var(--ochre-light);
-  }
-  .pop-box-label{margin-top:8px; font-size:14px; color:var(--ink-dim); line-height:1.5; max-width:24ch;}
-  .pop-box{
-    opacity:0; transform:translateY(22px) scale(0.94); filter:blur(6px);
-    transition:opacity .7s var(--ease), transform .7s var(--ease), filter .7s var(--ease);
-    will-change:opacity, transform, filter;
-  }
-  .pop-box.in{opacity:1; transform:translateY(0) scale(1); filter:blur(0);}
-
   /* ---------- section headers ---------- */
   .section-head{max-width:640px; margin-bottom:64px;}
   .section-tag{color:var(--ochre-light); font-size:14px; margin-bottom:14px;}
@@ -683,38 +653,6 @@
         </div>
       </div>
       <div class="vscrub-progress"><i><b id="vscrubFill"></b></i></div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= POP BOXES (arrive as the scrub video pins away) ================= -->
-<section class="pop-boxes" id="popBoxes">
-  <div class="wrap">
-    <div class="pop-grid">
-      <div class="pop-box-shell pop-box">
-        <div class="pop-box-core">
-          <div class="pop-box-stat">Free</div>
-          <div class="pop-box-label">No-obligation estimates, every time.</div>
-        </div>
-      </div>
-      <div class="pop-box-shell pop-box">
-        <div class="pop-box-core">
-          <div class="pop-box-stat">On Schedule</div>
-          <div class="pop-box-label">The date we give you is the date we finish.</div>
-        </div>
-      </div>
-      <div class="pop-box-shell pop-box">
-        <div class="pop-box-core">
-          <div class="pop-box-stat">Fully Prepped</div>
-          <div class="pop-box-label">Trim taped, floors covered, before a drop of paint.</div>
-        </div>
-      </div>
-      <div class="pop-box-shell pop-box">
-        <div class="pop-box-core">
-          <div class="pop-box-stat">Handshake Close</div>
-          <div class="pop-box-label">We shake on it when the job's done.</div>
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -1123,26 +1061,6 @@
       reveals.forEach(function(el){ io.observe(el); });
     } else {
       reveals.forEach(function(el){ el.classList.add('in'); });
-    }
-  } catch(e) {}
-
-  try {
-    /* pop boxes — staggered pop-in as the scrub video's pin releases */
-    var popBoxes = document.querySelectorAll('.pop-box');
-    if('IntersectionObserver' in window && !reduceMotion){
-      var popIo = new IntersectionObserver(function(entries){
-        entries.forEach(function(en){
-          if(en.isIntersecting){
-            var i = Array.prototype.indexOf.call(popBoxes, en.target);
-            en.target.style.transitionDelay = (Math.max(0,i) * 90) + 'ms';
-            en.target.classList.add('in');
-            popIo.unobserve(en.target);
-          }
-        });
-      }, {threshold:0.3});
-      popBoxes.forEach(function(el){ popIo.observe(el); });
-    } else {
-      popBoxes.forEach(function(el){ el.classList.add('in'); });
     }
   } catch(e) {}
 
