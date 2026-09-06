@@ -1360,11 +1360,12 @@
         vscrubDisplayTime = vscrubVideo.currentTime;
         updateVScrubTarget();
       });
-      var unlock = function(){
-        vscrubVideo.play().then(function(){ vscrubVideo.pause(); }).catch(function(){});
-        window.removeEventListener('scroll', unlock);
-      };
-      window.addEventListener('scroll', unlock, {passive:true});
+      /* iOS needs a play()+pause() before it will actually paint a decoded
+         frame for a programmatically-seeked video — do this the moment the
+         page loads (muted, so no user gesture is required) rather than
+         waiting for the first scroll, so the frame is already ready and
+         painted well before the intro cuts away to reveal this section */
+      vscrubVideo.play().then(function(){ vscrubVideo.pause(); }).catch(function(){});
     }
 
     function updateVScrubTarget(){
