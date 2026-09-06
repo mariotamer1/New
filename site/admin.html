@@ -44,22 +44,20 @@
   }
   .field input:focus-visible{outline:2px solid var(--ochre-light); outline-offset:2px;}
   .btn{
-    display:inline-flex; align-items:center; justify-content:center; width:100%;
+    display:inline-flex; align-items:center; justify-content:center;
     padding:13px 20px; font-size:14.5px; font-weight:600; border-radius:3px; border:none;
     background:var(--ochre-light); color:#191305; transition:background .2s var(--ease), transform .2s var(--ease);
-    margin-top:6px;
   }
   .btn:hover{background:#e8b877; transform:translateY(-1px);}
   .btn:disabled{opacity:.6; cursor:default; transform:none;}
+  .btn-block{width:100%; margin-top:6px;}
   .error-msg{
     display:none; color:#e07a7a; font-size:13.5px; margin-top:14px; padding:10px 12px;
     background:rgba(224,122,122,0.08); border:1px solid rgba(224,122,122,0.3); border-radius:3px;
   }
   .error-msg.show{display:block;}
 
-  /* ---------- dashboard ---------- */
-  #dashboard{display:none;}
-  #dashboard.show{display:block;}
+  /* ---------- shared admin nav ---------- */
   header.admin-nav{
     position:sticky; top:0; z-index:10; background:rgba(20,22,26,0.9); backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line); padding:16px 0;
@@ -77,7 +75,21 @@
   }
   .logout-btn:hover{border-color:var(--ink); color:var(--ink);}
 
-  .wrap{max-width:920px; margin:0 auto; padding:40px 20px 90px;}
+  /* ---------- home screen (View Requests) ---------- */
+  #homeScreen{display:none;}
+  #homeScreen.show{display:block;}
+  .home-hero{
+    min-height:calc(100vh - 68px); display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:24px;
+  }
+  .home-hero h1{font-size:clamp(1.8rem,4vw,2.4rem); margin-bottom:14px;}
+  .home-hero p{color:var(--ink-dim); font-size:15px; margin-bottom:30px;}
+  .view-requests-btn{padding:16px 36px; font-size:15.5px;}
+
+  /* ---------- dashboard (list) ---------- */
+  #dashboard{display:none;}
+  #dashboard.show{display:block;}
+  .wrap{max-width:640px; margin:0 auto; padding:40px 20px 90px;}
   .board-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:28px; flex-wrap:wrap;}
   .board-head h2{font-size:26px;}
   .board-head .count{color:var(--ink-faint); font-size:14px;}
@@ -93,21 +105,33 @@
     border:1px dashed var(--line-strong); border-radius:6px;
   }
 
+  /* each request: a rounded box, collapsed to just the name, expands in place */
   .req-card{
-    border:1px solid var(--line); border-radius:6px; background:var(--bg-raised);
-    padding:24px; margin-bottom:16px;
+    border:1px solid var(--line); border-radius:10px; background:var(--bg-raised);
+    margin-bottom:14px; overflow:hidden; transition:border-color .2s var(--ease);
   }
-  .req-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
-  .req-name{font-family:'Fraunces',serif; font-size:19px; font-weight:600;}
-  .req-date{color:var(--ink-faint); font-size:12.5px; margin-top:3px;}
+  .req-card:hover{border-color:var(--line-strong);}
+  .req-head{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:20px 22px; cursor:pointer; background:none; border:none; width:100%; text-align:left;
+    color:inherit;
+  }
+  .req-name{font-family:'Fraunces',serif; font-size:18px; font-weight:600;}
+  .req-date{color:var(--ink-faint); font-size:12px; margin-top:3px;}
   .status-pill{
-    font-size:11.5px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase;
-    padding:5px 11px; border-radius:99px; border:1px solid; white-space:nowrap;
+    font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase;
+    padding:5px 11px; border-radius:99px; border:1px solid; white-space:nowrap; flex:0 0 auto;
   }
   .status-pill.new{color:var(--ochre-light); border-color:rgba(198,138,62,0.5); background:rgba(198,138,62,0.08);}
   .status-pill.answered{color:var(--sage-light); border-color:rgba(107,125,94,0.5); background:rgba(107,125,94,0.08);}
 
-  .req-contacts{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+  .req-body{
+    max-height:0; overflow:hidden; transition:max-height .35s var(--ease);
+  }
+  .req-card.expanded .req-body{max-height:600px;}
+  .req-body-inner{padding:0 22px 22px;}
+
+  .req-contacts{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;}
   .contact-link{
     display:inline-flex; align-items:center; gap:7px; font-size:13.5px; color:var(--ink);
     border:1px solid var(--line-strong); border-radius:3px; padding:8px 13px;
@@ -115,28 +139,60 @@
   }
   .contact-link:hover{border-color:var(--ochre-light); color:var(--ochre-light);}
 
-  .req-details{margin-top:16px; font-size:14.5px; color:var(--ink-dim); line-height:1.6;}
-  .req-details .label{color:var(--ink-faint); font-size:12px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px;}
+  .req-details{font-size:14.5px; color:var(--ink-dim); line-height:1.6; margin-bottom:6px;}
+  .req-details .label{color:var(--ink-faint); font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px;}
+  .req-reply-preview{margin-top:14px; padding-top:14px; border-top:1px solid var(--line);}
 
-  .req-notes{margin-top:18px; padding-top:18px; border-top:1px solid var(--line);}
-  .req-notes label{display:block; font-size:12px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;}
-  .req-notes textarea{
-    width:100%; min-height:70px; resize:vertical; background:var(--bg); border:1px solid var(--line-strong);
-    border-radius:3px; padding:11px 12px; color:var(--ink); font-size:14px; font-family:inherit;
+  .req-actions{display:flex; justify-content:space-between; gap:10px; margin-top:18px;}
+  .delete-btn{
+    background:none; border:1px solid rgba(224,122,122,0.35); color:#e07a7a;
+    padding:10px 18px; border-radius:3px; font-size:13.5px; transition:all .2s var(--ease);
   }
-  .req-actions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; align-items:center;}
-  .save-btn{
-    background:var(--ink); color:var(--bg); border:none; padding:9px 18px; border-radius:3px;
+  .delete-btn:hover{background:rgba(224,122,122,0.1); border-color:#e07a7a;}
+  .reply-btn{
+    background:var(--ink); color:var(--bg); border:none; padding:10px 20px; border-radius:3px;
     font-size:13.5px; font-weight:600; transition:background .2s var(--ease);
   }
-  .save-btn:hover{background:var(--ochre-light); color:#191305;}
-  .toggle-btn{
-    background:none; border:1px solid var(--line-strong); color:var(--ink-dim);
-    padding:9px 16px; border-radius:3px; font-size:13.5px; transition:all .2s var(--ease);
+  .reply-btn:hover{background:var(--ochre-light); color:#191305;}
+
+  /* ---------- reply bubble (right side) ---------- */
+  .reply-overlay{
+    position:fixed; inset:0; z-index:400; background:rgba(8,9,10,0.55);
+    display:none; align-items:stretch; justify-content:flex-end;
   }
-  .toggle-btn:hover{border-color:var(--ink); color:var(--ink);}
-  .save-note{font-size:12.5px; color:var(--sage-light); opacity:0; transition:opacity .3s ease;}
-  .save-note.show{opacity:1;}
+  .reply-overlay.open{display:flex;}
+  .reply-panel{
+    width:100%; max-width:420px; height:100%; background:var(--bg-raised); border-left:1px solid var(--line-strong);
+    padding:28px; display:flex; flex-direction:column;
+    transform:translateX(100%); transition:transform .35s var(--ease);
+  }
+  .reply-overlay.open .reply-panel{transform:translateX(0);}
+  .reply-panel h3{font-size:20px; margin-bottom:4px;}
+  .reply-panel .to-name{color:var(--ink-faint); font-size:13.5px; margin-bottom:20px;}
+  .reply-panel textarea{
+    flex:1; width:100%; min-height:200px; resize:vertical; background:var(--bg); border:1px solid var(--line-strong);
+    border-radius:4px; padding:14px; color:var(--ink); font-size:15px; font-family:inherit; line-height:1.6;
+  }
+  .reply-panel-actions{display:flex; gap:10px; margin-top:18px;}
+  .reply-cancel-btn{
+    background:none; border:1px solid var(--line-strong); color:var(--ink-dim);
+    padding:12px 18px; border-radius:3px; font-size:14px; transition:all .2s var(--ease);
+  }
+  .reply-cancel-btn:hover{border-color:var(--ink); color:var(--ink);}
+  .reply-send-btn{flex:1;}
+
+  /* ---------- confirmation popup ---------- */
+  .confirm-overlay{
+    position:fixed; inset:0; z-index:500; background:rgba(8,9,10,0.7);
+    display:none; align-items:center; justify-content:center; padding:24px;
+  }
+  .confirm-overlay.open{display:flex;}
+  .confirm-box{
+    width:100%; max-width:340px; background:var(--bg-raised); border:1px solid var(--line-strong);
+    border-radius:6px; padding:30px; text-align:center;
+  }
+  .confirm-box p{color:var(--ink); font-size:16px; margin-bottom:22px;}
+  .confirm-exit-btn{width:100%;}
 </style>
 </head>
 <body>
@@ -155,9 +211,23 @@
         <label for="loginPassword">Password</label>
         <input id="loginPassword" type="password" required autocomplete="current-password">
       </div>
-      <button type="submit" class="btn" id="loginBtn">Sign In</button>
+      <button type="submit" class="btn btn-block" id="loginBtn">Sign In</button>
       <div class="error-msg" id="loginError"></div>
     </form>
+  </div>
+</div>
+
+<div id="homeScreen">
+  <header class="admin-nav">
+    <div class="admin-nav-inner">
+      <div class="logo"><img src="ygm-logo.jpg" alt="YGM Painting"><span>Admin</span></div>
+      <button class="logout-btn" id="logoutBtnHome">Log Out</button>
+    </div>
+  </header>
+  <div class="home-hero">
+    <h1>Welcome back.</h1>
+    <p>Everything that's come in through the site is waiting for you.</p>
+    <button type="button" class="btn view-requests-btn" id="viewRequestsBtn">View Requests</button>
   </div>
 </div>
 
@@ -182,6 +252,25 @@
   </div>
 </div>
 
+<div class="reply-overlay" id="replyOverlay">
+  <div class="reply-panel">
+    <h3>Reply</h3>
+    <div class="to-name" id="replyToName"></div>
+    <textarea id="replyText" placeholder="Type your reply..."></textarea>
+    <div class="reply-panel-actions">
+      <button type="button" class="reply-cancel-btn" id="replyCancelBtn">Cancel</button>
+      <button type="button" class="btn reply-send-btn" id="replySendBtn">Send</button>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p id="confirmText">Saved.</p>
+    <button type="button" class="btn confirm-exit-btn" id="confirmExitBtn">Exit</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 (function(){
@@ -199,17 +288,28 @@
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   var loginScreen = document.getElementById('loginScreen');
+  var homeScreen = document.getElementById('homeScreen');
   var dashboard = document.getElementById('dashboard');
   var loginForm = document.getElementById('loginForm');
   var loginBtn = document.getElementById('loginBtn');
   var loginError = document.getElementById('loginError');
   var reqList = document.getElementById('reqList');
   var reqCount = document.getElementById('reqCount');
-  var logoutBtn = document.getElementById('logoutBtn');
   var filterBtns = document.querySelectorAll('.filter-btn');
+  var viewRequestsBtn = document.getElementById('viewRequestsBtn');
+
+  var replyOverlay = document.getElementById('replyOverlay');
+  var replyToName = document.getElementById('replyToName');
+  var replyText = document.getElementById('replyText');
+  var replyCancelBtn = document.getElementById('replyCancelBtn');
+  var replySendBtn = document.getElementById('replySendBtn');
+  var confirmOverlay = document.getElementById('confirmOverlay');
+  var confirmText = document.getElementById('confirmText');
+  var confirmExitBtn = document.getElementById('confirmExitBtn');
 
   var allSubmissions = [];
   var currentFilter = 'all';
+  var replyTargetId = null;
 
   function showError(msg){
     loginError.textContent = msg;
@@ -233,19 +333,26 @@
     });
   });
 
-  logoutBtn.addEventListener('click', function(){
-    sb.auth.signOut();
-  });
+  function logout(){ sb.auth.signOut(); }
+  document.getElementById('logoutBtnHome').addEventListener('click', logout);
+  document.getElementById('logoutBtn').addEventListener('click', logout);
 
   sb.auth.onAuthStateChange(function(event, session){
     if(session){
       loginScreen.style.display = 'none';
-      dashboard.classList.add('show');
-      loadSubmissions();
+      dashboard.classList.remove('show');
+      homeScreen.classList.add('show');
     } else {
+      homeScreen.classList.remove('show');
       dashboard.classList.remove('show');
       loginScreen.style.display = 'flex';
     }
+  });
+
+  viewRequestsBtn.addEventListener('click', function(){
+    homeScreen.classList.remove('show');
+    dashboard.classList.add('show');
+    loadSubmissions();
   });
 
   function loadSubmissions(){
@@ -291,27 +398,25 @@
       var phoneDigits = (s.phone || '').replace(/[^\d+]/g, '');
       return (
         '<div class="req-card" data-id="' + s.id + '">' +
-          '<div class="req-top">' +
+          '<button type="button" class="req-head" data-action="toggle-expand">' +
             '<div>' +
               '<div class="req-name">' + escapeHtml(s.name || 'No name given') + '</div>' +
               '<div class="req-date">' + fmtDate(s.created_at) + '</div>' +
             '</div>' +
             '<span class="status-pill ' + status + '">' + (status === 'answered' ? 'Answered' : 'New') + '</span>' +
-          '</div>' +
-          '<div class="req-contacts">' +
-            (s.phone ? '<a class="contact-link" href="tel:' + escapeHtml(phoneDigits) + '">Call ' + escapeHtml(s.phone) + '</a>' : '') +
-            (s.email ? '<a class="contact-link" href="mailto:' + escapeHtml(s.email) + '">Email ' + escapeHtml(s.email) + '</a>' : '') +
-          '</div>' +
-          (s.details ? '<div class="req-details"><div class="label">Project details</div>' + escapeHtml(s.details) + '</div>' : '') +
-          '<div class="req-notes">' +
-            '<label>Your notes / what you told them</label>' +
-            '<textarea placeholder="e.g. Called, quoted $2,400, scheduled for next Tuesday">' + escapeHtml(s.reply || '') + '</textarea>' +
-            '<div class="req-actions">' +
-              '<button class="save-btn" data-action="save">Save note</button>' +
-              '<button class="toggle-btn" data-action="toggle">' + (status === 'answered' ? 'Mark as new' : 'Mark as answered') + '</button>' +
-              '<span class="save-note">Saved</span>' +
+          '</button>' +
+          '<div class="req-body"><div class="req-body-inner">' +
+            '<div class="req-contacts">' +
+              (s.phone ? '<a class="contact-link" href="tel:' + escapeHtml(phoneDigits) + '">Call ' + escapeHtml(s.phone) + '</a>' : '') +
+              (s.email ? '<a class="contact-link" href="mailto:' + escapeHtml(s.email) + '">Email ' + escapeHtml(s.email) + '</a>' : '') +
             '</div>' +
-          '</div>' +
+            (s.details ? '<div class="req-details"><div class="label">Project details</div>' + escapeHtml(s.details) + '</div>' : '') +
+            (s.reply ? '<div class="req-reply-preview req-details"><div class="label">Your reply</div>' + escapeHtml(s.reply) + '</div>' : '') +
+            '<div class="req-actions">' +
+              '<button type="button" class="delete-btn" data-action="delete">Delete</button>' +
+              '<button type="button" class="reply-btn" data-action="reply">Reply</button>' +
+            '</div>' +
+          '</div></div>' +
         '</div>'
       );
     }).join('');
@@ -323,28 +428,29 @@
     var card = e.target.closest('.req-card');
     var id = card.getAttribute('data-id');
     var sub = allSubmissions.find(function(s){ return String(s.id) === id; });
+
+    if(btn.dataset.action === 'toggle-expand'){
+      card.classList.toggle('expanded');
+      return;
+    }
+
     if(!sub) return;
 
-    if(btn.dataset.action === 'save'){
-      var textarea = card.querySelector('textarea');
-      var noteEl = card.querySelector('.save-note');
-      sb.from('submissions').update({ reply: textarea.value }).eq('id', sub.id).then(function(res){
+    if(btn.dataset.action === 'delete'){
+      sb.from('submissions').delete().eq('id', sub.id).then(function(res){
         if(!res.error){
-          sub.reply = textarea.value;
-          noteEl.classList.add('show');
-          setTimeout(function(){ noteEl.classList.remove('show'); }, 1800);
+          allSubmissions = allSubmissions.filter(function(s){ return s.id !== sub.id; });
+          render();
         }
       });
     }
 
-    if(btn.dataset.action === 'toggle'){
-      var newStatus = (sub.status || 'new') === 'answered' ? 'new' : 'answered';
-      sb.from('submissions').update({ status: newStatus }).eq('id', sub.id).then(function(res){
-        if(!res.error){
-          sub.status = newStatus;
-          render();
-        }
-      });
+    if(btn.dataset.action === 'reply'){
+      replyTargetId = sub.id;
+      replyToName.textContent = 'To ' + (sub.name || 'this request');
+      replyText.value = sub.reply || '';
+      replyOverlay.classList.add('open');
+      replyText.focus();
     }
   });
 
@@ -355,6 +461,35 @@
       currentFilter = b.dataset.filter;
       render();
     });
+  });
+
+  function closeReply(){
+    replyOverlay.classList.remove('open');
+    replyTargetId = null;
+  }
+  replyCancelBtn.addEventListener('click', closeReply);
+  replyOverlay.addEventListener('click', function(e){ if(e.target === replyOverlay) closeReply(); });
+
+  replySendBtn.addEventListener('click', function(){
+    if(!replyTargetId) return;
+    var text = replyText.value;
+    replySendBtn.disabled = true;
+    replySendBtn.textContent = 'Sending...';
+    sb.from('submissions').update({ reply: text, status: 'answered' }).eq('id', replyTargetId).then(function(res){
+      replySendBtn.disabled = false;
+      replySendBtn.textContent = 'Send';
+      if(res.error) return;
+      var sub = allSubmissions.find(function(s){ return s.id === replyTargetId; });
+      if(sub){ sub.reply = text; sub.status = 'answered'; }
+      closeReply();
+      render();
+      confirmText.textContent = 'Saved.';
+      confirmOverlay.classList.add('open');
+    });
+  });
+
+  confirmExitBtn.addEventListener('click', function(){
+    confirmOverlay.classList.remove('open');
   });
 })();
 </script>

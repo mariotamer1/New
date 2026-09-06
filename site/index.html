@@ -135,6 +135,30 @@
   .nav-cta:hover{background:var(--ochre-light); transform:translateY(-1px);}
   .nav-toggle{display:none; background:none; border:none; color:var(--ink); font-size:24px;}
 
+  /* ---------- 3-dot menu (left of nav) — hidden until the intro dismisses ---------- */
+  .dots-menu{position:relative; opacity:0; pointer-events:none; transition:opacity .4s var(--ease);}
+  .dots-menu.ready{opacity:1; pointer-events:auto;}
+  .dots-btn{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    width:36px; height:36px; background:none; border:none; border-radius:99px;
+    transition:background .2s var(--ease);
+  }
+  .dots-btn:hover{background:rgba(243,239,228,0.08);}
+  .dots-btn span{display:block; width:4px; height:4px; border-radius:50%; background:var(--ink-dim);}
+  .dots-dropdown{
+    position:absolute; top:calc(100% + 10px); left:0; z-index:220; min-width:200px;
+    background:var(--bg-raised); border:1px solid var(--line-strong); border-radius:6px;
+    padding:8px; box-shadow:0 20px 50px rgba(0,0,0,0.45);
+    opacity:0; transform:translateY(-6px) scale(0.98); pointer-events:none;
+    transition:opacity .2s var(--ease), transform .2s var(--ease);
+  }
+  .dots-dropdown.open{opacity:1; transform:translateY(0) scale(1); pointer-events:auto;}
+  .dots-dropdown a{
+    display:block; padding:11px 14px; font-size:14px; color:var(--ink-dim); border-radius:3px;
+    transition:background .2s var(--ease), color .2s var(--ease);
+  }
+  .dots-dropdown a:hover{background:rgba(243,239,228,0.06); color:var(--ink);}
+
   @media (max-width:860px){
     .nav-links{display:none;}
     .nav-toggle{display:block;}
@@ -609,6 +633,15 @@
     display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
     font-size:13px; color:var(--ink-faint);
   }
+  .footer-disclaimer{
+    margin-top:22px; font-size:12.5px; color:var(--ink-faint); line-height:1.6; max-width:64ch;
+  }
+  .admin-access-row{margin-top:26px;}
+  .admin-access-btn{
+    background:none; border:1px solid var(--line-strong); color:var(--ink-faint);
+    padding:9px 18px; border-radius:3px; font-size:13px; transition:all .2s var(--ease);
+  }
+  .admin-access-btn:hover{border-color:var(--ink-dim); color:var(--ink-dim);}
 
   /* ---------- floating CTA ---------- */
   .float-desktop{
@@ -682,7 +715,18 @@
 
 <header class="nav" id="nav">
   <div class="wrap nav-inner">
-    <a href="#" class="logo"><img src="ygm-logo.jpg" alt="YGM Painting logo"></a>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <a href="#" class="logo"><img src="ygm-logo.jpg" alt="YGM Painting logo"></a>
+      <div class="dots-menu" id="dotsMenu">
+        <button class="dots-btn" id="dotsBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="dots-dropdown" id="dotsDropdown">
+          <a href="#" class="js-open-estimate">Request a Quote</a>
+          <a href="#" class="js-open-status">Check Quote Status</a>
+        </div>
+      </div>
+    </div>
     <ul class="nav-links">
       <li><a href="#services">Services</a></li>
       <li><a href="#story">Our Work</a></li>
@@ -999,7 +1043,13 @@
     </div>
     <div class="footer-bottom">
       <span>© 2026 YGM Painting. All rights reserved.</span>
-      <span><a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Terms</a></span>
+      <span><a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="terms.html">Terms &amp; Conditions</a> &nbsp;·&nbsp; <a href="cookies.html">Cookies</a></span>
+    </div>
+    <p class="footer-disclaimer">
+      We collect the information you submit through our estimate and contact forms (name, phone number, email, and project details) solely to respond to your request. We do not sell or share it with third parties. See our Privacy Policy and Cookies page for details.
+    </p>
+    <div class="admin-access-row">
+      <button type="button" class="admin-access-btn" id="adminAccessBtn">Admin Access</button>
     </div>
   </div>
 </footer>
@@ -1046,6 +1096,32 @@
       <p>You will receive an email from us within 24 hours with your free estimate.</p>
       <button type="button" class="qe-exit js-close-estimate">Exit</button>
     </div>
+  </div>
+</div>
+
+<div class="qe-overlay" id="statusOverlay">
+  <div class="qe-modal">
+    <button class="qe-close js-close-status" aria-label="Close">✕</button>
+    <div id="statusFormWrap">
+      <h3>Check Quote Status</h3>
+      <p>Enter the phone number and email you used when requesting your estimate.</p>
+      <form id="statusForm">
+        <div class="qe-field">
+          <label for="statusPhone">Phone Number</label>
+          <input id="statusPhone" type="tel" required>
+        </div>
+        <div class="qe-field">
+          <label for="statusEmail">Email</label>
+          <input id="statusEmail" type="email" required>
+        </div>
+        <button type="submit" class="btn btn-primary qe-submit">Check Status</button>
+        <button type="button" class="qe-exit js-close-status">Exit</button>
+        <p id="statusFormError" style="display:none; margin-top:14px; font-size:13.5px; color:#e07a7a;">
+          Something went wrong checking that — please call us instead, or try again in a moment.
+        </p>
+      </form>
+    </div>
+    <div class="qe-success" id="statusResults" style="display:none;"></div>
   </div>
 </div>
 
@@ -1144,6 +1220,95 @@
         }).catch(function(){ showError(); });
       });
     }
+
+    /* ---------- Check Quote Status ---------- */
+    var statusOverlay = document.getElementById('statusOverlay');
+    var statusForm = document.getElementById('statusForm');
+    var statusFormWrap = document.getElementById('statusFormWrap');
+    var statusResults = document.getElementById('statusResults');
+    var statusFormError = document.getElementById('statusFormError');
+    var statusSubmitBtn = statusForm ? statusForm.querySelector('.qe-submit') : null;
+    var statusCloseTimer = null;
+
+    function openStatus(e){
+      if(e) e.preventDefault();
+      if(!statusOverlay) return;
+      if(statusCloseTimer){ clearTimeout(statusCloseTimer); statusCloseTimer = null; }
+      if(statusFormWrap) statusFormWrap.style.display = 'block';
+      if(statusResults) statusResults.style.display = 'none';
+      if(statusFormError) statusFormError.style.display = 'none';
+      statusOverlay.style.display = 'flex';
+      void statusOverlay.offsetHeight;
+      statusOverlay.classList.add('open');
+    }
+    function closeStatus(){
+      if(!statusOverlay) return;
+      statusOverlay.classList.remove('open');
+      statusCloseTimer = window.setTimeout(function(){
+        statusOverlay.style.display = 'none';
+        statusCloseTimer = null;
+      }, 400);
+    }
+    document.querySelectorAll('.js-open-status').forEach(function(el){ el.addEventListener('click', openStatus); });
+    document.querySelectorAll('.js-close-status').forEach(function(el){ el.addEventListener('click', closeStatus); });
+    if(statusOverlay){
+      statusOverlay.addEventListener('click', function(e){ if(e.target === statusOverlay) closeStatus(); });
+    }
+
+    function escapeHtmlQE(s){
+      var d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    if(statusForm){
+      statusForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        if(statusFormError) statusFormError.style.display = 'none';
+        var phone = document.getElementById('statusPhone').value.trim();
+        var email = document.getElementById('statusEmail').value.trim();
+
+        function showStatusError(){
+          if(statusFormError) statusFormError.style.display = 'block';
+          if(statusSubmitBtn){ statusSubmitBtn.disabled = false; statusSubmitBtn.textContent = 'Check Status'; }
+        }
+
+        if(!qeClient){ showStatusError(); return; }
+
+        if(statusSubmitBtn){ statusSubmitBtn.disabled = true; statusSubmitBtn.textContent = 'Checking...'; }
+        qeClient.rpc('check_submission_status', { p_phone: phone, p_email: email }).then(function(res){
+          if(statusSubmitBtn){ statusSubmitBtn.disabled = false; statusSubmitBtn.textContent = 'Check Status'; }
+          if(res.error){ showStatusError(); return; }
+
+          var rows = res.data || [];
+          if(!statusResults) return;
+          if(rows.length === 0){
+            statusResults.innerHTML = '<h3>No request found</h3><p>We couldn\'t find a request with that phone number and email. Double check them, or call us directly.</p><button type="button" class="qe-exit js-close-status">Exit</button>';
+          } else {
+            var html = '<h3>' + rows.length + ' request' + (rows.length > 1 ? 's' : '') + ' found</h3>';
+            rows.forEach(function(row){
+              var isAnswered = row.status === 'answered';
+              html += '<div style="text-align:left; border:1px solid var(--line); border-radius:4px; padding:16px; margin-top:14px;">' +
+                '<div style="display:flex; justify-content:space-between; gap:10px; align-items:baseline;">' +
+                  '<strong style="color:var(--ink);">' + escapeHtmlQE(row.name || 'Your request') + '</strong>' +
+                  '<span style="font-size:12px; color:' + (isAnswered ? 'var(--ochre-light)' : 'var(--ink-faint)') + ';">' + (isAnswered ? 'Answered' : 'Received — not yet answered') + '</span>' +
+                '</div>' +
+                (row.reply ? '<p style="margin-top:10px; color:var(--ink-dim); font-size:14.5px;">' + escapeHtmlQE(row.reply) + '</p>' : '') +
+              '</div>';
+            });
+            html += '<button type="button" class="qe-exit js-close-status" style="margin-top:16px;">Exit</button>';
+            statusResults.innerHTML = html;
+          }
+          document.querySelectorAll('.js-close-status').forEach(function(el){ el.addEventListener('click', closeStatus); });
+
+          if(statusFormWrap) statusFormWrap.style.display = 'none';
+          statusResults.style.display = 'block';
+        }).catch(function(){
+          if(statusSubmitBtn){ statusSubmitBtn.disabled = false; statusSubmitBtn.textContent = 'Check Status'; }
+          showStatusError();
+        });
+      });
+    }
   } catch(qeErr) { /* estimate modal setup failed — nothing else on the page depends on this */ }
 
 
@@ -1155,6 +1320,51 @@
   var reduceMotion = false;
   try {
     reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  } catch(e) {}
+
+  try {
+    /* footer admin access — a soft gate, not real security (anyone could
+       view-source this password); actual protection is the Supabase login
+       on admin.html itself. This is just so casual visitors don't land on it. */
+    var adminAccessBtn = document.getElementById('adminAccessBtn');
+    var ADMIN_GATE_PASSWORD = 'ygm-admin-2026';
+    if(adminAccessBtn){
+      adminAccessBtn.addEventListener('click', function(){
+        var entered = window.prompt('Enter the admin password:');
+        if(entered === null) return;
+        if(entered === ADMIN_GATE_PASSWORD){
+          window.location.href = 'admin.html';
+        } else {
+          window.alert('Incorrect password.');
+        }
+      });
+    }
+  } catch(e) {}
+
+  try {
+    /* 3-dot nav menu — open/close dropdown */
+    var dotsBtn = document.getElementById('dotsBtn');
+    var dotsDropdown = document.getElementById('dotsDropdown');
+    if(dotsBtn && dotsDropdown){
+      dotsBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var willOpen = !dotsDropdown.classList.contains('open');
+        dotsDropdown.classList.toggle('open', willOpen);
+        dotsBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      });
+      document.addEventListener('click', function(e){
+        if(!dotsDropdown.contains(e.target) && e.target !== dotsBtn){
+          dotsDropdown.classList.remove('open');
+          dotsBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+      dotsDropdown.querySelectorAll('a').forEach(function(a){
+        a.addEventListener('click', function(){
+          dotsDropdown.classList.remove('open');
+          dotsBtn.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
   } catch(e) {}
 
   try {
@@ -1249,6 +1459,8 @@
         window.removeEventListener('wheel', onWheel, {passive:false});
         window.removeEventListener('touchmove', onTouchMove, {passive:false});
         window.removeEventListener('keydown', onKeyDown);
+        var dotsMenuEl = document.getElementById('dotsMenu');
+        if(dotsMenuEl) dotsMenuEl.classList.add('ready');
       }
       function onWheel(e){ if(introDismissed) return; e.preventDefault(); dismissIntro(); }
       function onTouchMove(e){ if(introDismissed) return; e.preventDefault(); dismissIntro(); }
