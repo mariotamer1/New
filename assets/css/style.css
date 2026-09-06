@@ -135,7 +135,9 @@ p{ margin:0; line-height:1.65; }
   display:inline-flex; align-items:center; gap:12px;
   cursor:pointer;
 }
-.logo-mark{ width:42px; height:42px; flex-shrink:0; }
+.logo-mark{ height:38px; width:auto; flex-shrink:0; }
+.footer-logo-full{ height:96px; width:auto; display:block; }
+@media (max-width:480px){ .footer-logo-full{ height:76px; } }
 .logo-word{
   font-family:var(--font-display);
   font-weight:800;
