@@ -254,8 +254,17 @@
   .story-heading h2{font-size:clamp(2rem, 4vw, 3rem); color:var(--ink); line-height:1.08; letter-spacing:-0.018em;}
 
   /* ---------- intro video (plays once on load, not scroll-linked) ---------- */
-  .intro-video{position:relative; background:#0c0d0f;}
-  .intro-stage{position:relative; height:100svh; overflow:hidden;}
+  /* pinned full-viewport overlay — the page never actually scrolls while this
+     is up; a scroll/wheel/touch gesture triggers this to dissolve away and
+     unlocks the page, so it reads as a cross-fade between two "screens"
+     rather than scrolling past a section */
+  html.intro-lock, body.intro-lock{overflow:hidden; height:100%;}
+  .intro-video{
+    position:fixed; inset:0; z-index:90; background:#0c0d0f;
+    transition:opacity .7s var(--ease), visibility 0s linear .7s;
+  }
+  .intro-video.leaving{opacity:0; visibility:hidden; pointer-events:none;}
+  .intro-stage{position:relative; height:100%; overflow:hidden;}
   .intro-stage video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
   .intro-scrim{
     position:absolute; inset:0;
@@ -264,9 +273,7 @@
   .intro-copy{
     position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center;
     text-align:center; padding:0 6%;
-    transition:opacity .6s var(--ease);
   }
-  .intro-copy.leaving{opacity:0; pointer-events:none;}
   .intro-copy h1{
     font-size:clamp(2.6rem, 7vw, 5.4rem); max-width:16ch; color:var(--ink); font-weight:700;
     line-height:1.0; letter-spacing:-0.03em; margin:0;
@@ -1183,20 +1190,41 @@
         introVideoEl.play().catch(function(){});
       }, 1000);
 
-      /* dismiss the overlay text the first time the viewer scrolls; the
-         intro section itself just scrolls away normally like any section */
+      /* Lock the page at the top — no real scrolling happens — until the
+         viewer makes a scroll/swipe/key gesture. That gesture doesn't move
+         the page; it just triggers the intro to dissolve away, revealing the
+         scroll-scrubbed section underneath at the same (unmoved) scroll
+         position. Only once the dissolve finishes does real scrolling unlock. */
+      var introEl = document.getElementById('introVideo');
+      var html = document.documentElement;
+      html.classList.add('intro-lock');
+      document.body.classList.add('intro-lock');
+
       var introDismissed = false;
       function dismissIntro(){
         if(introDismissed) return;
         introDismissed = true;
-        if(introCopy) introCopy.classList.add('leaving');
-        window.removeEventListener('scroll', dismissIntro);
-        window.removeEventListener('wheel', dismissIntro);
-        window.removeEventListener('touchmove', dismissIntro);
+        if(introEl) introEl.classList.add('leaving');
+        window.setTimeout(function(){
+          html.classList.remove('intro-lock');
+          document.body.classList.remove('intro-lock');
+        }, 720); /* matches .intro-video's opacity transition above */
+        window.removeEventListener('wheel', onWheel, {passive:false});
+        window.removeEventListener('touchmove', onTouchMove, {passive:false});
+        window.removeEventListener('keydown', onKeyDown);
       }
-      window.addEventListener('scroll', dismissIntro, {passive:true});
-      window.addEventListener('wheel', dismissIntro, {passive:true});
-      window.addEventListener('touchmove', dismissIntro, {passive:true});
+      function onWheel(e){ if(introDismissed) return; e.preventDefault(); dismissIntro(); }
+      function onTouchMove(e){ if(introDismissed) return; e.preventDefault(); dismissIntro(); }
+      function onKeyDown(e){
+        if(introDismissed) return;
+        if(['ArrowDown','PageDown',' ','Spacebar'].indexOf(e.key) !== -1){
+          e.preventDefault();
+          dismissIntro();
+        }
+      }
+      window.addEventListener('wheel', onWheel, {passive:false});
+      window.addEventListener('touchmove', onTouchMove, {passive:false});
+      window.addEventListener('keydown', onKeyDown);
     }
   } catch(e) {}
 
