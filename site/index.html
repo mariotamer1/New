@@ -1036,6 +1036,9 @@
         </div>
         <button type="submit" class="btn btn-primary qe-submit">Request Estimate</button>
         <button type="button" class="qe-exit js-close-estimate">Exit</button>
+        <p id="qeFormError" style="display:none; margin-top:14px; font-size:13.5px; color:#e07a7a;">
+          Something went wrong sending that — please call us instead, or try again in a moment.
+        </p>
       </form>
     </div>
     <div class="qe-success" id="qeSuccess" style="display:none;">
@@ -1046,6 +1049,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 (function(){
 
@@ -1055,6 +1059,14 @@
      page fails, this still works.
      ============================================================ */
   try {
+    // Fill these in from your Supabase project: Settings -> API
+    // (same two values used in admin.html)
+    var SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    var SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    var qeClient = (window.supabase && SUPABASE_URL.indexOf('YOUR_') !== 0)
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
+
     var qeOverlay = document.getElementById('qeOverlay');
     var qeForm = document.getElementById('qeForm');
     var qeFormWrap = document.getElementById('qeFormWrap');
@@ -1095,11 +1107,41 @@
       qeOverlay.addEventListener('click', function(e){ if(e.target === qeOverlay) closeQuickEstimate(); });
     }
     window.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeQuickEstimate(); });
+    var qeSubmitBtn = qeForm ? qeForm.querySelector('.qe-submit') : null;
+    var qeFormError = document.getElementById('qeFormError');
+
     if(qeForm){
       qeForm.addEventListener('submit', function(e){
         e.preventDefault();
-        if(qeFormWrap) qeFormWrap.style.display = 'none';
-        if(qeSuccess) qeSuccess.style.display = 'block';
+        if(qeFormError) qeFormError.style.display = 'none';
+
+        var payload = {
+          name: document.getElementById('qeName').value.trim(),
+          phone: document.getElementById('qePhone').value.trim(),
+          email: document.getElementById('qeEmail').value.trim(),
+          details: document.getElementById('qeDesc').value.trim()
+        };
+
+        function showSuccess(){
+          if(qeFormWrap) qeFormWrap.style.display = 'none';
+          if(qeSuccess) qeSuccess.style.display = 'block';
+        }
+        function showError(){
+          if(qeFormError) qeFormError.style.display = 'block';
+          if(qeSubmitBtn){ qeSubmitBtn.disabled = false; qeSubmitBtn.textContent = 'Request Estimate'; }
+        }
+
+        if(!qeClient){
+          /* Supabase isn't configured yet — don't silently pretend it worked */
+          showError();
+          return;
+        }
+
+        if(qeSubmitBtn){ qeSubmitBtn.disabled = true; qeSubmitBtn.textContent = 'Sending...'; }
+        qeClient.from('submissions').insert([payload]).then(function(res){
+          if(res.error){ showError(); return; }
+          showSuccess();
+        }).catch(function(){ showError(); });
       });
     }
   } catch(qeErr) { /* estimate modal setup failed — nothing else on the page depends on this */ }
