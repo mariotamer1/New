@@ -253,6 +253,37 @@
   .story-heading{max-width:640px; margin:0 auto 46px; padding:0 clamp(20px,5vw,56px); text-align:left;}
   .story-heading h2{font-size:clamp(2rem, 4vw, 3rem); color:var(--ink); line-height:1.08; letter-spacing:-0.018em;}
 
+  /* ---------- intro video (plays once on load, not scroll-linked) ---------- */
+  .intro-video{position:relative; background:#0c0d0f;}
+  .intro-stage{position:relative; height:100svh; overflow:hidden;}
+  .intro-stage video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+  .intro-scrim{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(10,11,12,0.45) 0%, rgba(10,11,12,0.12) 35%, rgba(10,11,12,0.15) 70%, rgba(10,11,12,0.55) 100%);
+  }
+  .intro-copy{
+    position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:0 6%;
+    transition:opacity .6s var(--ease);
+  }
+  .intro-copy.leaving{opacity:0; pointer-events:none;}
+  .intro-copy h1{
+    font-size:clamp(2.6rem, 7vw, 5.4rem); max-width:16ch; color:var(--ink); font-weight:700;
+    line-height:1.0; letter-spacing:-0.03em; margin:0;
+  }
+  .intro-copy h1 div{display:block;}
+  .intro-ch{display:inline-block; opacity:0; transform:translateY(3px); transition:opacity .4s ease, transform .4s ease;}
+  .intro-ch.on{opacity:1; transform:translateY(0);}
+  .intro-ch.space{width:0.28em;}
+  .intro-line2{
+    position:absolute; right:6%; bottom:12%; z-index:2;
+    font-family:'Fraunces',Georgia,serif; font-weight:600; font-style:normal;
+    color:var(--ink); font-size:clamp(1rem, 2.2vw, 1.4rem);
+    max-width:34%; text-align:right; line-height:1.3;
+    opacity:0; transition:opacity 1.4s ease;
+  }
+  .intro-line2.on{opacity:1;}
+
   /* ---------- scroll-scrubbed video ---------- */
   .vscrub{position:relative; background:var(--bg);}
   .vscrub-track{height:340vh; position:relative;}
@@ -658,6 +689,20 @@
     <a href="#" class="nav-cta js-open-estimate">Free Estimate</a>
   </div>
 </header>
+
+<!-- ================= INTRO VIDEO (plays once on load) ================= -->
+<section class="intro-video" id="introVideo">
+  <div class="intro-stage">
+    <video id="introVideoEl" src="ygm-intro.mov" muted playsinline preload="auto" webkit-playsinline="true"></video>
+    <div class="intro-scrim"></div>
+    <div class="intro-copy" id="introCopy">
+      <div>
+        <h1 id="introLine1"></h1>
+        <div class="intro-line2" id="introLine2">Brush on the wall to start yours</div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ================= SCROLL-SCRUBBED VIDEO ================= -->
 <section class="vscrub" id="vscrub">
@@ -1074,6 +1119,84 @@
       window.addEventListener('scroll', function(){
         nav.classList.toggle('scrolled', window.scrollY > 40);
       }, {passive:true});
+    }
+  } catch(e) {}
+
+  try {
+    /* intro video — plays once on load (not scroll-linked), typewriter headline
+       from 1.0-2.5s of the video's own timeline, a smaller line pops in during
+       the video's last second, and both dismiss the first time the viewer scrolls */
+    var introVideoEl = document.getElementById('introVideoEl');
+    var introCopy = document.getElementById('introCopy');
+    var introLine1 = document.getElementById('introLine1');
+    var introLine2 = document.getElementById('introLine2');
+
+    if(introVideoEl && introLine1){
+      var LINE1_ROWS = ['Every Vision Starts', 'With a Stroke'];
+      var TYPE_START = 1.0;   // seconds into the intro video
+      var TYPE_END = 2.5;
+      var typingStarted = false;
+      var line2Shown = false;
+
+      var allChars = []; // flat list of {span, isSpace} across both lines, in type order
+      LINE1_ROWS.forEach(function(row, rowIndex){
+        var rowDiv = document.createElement('div');
+        row.split('').forEach(function(ch){
+          var span = document.createElement('span');
+          span.className = 'intro-ch' + (ch === ' ' ? ' space' : '');
+          span.textContent = ch === ' ' ? ' ' : ch;
+          rowDiv.appendChild(span);
+          allChars.push(span);
+        });
+        introLine1.appendChild(rowDiv);
+        if(rowIndex < LINE1_ROWS.length - 1){
+          // spacer between the two lines' typing pace isn't a typed character itself
+        }
+      });
+
+      function startTyping(){
+        if(typingStarted) return;
+        typingStarted = true;
+        var perLetter = ((TYPE_END - TYPE_START) * 1000) / allChars.length;
+        allChars.forEach(function(span, i){
+          setTimeout(function(){ span.classList.add('on'); }, i * perLetter);
+        });
+      }
+
+      function showLine2(){
+        if(line2Shown) return;
+        line2Shown = true;
+        if(introLine2) introLine2.classList.add('on');
+      }
+
+      introVideoEl.addEventListener('timeupdate', function(){
+        if(!typingStarted && introVideoEl.currentTime >= TYPE_START) startTyping();
+        var d = introVideoEl.duration;
+        if(!line2Shown && d && introVideoEl.currentTime >= d - 1) showLine2();
+      });
+      introVideoEl.addEventListener('ended', function(){
+        startTyping();
+        showLine2();
+      });
+
+      setTimeout(function(){
+        introVideoEl.play().catch(function(){});
+      }, 1000);
+
+      /* dismiss the overlay text the first time the viewer scrolls; the
+         intro section itself just scrolls away normally like any section */
+      var introDismissed = false;
+      function dismissIntro(){
+        if(introDismissed) return;
+        introDismissed = true;
+        if(introCopy) introCopy.classList.add('leaving');
+        window.removeEventListener('scroll', dismissIntro);
+        window.removeEventListener('wheel', dismissIntro);
+        window.removeEventListener('touchmove', dismissIntro);
+      }
+      window.addEventListener('scroll', dismissIntro, {passive:true});
+      window.addEventListener('wheel', dismissIntro, {passive:true});
+      window.addEventListener('touchmove', dismissIntro, {passive:true});
     }
   } catch(e) {}
 
