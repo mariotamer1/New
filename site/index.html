@@ -1151,12 +1151,26 @@
     var videoDuration = 0;
     var videoReady = false;
 
+    /* Seeking a compressed video is asymmetric: scrubbing forward often lands
+       near frames already decoded, but scrubbing backward has to jump to the
+       last keyframe before the target and re-decode forward from there —
+       that's what reads as "choppy" specifically in reverse. Snapping
+       currentTime straight to the scroll position (the old behavior) asks
+       for that expensive jump on every single scroll event. Instead we ease
+       the video's displayed time toward the scroll-derived target a little
+       each frame, so every individual seek is a small, cheap step regardless
+       of direction — a continuous chase rather than a snap. */
+    var vscrubTargetTime = 0;
+    var vscrubDisplayTime = 0;
+    var vscrubEasing = false;
+
     if(vscrubVideo){
       vscrubVideo.addEventListener('loadedmetadata', function(){
         videoDuration = vscrubVideo.duration || 0;
         videoReady = true;
         vscrubVideo.pause();
-        updateVScrub();
+        vscrubDisplayTime = vscrubVideo.currentTime;
+        updateVScrubTarget();
       });
       var unlock = function(){
         vscrubVideo.play().then(function(){ vscrubVideo.pause(); }).catch(function(){});
@@ -1165,8 +1179,8 @@
       window.addEventListener('scroll', unlock, {passive:true});
     }
 
-    function updateVScrub(){
-      if(!vscrubTrack || !videoReady) return;
+    function updateVScrubTarget(){
+      if(!vscrubTrack) return;
       var rect = vscrubTrack.getBoundingClientRect();
       var trackHeight = vscrubTrack.offsetHeight;
       var viewport = window.innerHeight;
@@ -1174,12 +1188,6 @@
       var scrollable = trackHeight - viewport;
       var progress = scrollable > 0 ? Math.min(1, Math.max(0, scrolled / scrollable)) : 0;
 
-      if(videoDuration > 0){
-        var t = progress * videoDuration;
-        if(Math.abs(vscrubVideo.currentTime - t) > 0.03){
-          try{ vscrubVideo.currentTime = t; }catch(e){}
-        }
-      }
       if(vscrubFill) vscrubFill.style.width = (progress * 100) + '%';
       if(vscrubCopy1) vscrubCopy1.classList.toggle('show', progress > 0.04 && progress < 0.30);
       if(vscrubCopy2) vscrubCopy2.classList.toggle('show', progress > 0.36 && progress < 0.62);
@@ -1187,15 +1195,39 @@
          the rest of the pin and only leaves when the section itself scrolls
          out of view (the sticky release), instead of fading early */
       if(vscrubCopy3) vscrubCopy3.classList.toggle('show', progress > 0.68);
+
+      if(videoReady && videoDuration > 0){
+        vscrubTargetTime = progress * videoDuration;
+        startVScrubEasing();
+      }
+    }
+
+    function startVScrubEasing(){
+      if(vscrubEasing) return;
+      vscrubEasing = true;
+      requestAnimationFrame(stepVScrubEasing);
+    }
+
+    function stepVScrubEasing(){
+      var delta = vscrubTargetTime - vscrubDisplayTime;
+      if(Math.abs(delta) < 0.008){
+        vscrubDisplayTime = vscrubTargetTime;
+        try{ vscrubVideo.currentTime = vscrubDisplayTime; }catch(e){}
+        vscrubEasing = false;
+        return;
+      }
+      vscrubDisplayTime += delta * 0.35; /* bounded step — cheap to seek, regardless of direction */
+      try{ vscrubVideo.currentTime = vscrubDisplayTime; }catch(e){}
+      requestAnimationFrame(stepVScrubEasing);
     }
 
     /* rAF-gate the scroll listener: multiple scroll events between frames
-       coalesce into a single updateVScrub() call on the next paint */
+       coalesce into a single updateVScrubTarget() call on the next paint */
     var vscrubTicking = false;
     function scheduleVScrub(){
       if(vscrubTicking) return;
       vscrubTicking = true;
-      requestAnimationFrame(function(){ vscrubTicking = false; updateVScrub(); });
+      requestAnimationFrame(function(){ vscrubTicking = false; updateVScrubTarget(); });
     }
     if(vscrubTrack){
       window.addEventListener('scroll', scheduleVScrub, {passive:true});
