@@ -1,0 +1,130 @@
+[
+  {
+    "id": "p01",
+    "title": "Wholesale Lot of 50 Assorted Phone Cases — Mixed Models",
+    "price": 89.99,
+    "category": "electronics",
+    "condition": "New",
+    "moq": "Lot of 50"
+  },
+  {
+    "id": "p02",
+    "title": "Bulk Pallet — 100 Mixed Kitchen Gadgets & Tools",
+    "price": 249.00,
+    "category": "home",
+    "condition": "New / Open Box",
+    "moq": "Pallet"
+  },
+  {
+    "id": "p03",
+    "title": "Case of 24 Bluetooth Earbuds — Grade A Refurbished",
+    "price": 179.50,
+    "category": "electronics",
+    "condition": "Refurbished",
+    "moq": "Case of 24"
+  },
+  {
+    "id": "p04",
+    "title": "Wholesale Box — 40 Assorted Men's Graphic Tees, S–XL",
+    "price": 129.00,
+    "category": "apparel",
+    "condition": "New",
+    "moq": "Box of 40"
+  },
+  {
+    "id": "p05",
+    "title": "Bulk Lot — 30 Smart Watch Bands, Mixed Colors",
+    "price": 59.99,
+    "category": "electronics",
+    "condition": "New",
+    "moq": "Lot of 30"
+  },
+  {
+    "id": "p06",
+    "title": "Pallet of 60 Assorted Toys — Ages 3+",
+    "price": 199.99,
+    "category": "toys",
+    "condition": "New",
+    "moq": "Pallet"
+  },
+  {
+    "id": "p07",
+    "title": "Wholesale Case — 25 Portable Power Banks, 10000mAh",
+    "price": 149.00,
+    "category": "electronics",
+    "condition": "New",
+    "moq": "Case of 25"
+  },
+  {
+    "id": "p08",
+    "title": "Bulk Lot of 45 Women's Handbags — Assorted Styles",
+    "price": 219.00,
+    "category": "apparel",
+    "condition": "New",
+    "moq": "Lot of 45"
+  },
+  {
+    "id": "p09",
+    "title": "Mixed Tool Set Lot — 20 Cordless Drill Kits",
+    "price": 389.00,
+    "category": "tools",
+    "condition": "New / Open Box",
+    "moq": "Lot of 20"
+  },
+  {
+    "id": "p10",
+    "title": "Wholesale Box — 35 LED Desk Lamps, Assorted",
+    "price": 139.99,
+    "category": "home",
+    "condition": "New",
+    "moq": "Box of 35"
+  },
+  {
+    "id": "p11",
+    "title": "Case of 50 Wireless Chargers — Universal Fit",
+    "price": 99.99,
+    "category": "electronics",
+    "condition": "New",
+    "moq": "Case of 50"
+  },
+  {
+    "id": "p12",
+    "title": "Bulk Lot — 28 Kids' Backpacks, Mixed Prints",
+    "price": 159.00,
+    "category": "apparel",
+    "condition": "New",
+    "moq": "Lot of 28"
+  },
+  {
+    "id": "p13",
+    "title": "Pallet — 75 Assorted Home Decor Pieces",
+    "price": 279.00,
+    "category": "home",
+    "condition": "New / Open Box",
+    "moq": "Pallet"
+  },
+  {
+    "id": "p14",
+    "title": "Wholesale Lot of 15 Cordless Vacuum Cleaners",
+    "price": 449.00,
+    "category": "tools",
+    "condition": "Refurbished",
+    "moq": "Lot of 15"
+  },
+  {
+    "id": "p15",
+    "title": "Case of 32 Bluetooth Speakers — Mini Portable",
+    "price": 189.00,
+    "category": "electronics",
+    "condition": "New",
+    "moq": "Case of 32"
+  },
+  {
+    "id": "p16",
+    "title": "Bulk Box — 40 Assorted Board Games & Puzzles",
+    "price": 169.00,
+    "category": "toys",
+    "condition": "New",
+    "moq": "Box of 40"
+  }
+]
