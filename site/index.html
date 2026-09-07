@@ -199,7 +199,7 @@
     display:inline-flex; align-items:center; justify-content:center;
     padding:16px 30px; font-size:15px; font-weight:600; border-radius:2px;
     transition:transform .25s var(--ease), background .25s var(--ease), color .25s var(--ease), border-color .25s var(--ease);
-    border:1px solid transparent;
+    border:1px solid transparent; background:none; cursor:pointer;
   }
   .btn-primary{background:var(--ochre-light); color:#191305;}
   .btn-primary:hover{transform:translateY(-2px); background:#e8b877;}
@@ -539,6 +539,38 @@
   .testi-stars{color:var(--ochre-light); font-size:14px; margin-bottom:16px;}
   .testi-card p{font-size:16px; color:var(--ink); line-height:1.65;}
   .testi-who{margin-top:22px; font-size:14px; color:var(--ink-faint);}
+  .review-card{
+    background:var(--bg-raised); border:1px solid var(--line); border-radius:4px; padding:30px;
+  }
+  .review-card .review-name{font-family:'Fraunces',serif; font-weight:600; font-size:16px; color:var(--ink);}
+  .review-card .review-text{margin-top:12px; font-size:15px; color:var(--ink-dim); line-height:1.65;}
+  .review-card .review-date{margin-top:16px; font-size:12.5px; color:var(--ink-faint);}
+  .see-all-row{margin-top:36px; text-align:center;}
+
+  /* ---------- all reviews panel ---------- */
+  .reviews-overlay{
+    position:fixed; inset:0; z-index:650; background:var(--bg);
+    display:none; flex-direction:column;
+    opacity:0; transition:opacity .3s var(--ease);
+  }
+  .reviews-overlay.open{opacity:1;}
+  .empty-state{
+    text-align:center; padding:60px 20px; color:var(--ink-faint); font-size:14.5px;
+    border:1px dashed var(--line-strong); border-radius:6px; max-width:760px; margin:0 auto;
+  }
+  .reviews-bar{
+    position:sticky; top:0; z-index:2; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px clamp(20px,5vw,56px); border-bottom:1px solid var(--line);
+    background:rgba(20,22,26,0.94); backdrop-filter:blur(10px);
+  }
+  .reviews-bar .btn{padding:11px 20px; font-size:13.5px;}
+  .reviews-body{flex:1 1 auto; overflow-y:auto; padding:36px clamp(20px,5vw,56px) 90px;}
+  .reviews-sort{display:flex; gap:10px; max-width:760px; margin:0 auto 28px;}
+  .reviews-grid{display:grid; gap:16px; max-width:760px; margin:0 auto;}
+  /* these two popups can open on top of the all-reviews panel, so they need
+     to sit above its z-index rather than the shared .qe-overlay's default */
+  #reviewFormOverlay, #reviewThanksOverlay{ z-index:700; }
 
   /* ---------- contact ---------- */
   .contact-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:60px;}
@@ -927,15 +959,69 @@
         <h2>What our customers are saying.</h2>
       </div>
     </div>
-    <div class="testi-track reveal">
-      <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
-        <p>Reviews are on the way — check back soon, or be the first to leave one on our Google Business profile.</p>
-        <div class="testi-who"><a href="#" style="color:var(--ochre-light); text-decoration:underline;">View on Google →</a></div>
+    <div class="reveal" id="reviewsPreview">
+      <div class="testi-track">
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p>Reviews are on the way — check back soon, or be the first to leave one on our Google Business profile.</p>
+          <div class="testi-who"><a href="#" style="color:var(--ochre-light); text-decoration:underline;">View on Google →</a></div>
+        </div>
       </div>
+    </div>
+    <div class="see-all-row reveal">
+      <button type="button" class="btn btn-ghost" id="seeAllReviewsBtn">See All Reviews</button>
     </div>
   </div>
 </section>
+
+<!-- ================= ALL REVIEWS PANEL ================= -->
+<div class="reviews-overlay" id="reviewsOverlay">
+  <div class="reviews-bar">
+    <button type="button" class="btn btn-primary" id="leaveReviewBtn">Leave a Review</button>
+    <button type="button" class="btn btn-ghost" id="reviewsExitBtn">Exit</button>
+  </div>
+  <div class="reviews-body">
+    <div class="reviews-sort">
+      <button type="button" class="filter-btn active" data-sort="new">Newest First</button>
+      <button type="button" class="filter-btn" data-sort="old">Oldest First</button>
+    </div>
+    <div class="reviews-grid" id="reviewsGrid"></div>
+  </div>
+</div>
+
+<!-- ================= LEAVE A REVIEW ================= -->
+<div class="qe-overlay" id="reviewFormOverlay">
+  <div class="qe-modal">
+    <button class="qe-close js-close-review-form" aria-label="Close">✕</button>
+    <div id="reviewFormWrap">
+      <h3>Leave a Review</h3>
+      <p>Tell us about your experience with YGM Painting.</p>
+      <form id="reviewForm">
+        <div class="qe-field">
+          <input id="reviewName" type="text" placeholder="Name" required>
+        </div>
+        <div class="qe-field">
+          <textarea id="reviewText" placeholder="Describe your experience" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary qe-submit">Submit</button>
+        <button type="button" class="qe-exit js-close-review-form">Exit</button>
+        <p id="reviewFormError" style="display:none; margin-top:14px; font-size:13.5px; color:#e07a7a;">
+          Something went wrong submitting that — please try again in a moment.
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ================= REVIEW THANK-YOU ================= -->
+<div class="qe-overlay" id="reviewThanksOverlay">
+  <div class="qe-modal">
+    <button class="qe-close js-close-review-thanks" aria-label="Close">✕</button>
+    <div class="qe-success">
+      <h3>Thank You for your Review!</h3>
+    </div>
+  </div>
+</div>
 
 <!-- ================= FAQ ================= -->
 <section class="band" id="faq">
@@ -1296,6 +1382,171 @@
       });
     }
   } catch(qeErr) { /* estimate modal setup failed — nothing else on the page depends on this */ }
+
+  try {
+    /* customer reviews — public read/insert, no rating field and no
+       moderation UI (matches the client's spec: name + experience text only) */
+    function escapeHtmlRev(s){
+      var d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+    function formatReviewName(raw){
+      var parts = (raw || '').trim().split(/\s+/).filter(Boolean);
+      if(parts.length === 0) return 'Anonymous';
+      if(parts.length === 1) return parts[0];
+      return parts[0] + ' ' + parts[parts.length - 1].charAt(0).toUpperCase() + '.';
+    }
+    function formatReviewDate(iso){
+      try{ return new Date(iso).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' }); }
+      catch(e){ return ''; }
+    }
+    function reviewCardHtml(r){
+      return '<div class="review-card">' +
+        '<div class="review-name">' + escapeHtmlRev(formatReviewName(r.name)) + '</div>' +
+        '<p class="review-text">' + escapeHtmlRev(r.message) + '</p>' +
+        '<div class="review-date">' + formatReviewDate(r.created_at) + '</div>' +
+      '</div>';
+    }
+
+    var reviewsPreview = document.getElementById('reviewsPreview');
+    var reviewsGrid = document.getElementById('reviewsGrid');
+    var reviewsOverlay = document.getElementById('reviewsOverlay');
+    var seeAllReviewsBtn = document.getElementById('seeAllReviewsBtn');
+    var reviewsExitBtn = document.getElementById('reviewsExitBtn');
+    var leaveReviewBtn = document.getElementById('leaveReviewBtn');
+    var reviewFormOverlay = document.getElementById('reviewFormOverlay');
+    var reviewForm = document.getElementById('reviewForm');
+    var reviewFormError = document.getElementById('reviewFormError');
+    var reviewSubmitBtn = reviewForm ? reviewForm.querySelector('.qe-submit') : null;
+    var reviewThanksOverlay = document.getElementById('reviewThanksOverlay');
+    var sortBtns = document.querySelectorAll('.reviews-sort .filter-btn');
+
+    var allReviews = []; /* newest-first, as returned by the server */
+    var currentSort = 'new';
+
+    function renderPreview(){
+      if(!reviewsPreview || allReviews.length === 0) return; /* keep the "reviews are on the way" placeholder */
+      reviewsPreview.innerHTML = '<div class="reviews-grid">' + allReviews.slice(0, 5).map(reviewCardHtml).join('') + '</div>';
+    }
+    function renderAll(){
+      if(!reviewsGrid) return;
+      if(allReviews.length === 0){
+        reviewsGrid.innerHTML = '<div class="empty-state">No reviews yet — be the first to leave one.</div>';
+        return;
+      }
+      var sorted = currentSort === 'old' ? allReviews.slice().reverse() : allReviews;
+      reviewsGrid.innerHTML = sorted.map(reviewCardHtml).join('');
+    }
+    function loadReviews(){
+      if(!qeClient) return;
+      qeClient.from('reviews').select('*').order('created_at', { ascending:false }).then(function(res){
+        if(res.error || !res.data) return;
+        allReviews = res.data;
+        renderPreview();
+        renderAll();
+      });
+    }
+    loadReviews();
+
+    sortBtns.forEach(function(b){
+      b.addEventListener('click', function(){
+        sortBtns.forEach(function(x){ x.classList.remove('active'); });
+        b.classList.add('active');
+        currentSort = b.dataset.sort;
+        renderAll();
+      });
+    });
+
+    function openReviewsOverlay(){
+      if(!reviewsOverlay) return;
+      reviewsOverlay.style.display = 'flex';
+      void reviewsOverlay.offsetHeight;
+      reviewsOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeReviewsOverlay(){
+      if(!reviewsOverlay) return;
+      reviewsOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+      setTimeout(function(){ reviewsOverlay.style.display = 'none'; }, 300);
+    }
+    if(seeAllReviewsBtn) seeAllReviewsBtn.addEventListener('click', openReviewsOverlay);
+    if(reviewsExitBtn) reviewsExitBtn.addEventListener('click', closeReviewsOverlay);
+
+    var reviewFormCloseTimer = null;
+    function openReviewForm(){
+      if(!reviewFormOverlay) return;
+      if(reviewFormCloseTimer){ clearTimeout(reviewFormCloseTimer); reviewFormCloseTimer = null; }
+      if(reviewFormError) reviewFormError.style.display = 'none';
+      reviewFormOverlay.style.display = 'flex';
+      void reviewFormOverlay.offsetHeight;
+      reviewFormOverlay.classList.add('open');
+    }
+    function closeReviewForm(){
+      if(!reviewFormOverlay) return;
+      reviewFormOverlay.classList.remove('open');
+      reviewFormCloseTimer = window.setTimeout(function(){
+        reviewFormOverlay.style.display = 'none';
+        reviewFormCloseTimer = null;
+      }, 400);
+    }
+    if(leaveReviewBtn) leaveReviewBtn.addEventListener('click', openReviewForm);
+    document.querySelectorAll('.js-close-review-form').forEach(function(el){ el.addEventListener('click', closeReviewForm); });
+    if(reviewFormOverlay){
+      reviewFormOverlay.addEventListener('click', function(e){ if(e.target === reviewFormOverlay) closeReviewForm(); });
+    }
+
+    var reviewThanksCloseTimer = null;
+    function openReviewThanks(){
+      if(!reviewThanksOverlay) return;
+      if(reviewThanksCloseTimer){ clearTimeout(reviewThanksCloseTimer); reviewThanksCloseTimer = null; }
+      reviewThanksOverlay.style.display = 'flex';
+      void reviewThanksOverlay.offsetHeight;
+      reviewThanksOverlay.classList.add('open');
+    }
+    function closeReviewThanks(){
+      if(!reviewThanksOverlay) return;
+      reviewThanksOverlay.classList.remove('open');
+      reviewThanksCloseTimer = window.setTimeout(function(){
+        reviewThanksOverlay.style.display = 'none';
+        reviewThanksCloseTimer = null;
+      }, 400);
+    }
+    document.querySelectorAll('.js-close-review-thanks').forEach(function(el){ el.addEventListener('click', closeReviewThanks); });
+    if(reviewThanksOverlay){
+      reviewThanksOverlay.addEventListener('click', function(e){ if(e.target === reviewThanksOverlay) closeReviewThanks(); });
+    }
+
+    if(reviewForm){
+      reviewForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        if(reviewFormError) reviewFormError.style.display = 'none';
+        var name = document.getElementById('reviewName').value.trim();
+        var message = document.getElementById('reviewText').value.trim();
+
+        function showReviewError(){
+          if(reviewFormError) reviewFormError.style.display = 'block';
+          if(reviewSubmitBtn){ reviewSubmitBtn.disabled = false; reviewSubmitBtn.textContent = 'Submit'; }
+        }
+
+        if(!qeClient){ showReviewError(); return; }
+
+        if(reviewSubmitBtn){ reviewSubmitBtn.disabled = true; reviewSubmitBtn.textContent = 'Submitting...'; }
+        qeClient.from('reviews').insert([{ name: name, message: message }]).select().then(function(res){
+          if(reviewSubmitBtn){ reviewSubmitBtn.disabled = false; reviewSubmitBtn.textContent = 'Submit'; }
+          if(res.error){ showReviewError(); return; }
+          var newRow = (res.data && res.data[0]) ? res.data[0] : { name: name, message: message, created_at: new Date().toISOString() };
+          allReviews.unshift(newRow);
+          renderPreview();
+          renderAll();
+          reviewForm.reset();
+          closeReviewForm();
+          setTimeout(openReviewThanks, 420);
+        }).catch(function(){ showReviewError(); });
+      });
+    }
+  } catch(revErr) { /* reviews setup failed — nothing else on the page depends on this */ }
 
 
   /* ============================================================
