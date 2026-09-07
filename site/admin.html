@@ -335,8 +335,22 @@
     }
   });
 
+  var refreshTimer = null;
+  function startAutoRefresh(){
+    stopAutoRefresh();
+    refreshTimer = setInterval(function(){
+      /* skip a cycle if a card is open — don't yank the view away mid-read */
+      if(document.querySelector('.req-card.expanded')) return;
+      fetchSubmissions();
+    }, 20000);
+  }
+  function stopAutoRefresh(){
+    if(refreshTimer){ clearInterval(refreshTimer); refreshTimer = null; }
+  }
+
   function logout(){
     try{ sessionStorage.removeItem('ygmAdminOK'); }catch(err){}
+    stopAutoRefresh();
     showLogin();
   }
   document.getElementById('logoutBtnHome').addEventListener('click', logout);
@@ -350,10 +364,20 @@
     homeScreen.classList.remove('show');
     dashboard.classList.add('show');
     loadSubmissions();
+    startAutoRefresh();
   });
 
-  function loadSubmissions(){
-    reqList.innerHTML = '<div class="empty-state">Loading...</div>';
+  /* catch the case where the admin already has the dashboard open in a
+     background tab and a new request comes in — refresh the moment they
+     switch back, instead of waiting for the next poll */
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden && dashboard.classList.contains('show')) fetchSubmissions();
+  });
+  window.addEventListener('focus', function(){
+    if(dashboard.classList.contains('show')) fetchSubmissions();
+  });
+
+  function fetchSubmissions(){
     sb.from('submissions').select('*').order('created_at', { ascending: false }).then(function(res){
       if(res.error){
         reqList.innerHTML = '<div class="empty-state">Could not load requests: ' + escapeHtml(res.error.message) + '</div>';
@@ -362,6 +386,10 @@
       allSubmissions = res.data || [];
       render();
     });
+  }
+  function loadSubmissions(){
+    reqList.innerHTML = '<div class="empty-state">Loading...</div>';
+    fetchSubmissions();
   }
 
   function escapeHtml(s){

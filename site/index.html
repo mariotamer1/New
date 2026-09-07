@@ -644,8 +644,8 @@
   }
   .admin-access-row{margin-top:26px;}
   .admin-access-btn{
-    background:none; border:1px solid var(--line-strong); color:var(--ink-faint);
-    padding:9px 18px; border-radius:3px; font-size:13px; transition:all .2s var(--ease);
+    display:inline-block; background:none; border:1px solid var(--line-strong); color:var(--ink-faint);
+    padding:9px 18px; border-radius:3px; font-size:13px; transition:all .2s var(--ease); text-decoration:none;
   }
   .admin-access-btn:hover{border-color:var(--ink-dim); color:var(--ink-dim);}
 
@@ -1121,7 +1121,7 @@
       We collect the information you submit through our estimate and contact forms (name, phone number, email, and project details) solely to respond to your request. We do not sell or share it with third parties. See our Privacy Policy and Cookies page for details.
     </p>
     <div class="admin-access-row">
-      <button type="button" class="admin-access-btn" id="adminAccessBtn">Admin Access</button>
+      <a href="admin.html" class="admin-access-btn">Admin Access</a>
     </div>
   </div>
 </footer>
@@ -1557,25 +1557,6 @@
   var reduceMotion = false;
   try {
     reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  } catch(e) {}
-
-  try {
-    /* footer admin access — a soft gate, not real security (anyone could
-       view-source this password); actual protection is the Supabase login
-       on admin.html itself. This is just so casual visitors don't land on it. */
-    var adminAccessBtn = document.getElementById('adminAccessBtn');
-    var ADMIN_GATE_PASSWORD = 'ygm-admin-2026';
-    if(adminAccessBtn){
-      adminAccessBtn.addEventListener('click', function(){
-        var entered = window.prompt('Enter the admin password:');
-        if(entered === null) return;
-        if(entered === ADMIN_GATE_PASSWORD){
-          window.location.href = 'admin.html';
-        } else {
-          window.alert('Incorrect password.');
-        }
-      });
-    }
   } catch(e) {}
 
   try {
