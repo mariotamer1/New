@@ -365,6 +365,82 @@
   }
   .reveal.in{opacity:1; transform:translateY(0) translateZ(0);}
 
+  /* ---------- services ---------- */
+  .service-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line);
+  }
+  @media (max-width:860px){.service-grid{grid-template-columns:1fr;}}
+  .service-card{
+    background:var(--bg); padding:44px 36px;
+    perspective:900px;
+    transition:background .3s var(--ease);
+  }
+  .service-card:hover{background:var(--bg-raised);}
+  .service-card-inner{transition:transform .35s var(--ease);}
+  .service-card:hover .service-card-inner{transform:translateY(-4px);}
+  .service-index{font-size:13px; color:var(--ink-faint); font-family:'Fraunces',serif;}
+  .service-card h3{font-size:22px; margin-top:22px; color:var(--ink); font-weight:600; line-height:1.25; letter-spacing:-0.005em;}
+  .service-card p{margin-top:12px; color:var(--ink-dim); font-size:15px;}
+
+  /* ---------- color palette (per-swatch hover pop) ---------- */
+  .palette-row{display:flex; align-items:center; gap:40px; margin-top:60px; flex-wrap:wrap;}
+  .palette-caption{
+    font-family:'Fraunces',serif; font-style:italic; font-weight:500;
+    font-size:clamp(1.3rem,2.4vw,1.9rem); color:var(--ink-dim);
+    max-width:22ch; flex:1 1 260px;
+    transition:color .15s var(--ease);
+  }
+  .palette-caption.active{color:var(--ink); font-style:normal; font-weight:600;}
+  .palette-zone{
+    border-radius:8px; overflow:visible; border:1px solid var(--line-strong);
+    aspect-ratio:16/9; max-width:640px; flex:1 1 480px;
+    background:var(--bg-raised);
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+    padding:8px;
+  }
+  .palette-grid{
+    display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(5,1fr);
+    gap:3px; width:100%; height:100%; border-radius:4px; overflow:visible;
+  }
+  .palette-cell{
+    background:var(--cell-color); border:none; padding:0; margin:0;
+    cursor:pointer; position:relative; overflow:hidden;
+    transition:transform .32s var(--ease), box-shadow .32s var(--ease), border-radius .32s var(--ease), filter .32s var(--ease);
+    transform:scale(1); z-index:1; border-radius:0; filter:none;
+  }
+  /* the "molded plastic/glass" sheen — a soft-light-blended highlight sitting
+     on top of the flat color, invisible until hover so the resting swatch is unchanged */
+  .palette-cell::after{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,0.55), rgba(255,255,255,0) 55%),
+      linear-gradient(165deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 42%, rgba(0,0,0,0.16) 100%);
+    mix-blend-mode:soft-light;
+    opacity:0;
+    transition:opacity .32s var(--ease);
+  }
+  .palette-cell:hover, .palette-cell:focus-visible{
+    transform:scale(2) translateY(-3px);
+    border-radius:26%;
+    filter:brightness(1.04) saturate(1.05);
+    box-shadow:
+      0 1px 1px rgba(255,255,255,0.25) inset,
+      0 0 0 1px rgba(255,255,255,0.16) inset,
+      0 3px 6px rgba(0,0,0,0.16),
+      0 14px 26px -8px rgba(0,0,0,0.42),
+      0 28px 50px -14px rgba(0,0,0,0.35);
+    z-index:5;
+    outline:none;
+  }
+  .palette-cell:hover::after, .palette-cell:focus-visible::after{ opacity:1; }
+  @media (max-width:640px){
+    .palette-cell:hover, .palette-cell:focus-visible{
+      transform:scale(1); box-shadow:none; border-radius:0; filter:none;
+    }
+    .palette-cell:hover::after, .palette-cell:focus-visible::after{ opacity:0; }
+  }
+
   /* ---------- before/after 3D gallery ---------- */
   .tf3d{position:relative; height:560px;}
   .tf3d .c3d-item[data-role="center"]{left:50%; bottom:0; width:300px; height:100%;}
@@ -626,6 +702,7 @@
       </div>
     </div>
     <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
       <li><a href="#story">Our Work</a></li>
       <li><a href="#reviews">Reviews</a></li>
       <li><a href="#contact">Contact</a></li>
@@ -756,6 +833,99 @@
   </div>
 </section>
 
+<!-- ================= SERVICES ================= -->
+<section class="band" id="services">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="section-tag">What we do</p>
+      <h2>Painting, handled properly.</h2>
+      <p>From a single accent wall to a full siding repaint, every job gets the same prep, patience, and clean finish.</p>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="service-grid reveal">
+      <div class="service-card"><div class="service-card-inner">
+        <div class="service-index">01</div>
+        <h3>Interior Painting</h3>
+        <p>Clean lines, even coverage, and finishes that hold up to daily life.</p>
+      </div></div>
+      <div class="service-card"><div class="service-card-inner">
+        <div class="service-index">02</div>
+        <h3>Exterior Painting</h3>
+        <p>Weather-ready coatings that protect siding, trim, and curb appeal.</p>
+      </div></div>
+      <div class="service-card"><div class="service-card-inner">
+        <div class="service-index">03</div>
+        <h3>House Siding</h3>
+        <p>Siding painted and protected against the weather, done right the first time.</p>
+      </div></div>
+      <div class="service-card"><div class="service-card-inner">
+        <div class="service-index">04</div>
+        <h3>Cabinet Painting</h3>
+        <p>A full kitchen refresh without the cost of a full replacement.</p>
+      </div></div>
+      <div class="service-card"><div class="service-card-inner">
+        <div class="service-index">05</div>
+        <h3>Trim & Detail Work</h3>
+        <p>The precision work — doors, molding, and edges — done by hand.</p>
+      </div></div>
+      <div class="service-card"><div class="service-card-inner">
+        <div class="service-index">06</div>
+        <h3>Color Consultation</h3>
+        <p>Help picking colors that actually work in your light, your space.</p>
+      </div></div>
+    </div>
+
+    <div class="palette-row">
+      <div class="palette-zone reveal" id="paletteZone">
+        <div class="palette-grid">
+          <button type="button" class="palette-cell" style="--cell-color:#315567;" data-name="Deep Teal" data-hex="#315567" aria-label="Deep Teal, #315567"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#2a5d6e;" data-name="Deep Harbor Blue" data-hex="#2A5D6E" aria-label="Deep Harbor Blue, #2A5D6E"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#764c22;" data-name="Deep Ochre" data-hex="#764C22" aria-label="Deep Ochre, #764C22"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#4c6731;" data-name="Deep Sage" data-hex="#4C6731" aria-label="Deep Sage, #4C6731"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#6e3b2a;" data-name="Deep Terracotta" data-hex="#6E3B2A" aria-label="Deep Terracotta, #6E3B2A"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#76223e;" data-name="Deep Wine" data-hex="#76223E" aria-label="Deep Wine, #76223E"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#675931;" data-name="Deep Gold" data-hex="#675931" aria-label="Deep Gold, #675931"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#412a6e;" data-name="Deep Violet" data-hex="#412A6E" aria-label="Deep Violet, #412A6E"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#366990;" data-name="Rich Teal" data-hex="#366990" aria-label="Rich Teal, #366990"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#2c739a;" data-name="Rich Harbor Blue" data-hex="#2C739A" aria-label="Rich Harbor Blue, #2C739A"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#866a40;" data-name="Rich Ochre" data-hex="#866A40" aria-label="Rich Ochre, #866A40"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#5a9036;" data-name="Rich Sage" data-hex="#5A9036" aria-label="Rich Sage, #5A9036"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#9a532c;" data-name="Rich Terracotta" data-hex="#9A532C" aria-label="Rich Terracotta, #9A532C"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#864050;" data-name="Rich Wine" data-hex="#864050" aria-label="Rich Wine, #864050"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#908236;" data-name="Rich Gold" data-hex="#908236" aria-label="Rich Gold, #908236"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#5c2c9a;" data-name="Rich Violet" data-hex="#5C2C9A" aria-label="Rich Violet, #5C2C9A"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#3775bd;" data-name="Classic Teal" data-hex="#3775BD" aria-label="Classic Teal, #3775BD"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#4f7ea5;" data-name="Classic Harbor Blue" data-hex="#4F7EA5" aria-label="Classic Harbor Blue, #4F7EA5"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#b19043;" data-name="Classic Ochre" data-hex="#B19043" aria-label="Classic Ochre, #B19043"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#5fbd37;" data-name="Classic Sage" data-hex="#5FBD37" aria-label="Classic Sage, #5FBD37"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#a5764f;" data-name="Classic Terracotta" data-hex="#A5764F" aria-label="Classic Terracotta, #A5764F"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#b14352;" data-name="Classic Wine" data-hex="#B14352" aria-label="Classic Wine, #B14352"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#bdb637;" data-name="Classic Gold" data-hex="#BDB637" aria-label="Classic Gold, #BDB637"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#7d4fa5;" data-name="Classic Violet" data-hex="#7D4FA5" aria-label="Classic Violet, #7D4FA5"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#6a87b7;" data-name="Soft Teal" data-hex="#6A87B7" aria-label="Soft Teal, #6A87B7"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#608cc2;" data-name="Soft Harbor Blue" data-hex="#608CC2" aria-label="Soft Harbor Blue, #608CC2"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#cdb555;" data-name="Soft Ochre" data-hex="#CDB555" aria-label="Soft Ochre, #CDB555"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#7ab76a;" data-name="Soft Sage" data-hex="#7AB76A" aria-label="Soft Sage, #7AB76A"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#c29660;" data-name="Soft Terracotta" data-hex="#C29660" aria-label="Soft Terracotta, #C29660"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#cd5559;" data-name="Soft Wine" data-hex="#CD5559" aria-label="Soft Wine, #CD5559"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#b3b76a;" data-name="Soft Gold" data-hex="#B3B76A" aria-label="Soft Gold, #B3B76A"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#9e60c2;" data-name="Soft Violet" data-hex="#9E60C2" aria-label="Soft Violet, #9E60C2"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#8196cf;" data-name="Light Teal" data-hex="#8196CF" aria-label="Light Teal, #8196CF"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#7899d7;" data-name="Light Harbor Blue" data-hex="#7899D7" aria-label="Light Harbor Blue, #7899D7"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#c6c089;" data-name="Light Ochre" data-hex="#C6C089" aria-label="Light Ochre, #C6C089"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#89cf81;" data-name="Light Sage" data-hex="#89CF81" aria-label="Light Sage, #89CF81"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#d7b678;" data-name="Light Terracotta" data-hex="#D7B678" aria-label="Light Terracotta, #D7B678"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#c68e89;" data-name="Light Wine" data-hex="#C68E89" aria-label="Light Wine, #C68E89"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#c3cf81;" data-name="Light Gold" data-hex="#C3CF81" aria-label="Light Gold, #C3CF81"></button>
+          <button type="button" class="palette-cell" style="--cell-color:#be78d7;" data-name="Light Violet" data-hex="#BE78D7" aria-label="Light Violet, #BE78D7"></button>
+        </div>
+      </div>
+      <p class="palette-caption" id="paletteCaption">Hover over the color that stands out to you.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ================= TESTIMONIALS ================= -->
 <section class="band band-alt band-line" id="reviews">
   <div class="wrap">
@@ -851,6 +1021,7 @@
       </div>
       <div class="footer-col">
         <h4>Site</h4>
+        <a href="#services">Services</a>
         <a href="#story">Our Work</a>
         <a href="#reviews">Reviews</a>
         <a href="#faq">FAQ</a>
@@ -1339,6 +1510,22 @@
   } catch(e) {}
 
   try {
+    /* service card tilt */
+    if(!reduceMotion){
+      document.querySelectorAll('.service-card').forEach(function(card){
+        var inner = card.querySelector('.service-card-inner');
+        card.addEventListener('mousemove', function(e){
+          var r = card.getBoundingClientRect();
+          var px = (e.clientX - r.left)/r.width - 0.5;
+          var py = (e.clientY - r.top)/r.height - 0.5;
+          inner.style.transform = 'rotateX(' + (py*-6) + 'deg) rotateY(' + (px*6) + 'deg) translateY(-4px)';
+        });
+        card.addEventListener('mouseleave', function(){ inner.style.transform=''; });
+      });
+    }
+  } catch(e) {}
+
+  try {
     /* scroll-scrubbed video */
     var vscrubTrack = document.getElementById('vscrubTrack');
     var vscrubVideo = document.getElementById('vscrubVideo');
@@ -1432,6 +1619,35 @@
       window.addEventListener('scroll', scheduleVScrub, {passive:true});
       window.addEventListener('resize', scheduleVScrub);
     }
+  } catch(e) {}
+
+  try {
+    /* color palette — per-swatch hover pop + live name on the right */
+    var paletteCells = document.querySelectorAll('.palette-cell');
+    var paletteCaption = document.getElementById('paletteCaption');
+    var paletteDefaultText = paletteCaption ? paletteCaption.textContent : '';
+    paletteCells.forEach(function(cell){
+      cell.addEventListener('mouseenter', function(){
+        if(!paletteCaption) return;
+        paletteCaption.textContent = cell.dataset.name + ' — ' + cell.dataset.hex;
+        paletteCaption.classList.add('active');
+      });
+      cell.addEventListener('mouseleave', function(){
+        if(!paletteCaption) return;
+        paletteCaption.textContent = paletteDefaultText;
+        paletteCaption.classList.remove('active');
+      });
+      cell.addEventListener('focus', function(){
+        if(!paletteCaption) return;
+        paletteCaption.textContent = cell.dataset.name + ' — ' + cell.dataset.hex;
+        paletteCaption.classList.add('active');
+      });
+      cell.addEventListener('blur', function(){
+        if(!paletteCaption) return;
+        paletteCaption.textContent = paletteDefaultText;
+        paletteCaption.classList.remove('active');
+      });
+    });
   } catch(e) {}
 
   try {
