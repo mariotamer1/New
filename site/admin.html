@@ -200,19 +200,15 @@
 <div id="loginScreen">
   <div class="login-card">
     <div class="logo"><img src="ygm-logo.jpg" alt="YGM Painting"><span style="font-family:'Fraunces',serif; font-weight:600;">YGM Painting</span></div>
-    <h1>Admin sign in</h1>
-    <p>See and manage every estimate request.</p>
+    <h1>Admin access</h1>
+    <p>Enter the admin password to see and manage estimate requests.</p>
     <form id="loginForm">
-      <div class="field">
-        <label for="loginEmail">Email</label>
-        <input id="loginEmail" type="email" required autocomplete="username">
-      </div>
       <div class="field">
         <label for="loginPassword">Password</label>
         <input id="loginPassword" type="password" required autocomplete="current-password">
       </div>
-      <button type="submit" class="btn btn-block" id="loginBtn">Sign In</button>
-      <div class="error-msg" id="loginError"></div>
+      <button type="submit" class="btn btn-block" id="loginBtn">Enter</button>
+      <div class="error-msg" id="loginError">Incorrect password.</div>
     </form>
   </div>
 </div>
@@ -287,6 +283,10 @@
   }
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // Single admin password — same one used on the site's footer "Admin Access"
+  // button. Anyone who has it can get in; there's no separate account login.
+  var ADMIN_PASSWORD = 'ygm-admin-2026';
+
   var loginScreen = document.getElementById('loginScreen');
   var homeScreen = document.getElementById('homeScreen');
   var dashboard = document.getElementById('dashboard');
@@ -311,43 +311,40 @@
   var currentFilter = 'all';
   var replyTargetId = null;
 
-  function showError(msg){
-    loginError.textContent = msg;
-    loginError.classList.add('show');
+  function enterApp(){
+    loginScreen.style.display = 'none';
+    dashboard.classList.remove('show');
+    homeScreen.classList.add('show');
+  }
+
+  function showLogin(){
+    homeScreen.classList.remove('show');
+    dashboard.classList.remove('show');
+    loginScreen.style.display = 'flex';
   }
 
   loginForm.addEventListener('submit', function(e){
     e.preventDefault();
     loginError.classList.remove('show');
-    loginBtn.disabled = true;
-    loginBtn.textContent = 'Signing in...';
-    var email = document.getElementById('loginEmail').value.trim();
-    var password = document.getElementById('loginPassword').value;
-    sb.auth.signInWithPassword({ email: email, password: password }).then(function(res){
-      loginBtn.disabled = false;
-      loginBtn.textContent = 'Sign In';
-      if(res.error){
-        showError('Incorrect email or password.');
-      }
-      /* onAuthStateChange below flips the view once sign-in succeeds */
-    });
+    var entered = document.getElementById('loginPassword').value;
+    if(entered === ADMIN_PASSWORD){
+      try{ sessionStorage.setItem('ygmAdminOK', '1'); }catch(err){}
+      enterApp();
+    } else {
+      loginError.classList.add('show');
+    }
   });
 
-  function logout(){ sb.auth.signOut(); }
+  function logout(){
+    try{ sessionStorage.removeItem('ygmAdminOK'); }catch(err){}
+    showLogin();
+  }
   document.getElementById('logoutBtnHome').addEventListener('click', logout);
   document.getElementById('logoutBtn').addEventListener('click', logout);
 
-  sb.auth.onAuthStateChange(function(event, session){
-    if(session){
-      loginScreen.style.display = 'none';
-      dashboard.classList.remove('show');
-      homeScreen.classList.add('show');
-    } else {
-      homeScreen.classList.remove('show');
-      dashboard.classList.remove('show');
-      loginScreen.style.display = 'flex';
-    }
-  });
+  var alreadyIn = false;
+  try{ alreadyIn = sessionStorage.getItem('ygmAdminOK') === '1'; }catch(err){}
+  if(alreadyIn){ enterApp(); } else { showLogin(); }
 
   viewRequestsBtn.addEventListener('click', function(){
     homeScreen.classList.remove('show');
