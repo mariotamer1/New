@@ -8,7 +8,12 @@
 <meta property="og:title" content="YGM Painting — A Fresh Coat. A New Look.">
 <meta property="og:description" content="Professional interior, exterior, and siding painting. Rated 5.0 stars. Free estimates.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://ygmpainting.com/">
+<meta property="og:image" content="https://ygmpainting.com/nbp-hero-poster.jpg">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ygmpainting.com/nbp-hero-poster.jpg">
 <link rel="canonical" href="https://ygmpainting.com/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +23,7 @@
   "@context": "https://schema.org",
   "@type": "PaintingContractor",
   "name": "YGM Painting",
-  "image": "https://ygmpainting.com/og-image.jpg",
+  "image": "https://ygmpainting.com/nbp-hero-poster.jpg",
   "telephone": "+1-206-396-7882",
   "address": {
     "@type": "PostalAddress",
@@ -199,6 +204,13 @@
     margin-top:26px; max-width:38ch; font-size:18px; color:var(--ink-dim);
   }
   .hero-ctas{display:flex; gap:16px; margin-top:44px; flex-wrap:wrap;}
+  .hero-trust{display:flex; gap:22px; margin-top:36px; flex-wrap:wrap;}
+  .hero-trust span{
+    display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink-dim); letter-spacing:.01em;
+  }
+  .hero-trust span::before{
+    content:''; width:5px; height:5px; border-radius:50%; background:var(--ochre-light); flex-shrink:0;
+  }
   .btn{
     display:inline-flex; align-items:center; justify-content:center;
     padding:16px 30px; font-size:15px; font-weight:600; border-radius:2px;
@@ -360,6 +372,21 @@
   .band{padding:120px 0;}
   .band-alt{background:var(--bg-raised);}
   .band-line{border-top:1px solid var(--line);}
+
+  /* ---------- faq ---------- */
+  .faq-list{max-width:760px;}
+  .faq-item{border-bottom:1px solid var(--line);}
+  .faq-item summary{
+    list-style:none; cursor:pointer; padding:26px 0; display:flex; align-items:center; justify-content:space-between;
+    gap:20px; font-family:'Fraunces',Georgia,serif; font-weight:600; font-size:18px; color:var(--ink);
+  }
+  .faq-item summary::-webkit-details-marker{display:none;}
+  .faq-item summary::after{
+    content:'+'; font-family:'Inter',sans-serif; font-weight:400; font-size:22px; color:var(--ochre-light);
+    flex-shrink:0; transition:transform .25s var(--ease);
+  }
+  .faq-item[open] summary::after{transform:rotate(45deg);}
+  .faq-item p{color:var(--ink-dim); font-size:15.5px; max-width:64ch; padding-bottom:26px; margin-top:-8px;}
 
   /* ---------- reveal ---------- */
   .reveal{
@@ -794,6 +821,11 @@
       <a href="#" class="btn btn-primary js-open-estimate">Get a Free Estimate</a>
       <a href="#story" class="btn btn-ghost">View Our Work</a>
     </div>
+    <div class="hero-trust">
+      <span>Licensed &amp; Insured</span>
+      <span>Free Estimates</span>
+      <span>Spotless Job Sites</span>
+    </div>
   </div>
   <div class="scroll-cue"><span>Scroll to explore</span><span class="line"></span></div>
 </section>
@@ -988,6 +1020,42 @@
   </div>
 </section>
 
+<!-- ================= FAQ ================= -->
+<section class="band" id="faq">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="section-tag">Good to know</p>
+      <h2>Questions we hear a lot.</h2>
+    </div>
+    <div class="faq-list reveal">
+      <details class="faq-item">
+        <summary>How long does a typical job take?</summary>
+        <p>It depends on the size and scope — a single room is often a day or two, while a full exterior repaint usually runs several days. We'll give you a clear timeline before any work starts, and hold to it.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do I need to move my furniture?</summary>
+        <p>No — we move and carefully cover furniture, flooring, and fixtures ourselves as part of prep, and put everything back when we're done.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What paint do you use?</summary>
+        <p>We use professional-grade paint suited to the surface and conditions of your job. We're happy to talk through options and finishes when we quote your project.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can you match HOA-approved or specific colors?</summary>
+        <p>Yes — bring us a swatch, a code, or your HOA's approved palette and we'll match it.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Is the estimate really free?</summary>
+        <p>Yes, no cost and no obligation. Submit a request and we'll follow up with pricing and next steps.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do you clean up after the job?</summary>
+        <p>Every time. Job sites are left spotless — no leftover tape, drop cloths, or debris.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
 <!-- ================= CONTACT ================= -->
 <section class="band" id="contact">
   <div class="wrap">
@@ -1031,6 +1099,7 @@
         <a href="#services">Services</a>
         <a href="#story">Our Work</a>
         <a href="#reviews">Reviews</a>
+        <a href="#faq">FAQ</a>
         <a href="#contact">Contact</a>
       </div>
       <div class="footer-col">
