@@ -17,7 +17,7 @@
 <link rel="canonical" href="https://ygmpainting.com/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Anton&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -195,49 +195,6 @@
   .c3d-arrow:hover{background:rgba(10,11,12,0.7); transform:scale(1.06);}
   .c3d-arrow:disabled{opacity:.4; pointer-events:none;}
 
-  /* ---------- hero ---------- */
-  .hero3d{min-height:100svh; position:relative; overflow:hidden; background:var(--bg);}
-  .hero3d-ghost{
-    position:absolute; inset-inline:0; top:14%; z-index:2; text-align:center;
-    font-family:'Anton',sans-serif; font-weight:400; text-transform:uppercase;
-    font-size:clamp(48px, 11vw, 148px); line-height:0.94; letter-spacing:-0.01em;
-    color:var(--ink); opacity:0.06; pointer-events:none; user-select:none;
-  }
-  .hero3d .c3d-stage{position:absolute; inset:0; z-index:3;}
-  .hero3d .c3d-item[data-role="center"]{left:50%; bottom:8%; width:min(30vw,420px); height:64%;}
-  .hero3d .c3d-item[data-role="left"]{left:20%; bottom:2%; width:min(17vw,220px); height:32%;}
-  .hero3d .c3d-item[data-role="right"]{left:80%; bottom:2%; width:min(17vw,220px); height:32%;}
-  .hero3d .c3d-item[data-role="back"]{left:50%; bottom:0; width:min(13vw,170px); height:24%;}
-  .hero3d .c3d-item img{object-fit:cover;}
-  .hero3d-copy{position:absolute; z-index:60; left:clamp(20px,5vw,56px); bottom:52px; max-width:340px;}
-  .hero3d-copy .hero-eyebrow{margin-bottom:14px;}
-  .hero3d-copy .hero-sub{margin-top:8px; font-size:15px;}
-  .hero3d-copy .hero-trust{margin-top:20px; gap:14px;}
-  .hero3d-copy .hero-trust span{font-size:12.5px;}
-  .hero3d-copy .c3d-nav{margin-top:26px;}
-  @media (max-width:640px){
-    .hero3d-ghost{top:6%; font-size:clamp(40px,13vw,80px);}
-    .hero3d .c3d-item[data-role="center"]{width:58vw; height:34%; bottom:32%;}
-    .hero3d .c3d-item[data-role="left"]{width:28vw; height:19%; left:14%; bottom:28%;}
-    .hero3d .c3d-item[data-role="right"]{width:28vw; height:19%; left:86%; bottom:28%;}
-    .hero3d .c3d-item[data-role="back"]{width:20vw; height:14%; bottom:26%;}
-    .hero3d-copy{left:20px; right:20px; bottom:74px; max-width:none;}
-    .hero3d-copy .hero-sub{display:none;}
-    .hero3d-copy .hero-trust{gap:10px;}
-  }
-  .hero-eyebrow{
-    color:var(--ochre-light); font-size:14.5px; margin-bottom:22px; max-width:480px;
-  }
-  .hero-sub{
-    margin-top:26px; max-width:38ch; font-size:18px; color:var(--ink-dim);
-  }
-  .hero-trust{display:flex; gap:22px; margin-top:36px; flex-wrap:wrap;}
-  .hero-trust span{
-    display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink-dim); letter-spacing:.01em;
-  }
-  .hero-trust span::before{
-    content:''; width:5px; height:5px; border-radius:50%; background:var(--ochre-light); flex-shrink:0;
-  }
   .btn{
     display:inline-flex; align-items:center; justify-content:center;
     padding:16px 30px; font-size:15px; font-weight:600; border-radius:2px;
@@ -248,14 +205,6 @@
   .btn-primary:hover{transform:translateY(-2px); background:#e8b877;}
   .btn-ghost{border-color:var(--line-strong); color:var(--ink);}
   .btn-ghost:hover{border-color:var(--ink); transform:translateY(-2px);}
-
-  .scroll-cue{
-    position:absolute; bottom:34px; left:50%; transform:translateX(-50%);
-    display:flex; flex-direction:column; align-items:center; gap:10px;
-    font-size:12px; color:var(--ink-faint); z-index:3;
-  }
-  .scroll-cue .line{width:1px; height:34px; background:linear-gradient(var(--ink-faint), transparent); animation:cueMove 2s infinite;}
-  @keyframes cueMove{0%{opacity:0.2;} 50%{opacity:1;} 100%{opacity:0.2;}}
 
   /* ---------- swipe carousel ---------- */
   .story{position:relative; background:var(--bg);}
@@ -800,31 +749,6 @@
       <div class="vscrub-progress"><i><b id="vscrubFill"></b></i></div>
     </div>
   </div>
-</section>
-
-<!-- ================= HERO (3D carousel) ================= -->
-<section class="hero3d" data-c3d>
-  <h1 class="hero3d-ghost">A fresh coat.<br>A new look.</h1>
-  <div class="c3d-stage">
-    <div class="c3d-item"><img src="nbp-slide1-prep.jpg" alt="Painter masking off a wall before painting"></div>
-    <div class="c3d-item"><img src="nbp-slide2-exterior.jpg" alt="Interior and exterior painting work"></div>
-    <div class="c3d-item"><img src="nbp-slide3-house.jpg" alt="Freshly painted house exterior"></div>
-    <div class="c3d-item"><img src="nbp-slide4-handshake.jpg" alt="Painter shaking hands with a happy homeowner"></div>
-  </div>
-  <div class="hero3d-copy">
-    <p class="hero-eyebrow">Interior · Exterior · House Siding</p>
-    <p class="hero-sub">Professional painting, done on schedule and cleaned up after — for homes and businesses that want it done right the first time.</p>
-    <div class="hero-trust">
-      <span>Licensed &amp; Insured</span>
-      <span>Free Estimates</span>
-      <span>Spotless Job Sites</span>
-    </div>
-    <div class="c3d-nav">
-      <button type="button" class="c3d-arrow prev" data-dir="prev" aria-label="Previous photo">‹</button>
-      <button type="button" class="c3d-arrow next" data-dir="next" aria-label="Next photo">›</button>
-    </div>
-  </div>
-  <div class="scroll-cue"><span>Scroll to explore</span><span class="line"></span></div>
 </section>
 
 <!-- ================= SCROLL STORY ================= -->
