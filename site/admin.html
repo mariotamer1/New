@@ -437,6 +437,12 @@
             '</div>' +
             (s.details ? '<div class="req-details"><div class="label">Project details</div>' + escapeHtml(s.details) + '</div>' : '') +
             (s.reply ? '<div class="req-reply-preview req-details"><div class="label">Your reply</div>' + escapeHtml(s.reply) + '</div>' : '') +
+            ((s.messages && s.messages.length) ? '<div class="req-reply-preview req-details"><div class="label">Follow-up messages</div>' +
+              s.messages.map(function(m){
+                return '<div style="margin-top:6px;"><strong style="color:var(--ink); font-size:12.5px;">' +
+                  (m.sender === 'admin' ? 'You' : 'Customer') + ':</strong> ' + escapeHtml(m.body) + '</div>';
+              }).join('') +
+            '</div>' : '') +
             '<div class="req-actions">' +
               '<button type="button" class="delete-btn" data-action="delete">Delete</button>' +
               '<button type="button" class="reply-btn" data-action="reply">Reply</button>' +
