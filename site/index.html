@@ -1415,7 +1415,7 @@
           if(rows.length === 0){
             statusResults.innerHTML = '<h3>No request found</h3><p>We couldn\'t find a request with that phone number or email. Double check them, or call us directly.</p><button type="button" class="qe-exit js-close-status">Exit</button>';
           } else {
-            var html = '<h3 style="margin-bottom:20px;">Chatting with Israel (The Owner)</h3>';
+            var html = '<h3 style="margin-bottom:20px;">Chatting with Ysrael (The Owner)</h3>';
             rows.forEach(function(row){
               var isAnswered = row.status === 'answered';
               var msgs = [{ sender: 'customer', body: row.details || '(No details provided)' }];
