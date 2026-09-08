@@ -384,7 +384,8 @@
   .service-card p{margin-top:12px; color:var(--ink-dim); font-size:15px;}
 
   /* ---------- color palette (per-swatch hover pop) ---------- */
-  .palette-row{display:flex; flex-direction:column; align-items:center; gap:24px; margin-top:60px;}
+  .palette-row{display:flex; gap:36px; flex-wrap:wrap; margin-top:60px; align-items:stretch;}
+  .palette-left{flex:0 0 420px; max-width:420px; display:flex; flex-direction:column; align-items:center; gap:22px;}
   .palette-caption{
     font-family:'Fraunces',serif; font-style:italic; font-weight:500;
     font-size:clamp(1.3rem,2.4vw,1.9rem); color:var(--ink-dim);
@@ -439,6 +440,29 @@
       transform:scale(1); box-shadow:none; border-radius:0; filter:none;
     }
     .palette-cell:hover::after, .palette-cell:focus-visible::after{ opacity:0; }
+  }
+
+  /* ---------- palette photos + live repaint ---------- */
+  .palette-photos{flex:1 1 320px; display:flex; flex-direction:column; gap:14px; min-height:300px;}
+  .photo-frame{
+    position:relative; flex:1 1 0; border-radius:8px; overflow:hidden;
+    border:1px solid var(--line-strong); box-shadow:0 20px 50px rgba(0,0,0,0.35); background:var(--bg-raised);
+  }
+  .photo-frame img{width:100%; height:100%; object-fit:cover; display:block;}
+  /* recolors the wall in place — 'color' blend keeps the photo's original shadow/
+     highlight detail and only swaps the hue, so it reads as a repaint, not a flat tint */
+  .wall-overlay{
+    position:absolute; pointer-events:none; mix-blend-mode:color;
+    background-color:transparent; opacity:0;
+    transition:opacity .5s var(--ease), background-color .5s var(--ease);
+  }
+  .wall-overlay.active{opacity:0.92;}
+  @media (max-width:860px){
+    .palette-row{flex-direction:column; align-items:stretch;}
+    .palette-left{flex:0 0 auto; max-width:none; width:100%;}
+    .palette-zone{max-width:420px; margin:0 auto;}
+    .palette-photos{flex:0 0 auto; min-height:0;}
+    .photo-frame{flex:none; aspect-ratio:16/9;}
   }
 
   /* ---------- before/after 3D gallery ---------- */
@@ -956,6 +980,7 @@
     </div>
 
     <div class="palette-row">
+      <div class="palette-left">
       <div class="palette-zone reveal" id="paletteZone">
         <div class="palette-grid">
           <button type="button" class="palette-cell" style="--cell-color:#86989E;" data-name="Water's Edge" data-hex="#86989E" aria-label="Water's Edge"></button>
@@ -993,6 +1018,22 @@
         </div>
       </div>
       <p class="palette-caption" id="paletteCaption">Hover over any color to see the outcome.</p>
+      </div>
+      <div class="palette-photos">
+        <div class="photo-frame" id="roomFrame">
+          <img src="palette-room.jpg" alt="Living room interior wall">
+          <div class="wall-overlay" data-wall="room" style="left:0%; top:0%; width:51.5%; height:26%;"></div>
+          <div class="wall-overlay" data-wall="room" style="left:0%; top:26%; width:6.5%; height:35%;"></div>
+          <div class="wall-overlay" data-wall="room" style="left:36.5%; top:26%; width:10%; height:35%;"></div>
+          <div class="wall-overlay" data-wall="room" style="left:72%; top:0%; width:28%; height:26%;"></div>
+          <div class="wall-overlay" data-wall="room" style="left:72%; top:26%; width:6%; height:35%;"></div>
+          <div class="wall-overlay" data-wall="room" style="left:88%; top:26%; width:6%; height:35%;"></div>
+        </div>
+        <div class="photo-frame" id="houseFrame">
+          <img src="palette-house.jpg" alt="House exterior wall">
+          <div class="wall-overlay" data-wall="house" style="clip-path:polygon(14.5% 67%, 14.5% 38.5%, 34% 18.8%, 47.5% 38.5%, 88.5% 38.5%, 88.5% 75%, 47.5% 78%); left:0; top:0; width:100%; height:100%;"></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1929,30 +1970,51 @@
   } catch(e) {}
 
   try {
-    /* color palette — per-swatch hover pop + live name on the right */
+    /* color palette — per-swatch hover pop, live name, and live repaint of the
+       room + house photos. Hovering previews a color (desktop); tapping/clicking
+       "selects" it so it stays applied after the pointer leaves (mobile has no
+       hover, so a tap has to be the thing that sticks). */
     var paletteCells = document.querySelectorAll('.palette-cell');
     var paletteCaption = document.getElementById('paletteCaption');
     var paletteDefaultText = paletteCaption ? paletteCaption.textContent : '';
+    var wallOverlays = document.querySelectorAll('.wall-overlay');
+    var selectedHex = null;
+    var selectedName = null;
+
+    function paintWalls(hex){
+      wallOverlays.forEach(function(el){
+        el.style.backgroundColor = hex || 'transparent';
+        el.classList.toggle('active', !!hex);
+      });
+    }
+    function showCaption(text){
+      if(!paletteCaption) return;
+      paletteCaption.textContent = text || paletteDefaultText;
+      paletteCaption.classList.toggle('active', !!text);
+    }
+
     paletteCells.forEach(function(cell){
       cell.addEventListener('mouseenter', function(){
-        if(!paletteCaption) return;
-        paletteCaption.textContent = cell.dataset.name;
-        paletteCaption.classList.add('active');
+        showCaption(cell.dataset.name);
+        paintWalls(cell.dataset.hex);
       });
       cell.addEventListener('mouseleave', function(){
-        if(!paletteCaption) return;
-        paletteCaption.textContent = paletteDefaultText;
-        paletteCaption.classList.remove('active');
+        showCaption(selectedName);
+        paintWalls(selectedHex);
       });
       cell.addEventListener('focus', function(){
-        if(!paletteCaption) return;
-        paletteCaption.textContent = cell.dataset.name;
-        paletteCaption.classList.add('active');
+        showCaption(cell.dataset.name);
+        paintWalls(cell.dataset.hex);
       });
       cell.addEventListener('blur', function(){
-        if(!paletteCaption) return;
-        paletteCaption.textContent = paletteDefaultText;
-        paletteCaption.classList.remove('active');
+        showCaption(selectedName);
+        paintWalls(selectedHex);
+      });
+      cell.addEventListener('click', function(){
+        selectedHex = cell.dataset.hex;
+        selectedName = cell.dataset.name;
+        showCaption(selectedName);
+        paintWalls(selectedHex);
       });
     });
   } catch(e) {}
