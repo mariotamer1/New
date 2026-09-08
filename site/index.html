@@ -740,6 +740,28 @@
   }
   .chat-input-row textarea::placeholder{color:var(--ink-faint); opacity:0.55;}
   .chat-send-btn{padding:11px 18px; font-size:13.5px; flex-shrink:0;}
+
+  /* ---------- compact popups on small phones so they fit without scrolling ---------- */
+  @media (max-width:480px), (max-height:700px){
+    .qe-overlay{padding:12px;}
+    .qe-modal{padding:18px; max-height:96vh; border-radius:6px;}
+    .qe-close{top:12px; right:12px; font-size:18px;}
+    .qe-modal h3{font-size:18px; margin-bottom:4px;}
+    .qe-modal > p{font-size:12.5px; margin-bottom:14px;}
+    .qe-field{margin-bottom:10px;}
+    .qe-field label{font-size:12.5px; margin-bottom:5px;}
+    .qe-field input, .qe-field textarea{padding:10px 12px; font-size:14px;}
+    .qe-field textarea{min-height:80px;}
+    .qe-submit{padding:12px; margin-top:2px;}
+    .qe-exit{margin-top:8px; padding:4px 0;}
+    .chat-thread-block{margin-bottom:14px; padding-bottom:12px;}
+    .chat-req-head{margin-bottom:8px;}
+    .chat-req-head strong{font-size:14.5px;}
+    .chat-bubble{padding:9px 12px; font-size:13.5px; margin-bottom:7px; border-radius:12px;}
+    .chat-input-row{margin-top:8px; gap:6px;}
+    .chat-input-row textarea{min-height:36px; padding:8px 10px; font-size:13px;}
+    .chat-send-btn{padding:9px 14px; font-size:12.5px;}
+  }
 </style>
 </head>
 <body>
