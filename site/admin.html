@@ -70,8 +70,8 @@
   .admin-nav-inner .logo img{height:34px; border-radius:3px;}
   .admin-nav-inner .logo span{font-family:'Fraunces',serif; font-weight:600; font-size:15px;}
   .logout-btn{
-    background:none; border:1px solid var(--line-strong); color:var(--ink-dim);
-    padding:8px 16px; border-radius:3px; font-size:13.5px; transition:all .2s var(--ease);
+    display:inline-block; background:none; border:1px solid var(--line-strong); color:var(--ink-dim);
+    padding:8px 16px; border-radius:3px; font-size:13.5px; transition:all .2s var(--ease); text-decoration:none;
   }
   .logout-btn:hover{border-color:var(--ink); color:var(--ink);}
 
@@ -217,7 +217,7 @@
   <header class="admin-nav">
     <div class="admin-nav-inner">
       <div class="logo"><img src="ygm-logo.jpg" alt="YGM Painting"><span>Admin</span></div>
-      <button class="logout-btn" id="logoutBtnHome">Log Out</button>
+      <a href="index.html" class="logout-btn">Return To Home Page</a>
     </div>
   </header>
   <div class="home-hero">
@@ -231,7 +231,7 @@
   <header class="admin-nav">
     <div class="admin-nav-inner">
       <div class="logo"><img src="ygm-logo.jpg" alt="YGM Painting"><span>Requests</span></div>
-      <button class="logout-btn" id="logoutBtn">Log Out</button>
+      <a href="index.html" class="logout-btn">Return To Home Page</a>
     </div>
   </header>
   <div class="wrap">
@@ -347,14 +347,6 @@
   function stopAutoRefresh(){
     if(refreshTimer){ clearInterval(refreshTimer); refreshTimer = null; }
   }
-
-  function logout(){
-    try{ sessionStorage.removeItem('ygmAdminOK'); }catch(err){}
-    stopAutoRefresh();
-    showLogin();
-  }
-  document.getElementById('logoutBtnHome').addEventListener('click', logout);
-  document.getElementById('logoutBtn').addEventListener('click', logout);
 
   var alreadyIn = false;
   try{ alreadyIn = sessionStorage.getItem('ygmAdminOK') === '1'; }catch(err){}
