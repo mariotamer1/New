@@ -3,16 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YGM Painting | Professional Painters — Fresh Coat, New Look</title>
-<meta name="description" content="YGM Painting delivers professional interior, exterior, and house siding painting. Free estimates, on-time work, spotless job sites.">
+<title>YGM Painting | Interior & Exterior House Painters in Auburn, WA</title>
+<meta name="description" content="YGM Painting is a licensed, A+ BBB-accredited painting contractor serving Auburn, WA and all of Washington State since 2018. Interior, exterior, siding, and cabinet painting with free, no-obligation estimates.">
+<meta name="keywords" content="house painter Auburn WA, painting contractor Washington State, interior painting, exterior painting, house siding painting, cabinet painting, color consultation, free painting estimate, YGM Painting, Ysrael Melgar">
+<meta name="robots" content="index, follow">
+<meta name="author" content="YGM Painting">
+<meta name="theme-color" content="#14161a">
 <meta property="og:title" content="YGM Painting — A Fresh Coat. A New Look.">
-<meta property="og:description" content="Professional interior, exterior, and siding painting. Rated 5.0 stars. Free estimates.">
+<meta property="og:description" content="Licensed, A+ BBB-accredited painting contractor serving Auburn, WA and all of Washington State since 2018. Free, no-obligation estimates.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ygmpainting.com/">
 <meta property="og:image" content="https://ygmpainting.com/nbp-hero-poster.jpg">
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="1080">
+<meta property="og:site_name" content="YGM Painting">
+<meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="YGM Painting — A Fresh Coat. A New Look.">
+<meta name="twitter:description" content="Licensed, A+ BBB-accredited painting contractor serving Auburn, WA and all of Washington State since 2018.">
 <meta name="twitter:image" content="https://ygmpainting.com/nbp-hero-poster.jpg">
 <link rel="canonical" href="https://ygmpainting.com/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,18 +32,35 @@
   "@type": "PaintingContractor",
   "name": "YGM Painting",
   "image": "https://ygmpainting.com/nbp-hero-poster.jpg",
+  "url": "https://ygmpainting.com/",
   "telephone": "+1-206-396-7882",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "2205 27th St SE",
-    "addressLocality": "Auburn",
-    "addressRegion": "WA",
-    "postalCode": "98002",
-    "addressCountry": "US"
+  "priceRange": "$$",
+  "foundingDate": "2018",
+  "areaServed": {
+    "@type": "State",
+    "name": "Washington"
+  },
+  "founder": {
+    "@type": "Person",
+    "name": "Ysrael G Melgar"
   },
   "openingHoursSpecification": [
     {"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"08:00","closes":"17:00"},
     {"@type":"OpeningHoursSpecification","dayOfWeek":"Saturday","opens":"09:00","closes":"14:00"}
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"How long does a typical job take?","acceptedAnswer":{"@type":"Answer","text":"It depends on the size and scope — a single room is often a day or two, while a full exterior repaint usually runs several days. We'll give you a clear timeline before any work starts, and hold to it."}},
+    {"@type":"Question","name":"Do I need to move my furniture?","acceptedAnswer":{"@type":"Answer","text":"No — we move and carefully cover furniture, flooring, and fixtures ourselves as part of prep, and put everything back when we're done."}},
+    {"@type":"Question","name":"What paint do you use?","acceptedAnswer":{"@type":"Answer","text":"We use professional-grade paint suited to the surface and conditions of your job. We're happy to talk through options and finishes when we quote your project."}},
+    {"@type":"Question","name":"Can you match HOA-approved or specific colors?","acceptedAnswer":{"@type":"Answer","text":"Yes — bring us a swatch, a code, or your HOA's approved palette and we'll match it."}},
+    {"@type":"Question","name":"Is the estimate really free?","acceptedAnswer":{"@type":"Answer","text":"Yes, no cost and no obligation. Submit a request and we'll follow up with pricing and next steps."}},
+    {"@type":"Question","name":"Do you clean up after the job?","acceptedAnswer":{"@type":"Answer","text":"Every time. Job sites are left spotless — no leftover tape, drop cloths, or debris."}}
   ]
 }
 </script>
@@ -727,6 +752,13 @@
     border-radius:3px; padding:13px 14px; color:var(--ink); font-size:15px; font-family:inherit;
   }
   .qe-field textarea::placeholder, .qe-field input::placeholder{color:var(--ink-faint); opacity:0.55;}
+  .qe-company-field{position:absolute; left:-9999px; top:-9999px; width:1px; height:1px; overflow:hidden;}
+  .qe-consent-row{
+    display:flex; align-items:flex-start; gap:9px; margin-bottom:16px; cursor:pointer;
+  }
+  .qe-consent-row input{margin-top:3px; flex:0 0 auto;}
+  .qe-consent-row span{font-size:12.5px; color:var(--ink-faint); line-height:1.5;}
+  .qe-consent-row a{color:var(--ochre-light);}
   .qe-submit{width:100%; margin-top:6px;}
   .qe-exit{
     display:block; width:100%; text-align:center; margin-top:14px; background:none; border:none;
@@ -1088,6 +1120,10 @@
         <div class="qe-field">
           <textarea id="reviewText" placeholder="Describe your experience" required></textarea>
         </div>
+        <div class="qe-company-field" aria-hidden="true">
+          <label for="reviewCompany">Company</label>
+          <input id="reviewCompany" type="text" tabindex="-1" autocomplete="off">
+        </div>
         <button type="submit" class="btn btn-primary qe-submit">Submit</button>
         <button type="button" class="qe-exit js-close-review-form">Exit</button>
         <p id="reviewFormError" style="display:none; margin-top:14px; font-size:13.5px; color:#e07a7a;">
@@ -1151,24 +1187,15 @@
       <p class="section-tag">Get in touch</p>
       <h2>Let's talk about your project.</h2>
     </div>
-    <div class="contact-grid reveal">
+    <div class="contact-grid reveal" style="grid-template-columns:1fr; max-width:520px;">
       <div class="contact-card">
         <div class="contact-row"><span>Phone</span><span>(206) 396-7882</span></div>
-        <div class="contact-row"><span>Location</span><span>2205 27th St SE, Auburn, WA 98002</span></div>
+        <div class="contact-row"><span>Service Area</span><span>Washington State</span></div>
         <div class="contact-row"><span>Hours</span><span style="text-align:right;">Mon–Fri 8am–5pm<br>Sat 9am–2pm<br>Sunday: Closed</span></div>
         <div class="contact-actions">
           <a href="tel:+12063967882" class="btn btn-primary">Call Now</a>
-          <a href="https://maps.google.com/?q=2205+27th+St+SE,+Auburn,+WA+98002" class="btn btn-ghost" target="_blank" rel="noopener">Get Directions</a>
+          <a href="#" class="btn btn-ghost js-open-estimate">Free Estimate</a>
         </div>
-      </div>
-      <div class="map-box">
-        <iframe
-          title="YGM Painting location map"
-          src="https://maps.google.com/maps?q=2205%2027th%20St%20SE%2C%20Auburn%2C%20WA%2098002&z=15&output=embed"
-          style="width:100%; height:100%; border:0; border-radius:4px;"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
       </div>
     </div>
   </div>
@@ -1193,14 +1220,13 @@
       <div class="footer-col">
         <h4>Details</h4>
         <a href="tel:+12063967882">(206) 396-7882</a>
-        <a href="https://maps.google.com/?q=2205+27th+St+SE,+Auburn,+WA+98002" target="_blank" rel="noopener">2205 27th St SE, Auburn, WA 98002</a>
         <a href="#contact">Mon–Fri 8am–5pm, Sat 9am–2pm (closed Sunday)</a>
-        <a href="#">Google Business Profile</a>
+        <a href="#" id="footerGbpLink">Google Business Profile</a>
       </div>
     </div>
     <div class="footer-bottom">
       <span>© 2026 YGM Painting. All rights reserved.</span>
-      <span><a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="terms.html">Terms &amp; Conditions</a> &nbsp;·&nbsp; <a href="cookies.html">Cookies</a></span>
+      <span><a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="terms.html">Terms &amp; Conditions</a> &nbsp;·&nbsp; <a href="cookies.html">Cookies</a> &nbsp;·&nbsp; <a href="consent.html">Contact Consent</a></span>
     </div>
     <p class="footer-disclaimer">
       We collect the information you submit through our estimate and contact forms (name, phone number, email, and project details) solely to respond to your request. We do not sell or share it with third parties. See our Privacy Policy and Cookies page for details.
@@ -1241,6 +1267,14 @@
           <label for="qeDesc">Project details</label>
           <textarea id="qeDesc" placeholder="Please describe or tell us the square footage of where you're trying to paint."></textarea>
         </div>
+        <div class="qe-company-field" aria-hidden="true">
+          <label for="qeCompany">Company</label>
+          <input id="qeCompany" type="text" tabindex="-1" autocomplete="off">
+        </div>
+        <label class="qe-consent-row">
+          <input type="checkbox" id="qeConsent" required>
+          <span>I consent that YGM Painting may contact me by the contact information I wrote above. <a href="consent.html" target="_blank" rel="noopener">Learn more</a></span>
+        </label>
         <button type="submit" class="btn btn-primary qe-submit">Request Estimate</button>
         <button type="button" class="qe-exit js-close-estimate">Exit</button>
         <p id="qeFormError" style="display:none; margin-top:14px; font-size:13.5px; color:#e07a7a;">
@@ -1307,9 +1341,11 @@
 
     var qeCloseTimer = null;
 
+    var qeOpenedAt = 0;
     function openQuickEstimate(e){
       if(e) e.preventDefault();
       if(!qeOverlay) return;
+      qeOpenedAt = Date.now();
       if(qeCloseTimer){ clearTimeout(qeCloseTimer); qeCloseTimer = null; }
       if(qeFormWrap) qeFormWrap.style.display = 'block';
       if(qeSuccess) qeSuccess.style.display = 'none';
@@ -1362,6 +1398,15 @@
         function showError(){
           if(qeFormError) qeFormError.style.display = 'block';
           if(qeSubmitBtn){ qeSubmitBtn.disabled = false; qeSubmitBtn.textContent = 'Request Estimate'; }
+        }
+
+        /* spam guard: honeypot field a real visitor never sees or fills,
+           plus a minimum fill time — bots tend to submit instantly */
+        var qeHoneypot = document.getElementById('qeCompany');
+        var filledTooFast = qeOpenedAt && (Date.now() - qeOpenedAt) < 2500;
+        if((qeHoneypot && qeHoneypot.value.trim() !== '') || filledTooFast){
+          showSuccess();
+          return;
         }
 
         if(!qeClient){
@@ -1596,8 +1641,10 @@
     if(reviewsExitBtn) reviewsExitBtn.addEventListener('click', closeReviewsOverlay);
 
     var reviewFormCloseTimer = null;
+    var reviewFormOpenedAt = 0;
     function openReviewForm(){
       if(!reviewFormOverlay) return;
+      reviewFormOpenedAt = Date.now();
       if(reviewFormCloseTimer){ clearTimeout(reviewFormCloseTimer); reviewFormCloseTimer = null; }
       if(reviewFormError) reviewFormError.style.display = 'none';
       reviewFormOverlay.style.display = 'flex';
@@ -1649,6 +1696,15 @@
         function showReviewError(){
           if(reviewFormError) reviewFormError.style.display = 'block';
           if(reviewSubmitBtn){ reviewSubmitBtn.disabled = false; reviewSubmitBtn.textContent = 'Submit'; }
+        }
+
+        var reviewHoneypot = document.getElementById('reviewCompany');
+        var reviewFilledTooFast = reviewFormOpenedAt && (Date.now() - reviewFormOpenedAt) < 2500;
+        if((reviewHoneypot && reviewHoneypot.value.trim() !== '') || reviewFilledTooFast){
+          reviewForm.reset();
+          closeReviewForm();
+          setTimeout(openReviewThanks, 420);
+          return;
         }
 
         if(!qeClient){ showReviewError(); return; }
