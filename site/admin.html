@@ -108,10 +108,20 @@
 
   /* each request: a rounded box, collapsed to just the name, expands in place */
   .req-card{
-    border:1px solid var(--line); border-radius:10px; background:var(--bg-raised);
+    position:relative; border:1px solid var(--line); border-radius:10px;
     margin-bottom:14px; overflow:hidden; transition:border-color .2s var(--ease);
   }
   .req-card:hover{border-color:var(--line-strong);}
+  .req-swipe-delete{
+    position:absolute; top:0; right:0; height:100%; width:84px;
+    background:#e05a5a; color:#fff; border:0; font-family:inherit; font-weight:700; font-size:14px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .req-card-front{
+    position:relative; z-index:1; background:var(--bg-raised);
+    transform:translateX(0); touch-action:pan-y; transition:transform .25s var(--ease);
+  }
+  .req-card-front.dragging{transition:none;}
   .req-head{
     display:flex; align-items:center; justify-content:space-between; gap:14px;
     padding:20px 22px; cursor:pointer; background:none; border:none; width:100%; text-align:left;
@@ -416,6 +426,8 @@
       var phoneDigits = (s.phone || '').replace(/[^\d+]/g, '');
       return (
         '<div class="req-card" data-id="' + s.id + '">' +
+          '<button type="button" class="req-swipe-delete" data-action="delete">Delete</button>' +
+          '<div class="req-card-front">' +
           '<button type="button" class="req-head" data-action="toggle-expand">' +
             '<div>' +
               '<div class="req-name">' + escapeHtml(s.name || 'No name given') + '</div>' +
@@ -441,12 +453,74 @@
               '<button type="button" class="reply-btn" data-action="reply">Reply</button>' +
             '</div>' +
           '</div></div>' +
+          '</div>' +
         '</div>'
       );
     }).join('');
   }
 
+  /* swipe-to-delete, iMessage-style: dragging a card's front layer left
+     reveals a red Delete button underneath; release past the halfway point
+     to leave it open, tap Delete to remove the request, tap anywhere else
+     to snap it back closed. Delegated so it survives every render(). */
+  var SWIPE_REVEAL = 84;
+  var swipe = null;
+  var justSwiped = false;
+
+  reqList.addEventListener('pointerdown', function(e){
+    var front = e.target.closest('.req-card-front');
+    if(!front) return;
+    swipe = {
+      front: front,
+      startX: e.clientX,
+      startY: e.clientY,
+      openStart: front.classList.contains('swipe-open') ? -SWIPE_REVEAL : 0,
+      dx: 0,
+      dragging: false
+    };
+  });
+
+  reqList.addEventListener('pointermove', function(e){
+    if(!swipe) return;
+    var dx = e.clientX - swipe.startX;
+    var dy = e.clientY - swipe.startY;
+    if(!swipe.dragging){
+      if(Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if(Math.abs(dy) > Math.abs(dx)){ swipe = null; return; } /* vertical scroll, not a swipe */
+      swipe.dragging = true;
+      swipe.front.classList.add('dragging');
+    }
+    var clamped = Math.max(-SWIPE_REVEAL, Math.min(0, swipe.openStart + dx));
+    swipe.dx = clamped;
+    swipe.front.style.transform = 'translateX(' + clamped + 'px)';
+  });
+
+  function endSwipe(){
+    if(!swipe) return;
+    var st = swipe;
+    swipe = null;
+    st.front.classList.remove('dragging');
+    if(!st.dragging) return;
+    var openNow = st.dx <= -(SWIPE_REVEAL / 2);
+    st.front.classList.toggle('swipe-open', openNow);
+    st.front.style.transform = openNow ? 'translateX(-' + SWIPE_REVEAL + 'px)' : '';
+    justSwiped = true;
+    setTimeout(function(){ justSwiped = false; }, 0);
+  }
+  reqList.addEventListener('pointerup', endSwipe);
+  reqList.addEventListener('pointercancel', endSwipe);
+
   reqList.addEventListener('click', function(e){
+    if(justSwiped){ e.preventDefault(); e.stopPropagation(); return; }
+
+    var openFront = reqList.querySelector('.req-card-front.swipe-open');
+    var clickedSwipeDelete = e.target.closest('.req-swipe-delete');
+    if(openFront && !clickedSwipeDelete){
+      openFront.classList.remove('swipe-open');
+      openFront.style.transform = '';
+      return;
+    }
+
     var btn = e.target.closest('button[data-action]');
     if(!btn) return;
     var card = e.target.closest('.req-card');
@@ -454,6 +528,7 @@
     var sub = allSubmissions.find(function(s){ return String(s.id) === id; });
 
     if(btn.dataset.action === 'toggle-expand'){
+      if(openFront) return; /* first tap on an open swipe just closes it, per above */
       card.classList.toggle('expanded');
       return;
     }
