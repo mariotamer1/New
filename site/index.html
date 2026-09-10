@@ -880,7 +880,7 @@
 <!-- ================= INTRO VIDEO (plays once on load) ================= -->
 <section class="intro-video" id="introVideo">
   <div class="intro-stage">
-    <video id="introVideoEl" src="ygm-intro.mov" muted playsinline preload="auto" webkit-playsinline="true"></video>
+    <video id="introVideoEl" src="ygm-intro.mov" poster="intro-poster.jpg" muted playsinline preload="auto" webkit-playsinline="true"></video>
     <div class="intro-scrim"></div>
     <div class="intro-copy" id="introCopy">
       <div>
@@ -1965,23 +1965,32 @@
         showLine2();
       });
 
-      /* Start the instant the video actually reports it can play, instead of
-         guessing a fixed delay — on a slow connection a flat 1s guess is too
-         early (play() can silently fail) or just wastes time on a fast one.
-         A capped fallback timeout keeps things moving even if 'canplay'
-         never fires (broken video, stalled network) rather than leaving the
-         page looking frozen indefinitely. */
+      /* The poster attribute on the video shows a real first-frame image the
+         instant the page loads, so there's never a blackout while the video
+         itself is still loading. On top of that, hold for a deliberate half
+         second before starting playback — a small intentional pause, not a
+         loading delay. Still readiness-gated (canplay, with a capped
+         fallback) so a slow connection waits for real playability instead of
+         calling play() on a video that isn't buffered yet and silently
+         failing; the poster keeps the screen looking correct the whole time
+         either way. */
+      var INTRO_MIN_DELAY = 500;
+      var introLoadedAt = Date.now();
       var introPlayAttempted = false;
       function attemptIntroPlay(){
         if(introPlayAttempted) return;
         introPlayAttempted = true;
-        introVideoEl.play().catch(function(){
-          /* autoplay blocked or the video failed outright — don't leave the
-             visitor staring at a dead frame; skip straight to the headline
-             so the page still feels alive and dismissible */
-          startTyping();
-          showLine2();
-        });
+        var elapsed = Date.now() - introLoadedAt;
+        var remaining = Math.max(0, INTRO_MIN_DELAY - elapsed);
+        setTimeout(function(){
+          introVideoEl.play().catch(function(){
+            /* autoplay blocked or the video failed outright — don't leave the
+               visitor staring at a dead frame; skip straight to the headline
+               so the page still feels alive and dismissible */
+            startTyping();
+            showLine2();
+          });
+        }, remaining);
       }
       if(introVideoEl.readyState >= 3 /* HAVE_FUTURE_DATA */){
         attemptIntroPlay();
