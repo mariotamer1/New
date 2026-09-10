@@ -1082,6 +1082,7 @@
       <div>
         <p class="section-tag">Reviews</p>
         <h2>What our customers are saying.</h2>
+        <button type="button" class="btn btn-primary" id="leaveReviewBtnHome" style="margin-top:20px;">Leave a Review</button>
       </div>
     </div>
     <div class="reveal" id="reviewsPreview">
@@ -1120,7 +1121,7 @@
     <button class="qe-close js-close-review-form" aria-label="Close">✕</button>
     <div id="reviewFormWrap">
       <h3>Leave a Review</h3>
-      <p>Tell us about your experience with YGM Painting.</p>
+      <p>Tell us about your experience with us.</p>
       <form id="reviewForm">
         <div class="qe-field">
           <input id="reviewName" type="text" placeholder="Name" required>
@@ -1148,6 +1149,7 @@
     <button class="qe-close js-close-review-thanks" aria-label="Close">✕</button>
     <div class="qe-success">
       <h3>Thank You for your Review!</h3>
+      <button type="button" class="qe-exit js-close-review-thanks">Exit</button>
     </div>
   </div>
 </div>
@@ -1678,6 +1680,8 @@
       }, 400);
     }
     if(leaveReviewBtn) leaveReviewBtn.addEventListener('click', openReviewForm);
+    var leaveReviewBtnHome = document.getElementById('leaveReviewBtnHome');
+    if(leaveReviewBtnHome) leaveReviewBtnHome.addEventListener('click', openReviewForm);
     document.querySelectorAll('.js-close-review-form').forEach(function(el){ el.addEventListener('click', closeReviewForm); });
     if(reviewFormOverlay){
       reviewFormOverlay.addEventListener('click', function(e){ if(e.target === reviewFormOverlay) closeReviewForm(); });
