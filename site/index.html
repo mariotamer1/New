@@ -758,7 +758,13 @@
   .contact-popup-main{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
   .contact-popup-main a{color:var(--ochre-light); font-weight:600; font-size:17px; text-decoration:underline;}
   .contact-popup-note{color:var(--ink-faint); font-size:13px;}
-  .contact-popup-value{color:var(--ink-dim); font-size:14.5px; margin-top:4px;}
+  .contact-popup-value{color:var(--ink-dim); font-size:14.5px; margin-top:4px; display:flex; align-items:center; gap:10px;}
+  .contact-copy-btn{
+    background:none; border:1px solid var(--line-strong); color:var(--ink-faint);
+    font-size:12px; padding:4px 10px; border-radius:99px; cursor:pointer; transition:border-color .2s, color .2s;
+  }
+  .contact-copy-btn:hover{border-color:var(--ink-faint); color:var(--ink);}
+  .contact-copy-btn.copied{border-color:var(--ochre-light); color:var(--ochre-light);}
   .qe-field{margin-bottom:16px;}
   .qe-field label{display:block; font-size:13.5px; color:var(--ink-faint); margin-bottom:8px;}
   .qe-field input{
@@ -1288,7 +1294,10 @@
           <a href="mailto:help@ygmpainting.com">Email Us</a>
           <span class="contact-popup-note">(12–24 hour response time)</span>
         </div>
-        <div class="contact-popup-value">help@ygmpainting.com</div>
+        <div class="contact-popup-value">
+          <span>help@ygmpainting.com</span>
+          <button type="button" class="contact-copy-btn" id="copyEmailBtn" data-copy="help@ygmpainting.com" aria-label="Copy email address">Copy</button>
+        </div>
       </div>
       <div class="contact-popup-row">
         <div class="contact-popup-main">
@@ -1460,6 +1469,36 @@
       contactOverlay.addEventListener('click', function(e){ if(e.target === contactOverlay) closeContact(); });
     }
     window.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeContact(); });
+
+    var copyEmailBtn = document.getElementById('copyEmailBtn');
+    if(copyEmailBtn){
+      copyEmailBtn.addEventListener('click', function(){
+        var text = copyEmailBtn.getAttribute('data-copy');
+        function showCopied(){
+          var original = copyEmailBtn.textContent;
+          copyEmailBtn.textContent = 'Copied!';
+          copyEmailBtn.classList.add('copied');
+          setTimeout(function(){
+            copyEmailBtn.textContent = original;
+            copyEmailBtn.classList.remove('copied');
+          }, 1600);
+        }
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text).then(showCopied).catch(function(){});
+        } else {
+          /* fallback for older browsers without the Clipboard API */
+          var temp = document.createElement('textarea');
+          temp.value = text;
+          temp.style.position = 'fixed';
+          temp.style.opacity = '0';
+          document.body.appendChild(temp);
+          temp.focus();
+          temp.select();
+          try{ document.execCommand('copy'); showCopied(); }catch(e){}
+          document.body.removeChild(temp);
+        }
+      });
+    }
 
     var qeSubmitBtn = qeForm ? qeForm.querySelector('.qe-submit') : null;
     var qeFormError = document.getElementById('qeFormError');
