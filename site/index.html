@@ -1851,9 +1851,34 @@
         showLine2();
       });
 
-      setTimeout(function(){
-        introVideoEl.play().catch(function(){});
-      }, 1000);
+      /* Start the instant the video actually reports it can play, instead of
+         guessing a fixed delay — on a slow connection a flat 1s guess is too
+         early (play() can silently fail) or just wastes time on a fast one.
+         A capped fallback timeout keeps things moving even if 'canplay'
+         never fires (broken video, stalled network) rather than leaving the
+         page looking frozen indefinitely. */
+      var introPlayAttempted = false;
+      function attemptIntroPlay(){
+        if(introPlayAttempted) return;
+        introPlayAttempted = true;
+        introVideoEl.play().catch(function(){
+          /* autoplay blocked or the video failed outright — don't leave the
+             visitor staring at a dead frame; skip straight to the headline
+             so the page still feels alive and dismissible */
+          startTyping();
+          showLine2();
+        });
+      }
+      if(introVideoEl.readyState >= 3 /* HAVE_FUTURE_DATA */){
+        attemptIntroPlay();
+      } else {
+        introVideoEl.addEventListener('canplay', attemptIntroPlay, {once:true});
+        setTimeout(attemptIntroPlay, 2500);
+      }
+      introVideoEl.addEventListener('error', function(){
+        startTyping();
+        showLine2();
+      });
 
       /* Lock the page at the top — no real scrolling happens — until the
          viewer makes a scroll/swipe/key gesture. That gesture doesn't move
@@ -1972,6 +1997,17 @@
     var vscrubDisplayTime = 0;
     var vscrubEasing = false;
 
+    /* Whether a seek we issued is still being processed by the browser. Firing
+       currentTime writes every animation frame regardless of whether the
+       previous one has actually resolved is what stacks up and stalls the
+       decoder on phones — this is the main source of the reported freezing
+       and blackouts. We now wait for the 'seeked' event before issuing the
+       next one, with a capped timeout so a genuinely stuck seek (e.g. data
+       for that timestamp hasn't downloaded yet) can't block progress forever. */
+    var vscrubSeekPending = false;
+    var vscrubSeekStartedAt = 0;
+    var VSCRUB_SEEK_TIMEOUT = 1200;
+
     if(vscrubVideo){
       vscrubVideo.addEventListener('loadedmetadata', function(){
         videoDuration = vscrubVideo.duration || 0;
@@ -1980,12 +2016,27 @@
         vscrubDisplayTime = vscrubVideo.currentTime;
         updateVScrubTarget();
       });
+      vscrubVideo.addEventListener('seeked', function(){ vscrubSeekPending = false; });
+      /* If the video fails to load entirely, don't leave the section stuck —
+         the on-screen text is scroll-driven independently of the video and
+         keeps working; we just stop trying to drive a broken video element. */
+      vscrubVideo.addEventListener('error', function(){ videoReady = false; });
+
       /* iOS needs a play()+pause() before it will actually paint a decoded
          frame for a programmatically-seeked video — do this the moment the
          page loads (muted, so no user gesture is required) rather than
          waiting for the first scroll, so the frame is already ready and
-         painted well before the intro cuts away to reveal this section */
-      vscrubVideo.play().then(function(){ vscrubVideo.pause(); }).catch(function(){});
+         painted well before the intro cuts away to reveal this section.
+         Retries a couple of times since this can fail transiently while the
+         video is still buffering, rather than giving up after one attempt. */
+      var vscrubPrimeAttempts = 0;
+      function primeVScrubVideo(){
+        vscrubPrimeAttempts++;
+        vscrubVideo.play().then(function(){ vscrubVideo.pause(); }).catch(function(){
+          if(vscrubPrimeAttempts < 4) setTimeout(primeVScrubVideo, 500);
+        });
+      }
+      primeVScrubVideo();
     }
 
     function updateVScrubTarget(){
@@ -2019,14 +2070,25 @@
 
     function stepVScrubEasing(){
       var delta = vscrubTargetTime - vscrubDisplayTime;
-      if(Math.abs(delta) < 0.008){
-        vscrubDisplayTime = vscrubTargetTime;
-        try{ vscrubVideo.currentTime = vscrubDisplayTime; }catch(e){}
+      var done = Math.abs(delta) < 0.008;
+      var seekStuck = vscrubSeekPending && (Date.now() - vscrubSeekStartedAt > VSCRUB_SEEK_TIMEOUT);
+
+      /* only issue a new seek once the last one has actually resolved (or has
+         clearly stalled past the timeout) — this is what stops seeks from
+         piling up faster than the video can decode them */
+      if(!vscrubSeekPending || seekStuck){
+        vscrubDisplayTime = done ? vscrubTargetTime : vscrubDisplayTime + delta * 0.35;
+        try{
+          vscrubVideo.currentTime = vscrubDisplayTime;
+          vscrubSeekPending = true;
+          vscrubSeekStartedAt = Date.now();
+        }catch(e){}
+      }
+
+      if(done && !vscrubSeekPending){
         vscrubEasing = false;
         return;
       }
-      vscrubDisplayTime += delta * 0.35; /* bounded step — cheap to seek, regardless of direction */
-      try{ vscrubVideo.currentTime = vscrubDisplayTime; }catch(e){}
       requestAnimationFrame(stepVScrubEasing);
     }
 
