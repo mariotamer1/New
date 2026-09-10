@@ -503,7 +503,14 @@
   .tf3d .c3d-item[data-role="center"]{left:50%; bottom:0; width:300px; height:100%;}
   .tf3d .c3d-item[data-role="left"]{left:24%; bottom:6%; width:190px; height:78%;}
   .tf3d .c3d-item[data-role="right"]{left:76%; bottom:6%; width:190px; height:78%;}
-  .tf3d .c3d-item[data-role="back"]{display:none;}
+  /* same size/position as "right" (the role it becomes next) but invisible —
+     so it fades in smoothly in place instead of popping in from nowhere */
+  .tf3d .c3d-item[data-role="back"]{left:76%; bottom:6%; width:190px; height:78%; opacity:0; pointer-events:none;}
+  /* likewise: an outgoing "left" card lands here next, so give it that same
+     box instead of no box at all — without this it had no declared size and
+     would balloon to its full natural image size while sliding to the edge
+     and fading out, which read as a blurry photo flashing in the background */
+  .tf3d .c3d-item[data-role="hidden"]{left:24%; bottom:6%; width:190px; height:78%; opacity:0; pointer-events:none;}
   .tf3d .c3d-item img{object-fit:contain;}
   .tf3d-nav{display:flex; justify-content:center; margin-top:32px;}
   @media (max-width:640px){
@@ -511,6 +518,8 @@
     .tf3d .c3d-item[data-role="center"]{width:62vw;}
     .tf3d .c3d-item[data-role="left"]{left:14%; width:32vw;}
     .tf3d .c3d-item[data-role="right"]{left:86%; width:32vw;}
+    .tf3d .c3d-item[data-role="back"]{left:86%; width:32vw;}
+    .tf3d .c3d-item[data-role="hidden"]{left:14%; width:32vw;}
   }
 
   /* ---------- gallery ---------- */
