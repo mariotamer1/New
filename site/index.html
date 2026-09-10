@@ -752,6 +752,13 @@
   }
   .qe-modal h3{font-size:24px; margin-bottom:6px;}
   .qe-modal > p{color:var(--ink-dim); font-size:14.5px; margin-bottom:26px;}
+  .contact-popup-list{margin-top:26px; margin-bottom:26px;}
+  .contact-popup-row{padding:16px 0; border-top:1px solid var(--line);}
+  .contact-popup-row:last-child{border-bottom:1px solid var(--line);}
+  .contact-popup-main{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .contact-popup-main a{color:var(--ochre-light); font-weight:600; font-size:17px; text-decoration:underline;}
+  .contact-popup-note{color:var(--ink-faint); font-size:13px;}
+  .contact-popup-value{color:var(--ink-dim); font-size:14.5px; margin-top:4px;}
   .qe-field{margin-bottom:16px;}
   .qe-field label{display:block; font-size:13.5px; color:var(--ink-faint); margin-bottom:8px;}
   .qe-field input{
@@ -850,7 +857,7 @@
       <li><a href="#reviews">Reviews</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
-    <a href="#" class="nav-cta js-open-estimate">Free Estimate</a>
+    <a href="#" class="nav-cta js-open-contact">Contact Us</a>
   </div>
 </header>
 
@@ -1271,6 +1278,30 @@
   <a href="#" class="js-open-estimate">Free Estimate</a>
 </div>
 
+<div class="qe-overlay" id="contactOverlay">
+  <div class="qe-modal">
+    <button class="qe-close js-close-contact" aria-label="Close">✕</button>
+    <h3>Here's how you can reach us</h3>
+    <div class="contact-popup-list">
+      <div class="contact-popup-row">
+        <div class="contact-popup-main">
+          <a href="mailto:help@ygmpainting.com">Email Us</a>
+          <span class="contact-popup-note">(12–24 hour response time)</span>
+        </div>
+        <div class="contact-popup-value">help@ygmpainting.com</div>
+      </div>
+      <div class="contact-popup-row">
+        <div class="contact-popup-main">
+          <a href="tel:+12063967882">Call Now</a>
+          <span class="contact-popup-note">(no wait)</span>
+        </div>
+        <div class="contact-popup-value">(206) 396-7882</div>
+      </div>
+    </div>
+    <button type="button" class="qe-exit js-close-contact">Exit</button>
+  </div>
+</div>
+
 <div class="qe-overlay" id="qeOverlay">
   <div class="qe-modal">
     <button class="qe-close js-close-estimate" aria-label="Close">✕</button>
@@ -1403,6 +1434,33 @@
       qeOverlay.addEventListener('click', function(e){ if(e.target === qeOverlay) closeQuickEstimate(); });
     }
     window.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeQuickEstimate(); });
+
+    /* header "Contact Us" popup — plain email/phone info, no form */
+    var contactOverlay = document.getElementById('contactOverlay');
+    var contactCloseTimer = null;
+    function openContact(e){
+      if(e) e.preventDefault();
+      if(!contactOverlay) return;
+      if(contactCloseTimer){ clearTimeout(contactCloseTimer); contactCloseTimer = null; }
+      contactOverlay.style.display = 'flex';
+      void contactOverlay.offsetHeight;
+      contactOverlay.classList.add('open');
+    }
+    function closeContact(){
+      if(!contactOverlay) return;
+      contactOverlay.classList.remove('open');
+      contactCloseTimer = window.setTimeout(function(){
+        contactOverlay.style.display = 'none';
+        contactCloseTimer = null;
+      }, 400);
+    }
+    document.querySelectorAll('.js-open-contact').forEach(function(el){ el.addEventListener('click', openContact); });
+    document.querySelectorAll('.js-close-contact').forEach(function(el){ el.addEventListener('click', closeContact); });
+    if(contactOverlay){
+      contactOverlay.addEventListener('click', function(e){ if(e.target === contactOverlay) closeContact(); });
+    }
+    window.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeContact(); });
+
     var qeSubmitBtn = qeForm ? qeForm.querySelector('.qe-submit') : null;
     var qeFormError = document.getElementById('qeFormError');
 
