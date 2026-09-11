@@ -80,12 +80,56 @@
   #homeScreen{display:none;}
   #homeScreen.show{display:block;}
   .home-hero{
-    min-height:calc(100vh - 68px); display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; padding:24px;
+    min-height:calc(100vh - 68px); display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    text-align:center; padding:24px; padding-top:clamp(56px,14vh,140px);
   }
-  .home-hero h1{font-size:clamp(1.8rem,4vw,2.4rem); margin-bottom:14px;}
+  .home-hero h1{font-size:clamp(2.1rem,4.6vw,2.8rem); margin-bottom:14px;}
   .home-hero p{color:var(--ink-dim); font-size:15px; margin-bottom:30px;}
+  .home-actions{display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;}
   .view-requests-btn{padding:16px 36px; font-size:15.5px;}
+  .btn-outline{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:16px 30px; font-size:15.5px; font-weight:600; border-radius:3px;
+    background:transparent; border:1px solid var(--line-strong); color:var(--ink);
+    transition:all .2s var(--ease);
+  }
+  .btn-outline:hover{border-color:var(--ochre-light); color:var(--ochre-light);}
+
+  /* ---------- "make changes" request panel (left-side slide-in) ---------- */
+  .change-overlay{
+    position:fixed; inset:0; z-index:400; background:rgba(8,9,10,0.55);
+    display:none; align-items:stretch; justify-content:flex-start;
+  }
+  .change-overlay.open{display:flex;}
+  .change-panel{
+    width:50%; min-width:300px; max-width:560px; height:100%; background:var(--bg-raised);
+    border-right:1px solid var(--line-strong); padding:28px; display:flex; flex-direction:column;
+    transform:translateX(-100%); transition:transform .35s var(--ease); position:relative;
+  }
+  .change-overlay.open .change-panel{transform:translateX(0);}
+  .change-exit-link{
+    position:absolute; top:22px; right:24px; background:none; border:none; color:var(--ink-dim);
+    font-size:14px; font-weight:600; padding:6px 4px; transition:color .2s var(--ease);
+  }
+  .change-exit-link:hover{color:var(--ink);}
+  .change-panel h3{font-size:20px; margin-bottom:8px; padding-right:60px;}
+  .change-panel .change-sub{color:var(--ink-faint); font-size:13.5px; margin-bottom:18px; line-height:1.5;}
+  .change-panel textarea{
+    flex:1; width:100%; min-height:200px; resize:vertical; background:var(--bg); border:1px solid var(--line-strong);
+    border-radius:4px; padding:14px; color:var(--ink); font-size:15px; font-family:inherit; line-height:1.6;
+  }
+  .change-panel textarea:focus-visible{outline:2px solid var(--ochre-light); outline-offset:2px;}
+  .change-submit-btn{width:100%; margin-top:16px;}
+  .change-disclaimer{color:var(--ink-faint); font-size:12px; line-height:1.55; margin-top:14px;}
+  .change-error{
+    display:none; color:#e07a7a; font-size:13px; margin-top:12px; padding:9px 11px;
+    background:rgba(224,122,122,0.08); border:1px solid rgba(224,122,122,0.3); border-radius:3px;
+  }
+  .change-error.show{display:block;}
+  .change-thanks{display:none; flex:1; flex-direction:column; align-items:flex-start; justify-content:center;}
+  .change-thanks.show{display:flex;}
+  .change-thanks h3{font-size:26px; margin-bottom:8px; padding-right:0;}
+  .change-thanks p{color:var(--ink-dim); font-size:14.5px;}
 
   /* ---------- dashboard (list) ---------- */
   #dashboard{display:none;}
@@ -234,7 +278,10 @@
   <div class="home-hero">
     <h1>Welcome Back Ysrael.</h1>
     <p>Everything that's come in through the site is waiting for you.</p>
-    <button type="button" class="btn view-requests-btn" id="viewRequestsBtn">View Requests</button>
+    <div class="home-actions">
+      <button type="button" class="btn view-requests-btn" id="viewRequestsBtn">View Requests</button>
+      <button type="button" class="btn-outline" id="openChangeBtn">Make Changes to the Website</button>
+    </div>
   </div>
 </div>
 
@@ -267,6 +314,24 @@
     <div class="reply-panel-actions">
       <button type="button" class="reply-cancel-btn" id="replyCancelBtn">Cancel</button>
       <button type="button" class="btn reply-send-btn" id="replySendBtn">Send</button>
+    </div>
+  </div>
+</div>
+
+<div class="change-overlay" id="changeOverlay">
+  <div class="change-panel">
+    <button type="button" class="change-exit-link" id="changeExitBtn">Exit</button>
+    <div id="changeFormView">
+      <h3>Make Changes to the Website</h3>
+      <p class="change-sub">Tell us what you'd like updated and we'll take it from here.</p>
+      <textarea id="changeText" placeholder="What would you like to edit/ make changes about on the website? Describe them in detail here"></textarea>
+      <button type="button" class="btn change-submit-btn" id="changeSubmitBtn">Submit</button>
+      <p class="change-disclaimer">By submitting this request, you authorize it to be forwarded to the developer, Mario, who will review your request and make the updates for you, estimated completion is 1-2 business days.</p>
+      <div class="change-error" id="changeError">Couldn't send that. Check your connection and try again.</div>
+    </div>
+    <div class="change-thanks" id="changeThanksView">
+      <h3>Thank You</h3>
+      <p>Your request is being processed.</p>
     </div>
   </div>
 </div>
@@ -317,6 +382,15 @@
   var confirmOverlay = document.getElementById('confirmOverlay');
   var confirmText = document.getElementById('confirmText');
   var confirmExitBtn = document.getElementById('confirmExitBtn');
+
+  var openChangeBtn = document.getElementById('openChangeBtn');
+  var changeOverlay = document.getElementById('changeOverlay');
+  var changeExitBtn = document.getElementById('changeExitBtn');
+  var changeFormView = document.getElementById('changeFormView');
+  var changeThanksView = document.getElementById('changeThanksView');
+  var changeText = document.getElementById('changeText');
+  var changeSubmitBtn = document.getElementById('changeSubmitBtn');
+  var changeError = document.getElementById('changeError');
 
   var allSubmissions = [];
   var currentFilter = 'all';
@@ -589,6 +663,44 @@
 
   confirmExitBtn.addEventListener('click', function(){
     confirmOverlay.classList.remove('open');
+  });
+
+  function openChangePanel(){
+    changeFormView.style.display = '';
+    changeThanksView.classList.remove('show');
+    changeError.classList.remove('show');
+    changeText.value = '';
+    changeSubmitBtn.disabled = false;
+    changeSubmitBtn.textContent = 'Submit';
+    changeOverlay.classList.add('open');
+    setTimeout(function(){ changeText.focus(); }, 350);
+  }
+  function closeChangePanel(){
+    changeOverlay.classList.remove('open');
+  }
+  openChangeBtn.addEventListener('click', openChangePanel);
+  changeExitBtn.addEventListener('click', closeChangePanel);
+  changeOverlay.addEventListener('click', function(e){ if(e.target === changeOverlay) closeChangePanel(); });
+
+  changeSubmitBtn.addEventListener('click', function(){
+    var message = changeText.value.trim();
+    changeError.classList.remove('show');
+    if(!message){
+      changeText.focus();
+      return;
+    }
+    changeSubmitBtn.disabled = true;
+    changeSubmitBtn.textContent = 'Submitting...';
+    sb.from('change_requests').insert({ message: message }).then(function(res){
+      changeSubmitBtn.disabled = false;
+      changeSubmitBtn.textContent = 'Submit';
+      if(res.error){
+        changeError.classList.add('show');
+        return;
+      }
+      changeFormView.style.display = 'none';
+      changeThanksView.classList.add('show');
+    });
   });
 })();
 </script>
