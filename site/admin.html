@@ -85,11 +85,15 @@
   }
   .home-hero h1{font-size:clamp(2.1rem,4.6vw,2.8rem); margin-bottom:14px;}
   .home-hero p{color:var(--ink-dim); font-size:15px; margin-bottom:30px;}
-  .home-actions{display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;}
-  .view-requests-btn{padding:16px 36px; font-size:15.5px;}
+  .home-actions{
+    display:flex; align-items:stretch; justify-content:center; gap:14px; flex-wrap:wrap;
+    max-width:560px; width:100%;
+  }
+  .home-actions .btn, .home-actions .btn-outline{flex:1 1 240px;}
+  .view-requests-btn{padding:16px 24px; font-size:15.5px;}
   .btn-outline{
     display:inline-flex; align-items:center; justify-content:center;
-    padding:16px 30px; font-size:15.5px; font-weight:600; border-radius:3px;
+    padding:16px 24px; font-size:15.5px; font-weight:600; border-radius:3px;
     background:transparent; border:1px solid var(--line-strong); color:var(--ink);
     transition:all .2s var(--ease);
   }
@@ -130,6 +134,16 @@
   .change-thanks.show{display:flex;}
   .change-thanks h3{font-size:26px; margin-bottom:8px; padding-right:0;}
   .change-thanks p{color:var(--ink-dim); font-size:14.5px;}
+  .change-preview{
+    flex:1; height:100%; position:relative; overflow:hidden; background:#fff;
+    opacity:0; transition:opacity .3s var(--ease) .1s;
+  }
+  .change-overlay.open .change-preview{opacity:1;}
+  .change-preview iframe{width:100%; height:100%; border:0; display:block;}
+  @media (max-width:900px){
+    .change-panel{width:100%; max-width:none; min-width:0;}
+    .change-preview{display:none;}
+  }
 
   /* ---------- dashboard (list) ---------- */
   #dashboard{display:none;}
@@ -236,6 +250,38 @@
   .reply-cancel-btn:hover{border-color:var(--ink); color:var(--ink);}
   .reply-send-btn{flex:1;}
 
+  /* ---------- Mario's chat view (change requests) ---------- */
+  #marioHomeScreen{display:none;}
+  #marioHomeScreen.show{display:block;}
+  #marioDashboard{display:none;}
+  #marioDashboard.show{display:block;}
+  .mreq-card{
+    border:1px solid var(--line); border-radius:10px; margin-bottom:14px; overflow:hidden;
+    background:var(--bg-raised); transition:border-color .2s var(--ease);
+  }
+  .mreq-card:hover{border-color:var(--line-strong);}
+  .mreq-head{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:20px 22px; cursor:pointer; background:none; border:none; width:100%; text-align:left; color:inherit;
+  }
+  .mreq-preview{font-size:14.5px; color:var(--ink); line-height:1.5; max-width:420px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .mreq-date{color:var(--ink-faint); font-size:12px; margin-top:5px;}
+  .mreq-body{max-height:0; overflow:hidden; transition:max-height .35s var(--ease);}
+  .mreq-card.expanded .mreq-body{max-height:5000px;}
+  .mreq-body-inner{padding:0 22px 22px;}
+  .chat-thread{display:flex; flex-direction:column; gap:10px; margin-bottom:16px;}
+  .chat-bubble{max-width:85%; padding:10px 14px; border-radius:14px; font-size:14px; line-height:1.5;}
+  .chat-bubble.from-ysrael{align-self:flex-start; background:var(--bg); border:1px solid var(--line-strong); border-bottom-left-radius:4px;}
+  .chat-bubble.from-mario{align-self:flex-end; background:var(--ochre-light); color:#191305; border-bottom-right-radius:4px;}
+  .chat-bubble .chat-meta{display:block; font-size:10.5px; margin-top:5px; opacity:.65;}
+  .chat-reply-row{display:flex; gap:8px; align-items:flex-end;}
+  .chat-reply-row textarea{
+    flex:1; min-height:44px; max-height:140px; resize:vertical; background:var(--bg); border:1px solid var(--line-strong);
+    border-radius:6px; padding:10px 12px; color:var(--ink); font-family:inherit; font-size:14px; line-height:1.5;
+  }
+  .chat-reply-row textarea:focus-visible{outline:2px solid var(--ochre-light); outline-offset:2px;}
+  .chat-send-btn{flex:0 0 auto; padding:12px 18px;}
+
   /* ---------- confirmation popup ---------- */
   .confirm-overlay{
     position:fixed; inset:0; z-index:500; background:rgba(8,9,10,0.7);
@@ -306,6 +352,36 @@
   </div>
 </div>
 
+<div id="marioHomeScreen">
+  <header class="admin-nav">
+    <div class="admin-nav-inner">
+      <div class="logo"><img src="ygm-logo.jpg" alt="YGM Painting"><span>Admin</span></div>
+      <a href="index.html" class="logout-btn">Return To Home Page</a>
+    </div>
+  </header>
+  <div class="home-hero">
+    <h1>Welcome back, Mario.</h1>
+    <p>Website change requests from the team are waiting for you.</p>
+    <button type="button" class="btn view-requests-btn" id="marioViewRequestsBtn">View Requests</button>
+  </div>
+</div>
+
+<div id="marioDashboard">
+  <header class="admin-nav">
+    <div class="admin-nav-inner">
+      <div class="logo"><img src="ygm-logo.jpg" alt="YGM Painting"><span>Requests</span></div>
+      <a href="index.html" class="logout-btn">Return To Home Page</a>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="board-head">
+      <h2>Website change requests</h2>
+      <span class="count" id="marioReqCount"></span>
+    </div>
+    <div id="marioReqList"></div>
+  </div>
+</div>
+
 <div class="reply-overlay" id="replyOverlay">
   <div class="reply-panel">
     <h3>Reply</h3>
@@ -334,6 +410,9 @@
       <p>Your request is being processed.</p>
     </div>
   </div>
+  <div class="change-preview">
+    <iframe id="changePreviewFrame" title="Live website preview"></iframe>
+  </div>
 </div>
 
 <div class="confirm-overlay" id="confirmOverlay">
@@ -359,13 +438,18 @@
   }
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Single admin password — same one used on the site's footer "Admin Access"
-  // button. Anyone who has it can get in; there's no separate account login.
-  var ADMIN_PASSWORD = 'Melgar10!';
+  // Two passwords, two different people: the site's footer "Admin Access"
+  // button uses the Ysrael password and lands on the original request board.
+  // The Mario password is recognized as the developer and lands on a
+  // separate screen for replying to website change requests.
+  var ADMIN_PASSWORD_YSRAEL = 'Melgar10!';
+  var ADMIN_PASSWORD_MARIO = 'marioygm';
 
   var loginScreen = document.getElementById('loginScreen');
   var homeScreen = document.getElementById('homeScreen');
   var dashboard = document.getElementById('dashboard');
+  var marioHomeScreen = document.getElementById('marioHomeScreen');
+  var marioDashboard = document.getElementById('marioDashboard');
   var loginForm = document.getElementById('loginForm');
   var loginBtn = document.getElementById('loginBtn');
   var loginError = document.getElementById('loginError');
@@ -373,6 +457,9 @@
   var reqCount = document.getElementById('reqCount');
   var filterBtns = document.querySelectorAll('.filter-btn');
   var viewRequestsBtn = document.getElementById('viewRequestsBtn');
+  var marioViewRequestsBtn = document.getElementById('marioViewRequestsBtn');
+  var marioReqList = document.getElementById('marioReqList');
+  var marioReqCount = document.getElementById('marioReqCount');
 
   var replyOverlay = document.getElementById('replyOverlay');
   var replyToName = document.getElementById('replyToName');
@@ -391,20 +478,31 @@
   var changeText = document.getElementById('changeText');
   var changeSubmitBtn = document.getElementById('changeSubmitBtn');
   var changeError = document.getElementById('changeError');
+  var changePreviewFrame = document.getElementById('changePreviewFrame');
+  var previewLoaded = false;
 
   var allSubmissions = [];
   var currentFilter = 'all';
   var replyTargetId = null;
 
-  function enterApp(){
+  function enterApp(user){
     loginScreen.style.display = 'none';
     dashboard.classList.remove('show');
-    homeScreen.classList.add('show');
+    marioDashboard.classList.remove('show');
+    if(user === 'mario'){
+      homeScreen.classList.remove('show');
+      marioHomeScreen.classList.add('show');
+    } else {
+      marioHomeScreen.classList.remove('show');
+      homeScreen.classList.add('show');
+    }
   }
 
   function showLogin(){
     homeScreen.classList.remove('show');
     dashboard.classList.remove('show');
+    marioHomeScreen.classList.remove('show');
+    marioDashboard.classList.remove('show');
     loginScreen.style.display = 'flex';
   }
 
@@ -412,9 +510,12 @@
     e.preventDefault();
     loginError.classList.remove('show');
     var entered = document.getElementById('loginPassword').value;
-    if(entered === ADMIN_PASSWORD){
-      try{ sessionStorage.setItem('ygmAdminOK', '1'); }catch(err){}
-      enterApp();
+    if(entered === ADMIN_PASSWORD_YSRAEL){
+      try{ sessionStorage.setItem('ygmAdminUser', 'ysrael'); }catch(err){}
+      enterApp('ysrael');
+    } else if(entered === ADMIN_PASSWORD_MARIO){
+      try{ sessionStorage.setItem('ygmAdminUser', 'mario'); }catch(err){}
+      enterApp('mario');
     } else {
       loginError.classList.add('show');
     }
@@ -433,9 +534,21 @@
     if(refreshTimer){ clearInterval(refreshTimer); refreshTimer = null; }
   }
 
-  var alreadyIn = false;
-  try{ alreadyIn = sessionStorage.getItem('ygmAdminOK') === '1'; }catch(err){}
-  if(alreadyIn){ enterApp(); } else { showLogin(); }
+  var marioRefreshTimer = null;
+  function startMarioAutoRefresh(){
+    stopMarioAutoRefresh();
+    marioRefreshTimer = setInterval(function(){
+      if(document.querySelector('.mreq-card.expanded')) return;
+      fetchChangeRequests();
+    }, 20000);
+  }
+  function stopMarioAutoRefresh(){
+    if(marioRefreshTimer){ clearInterval(marioRefreshTimer); marioRefreshTimer = null; }
+  }
+
+  var alreadyIn = null;
+  try{ alreadyIn = sessionStorage.getItem('ygmAdminUser'); }catch(err){}
+  if(alreadyIn === 'ysrael' || alreadyIn === 'mario'){ enterApp(alreadyIn); } else { showLogin(); }
 
   viewRequestsBtn.addEventListener('click', function(){
     homeScreen.classList.remove('show');
@@ -444,14 +557,23 @@
     startAutoRefresh();
   });
 
+  marioViewRequestsBtn.addEventListener('click', function(){
+    marioHomeScreen.classList.remove('show');
+    marioDashboard.classList.add('show');
+    loadChangeRequests();
+    startMarioAutoRefresh();
+  });
+
   /* catch the case where the admin already has the dashboard open in a
      background tab and a new request comes in — refresh the moment they
      switch back, instead of waiting for the next poll */
   document.addEventListener('visibilitychange', function(){
     if(!document.hidden && dashboard.classList.contains('show')) fetchSubmissions();
+    if(!document.hidden && marioDashboard.classList.contains('show')) fetchChangeRequests();
   });
   window.addEventListener('focus', function(){
     if(dashboard.classList.contains('show')) fetchSubmissions();
+    if(marioDashboard.classList.contains('show')) fetchChangeRequests();
   });
 
   function fetchSubmissions(){
@@ -532,6 +654,102 @@
       );
     }).join('');
   }
+
+  /* ---------- Mario's chat view ---------- */
+  var allChangeRequests = [];
+
+  function fetchChangeRequests(){
+    sb.from('change_requests').select('*').order('created_at', { ascending: false }).then(function(res){
+      if(res.error){
+        marioReqList.innerHTML = '<div class="empty-state">Could not load requests: ' + escapeHtml(res.error.message) + '</div>';
+        return;
+      }
+      allChangeRequests = res.data || [];
+      renderMarioList();
+    });
+  }
+  function loadChangeRequests(){
+    marioReqList.innerHTML = '<div class="empty-state">Loading...</div>';
+    fetchChangeRequests();
+  }
+
+  /* a request's thread is its messages array; older rows saved before that
+     column existed fall back to a single opening message built from .message */
+  function threadFor(r){
+    if(r.messages && r.messages.length) return r.messages;
+    return [{ sender: 'ysrael', body: r.message || '', at: r.created_at }];
+  }
+
+  function renderMarioList(){
+    marioReqCount.textContent = allChangeRequests.length + ' total';
+    if(allChangeRequests.length === 0){
+      marioReqList.innerHTML = '<div class="empty-state">No change requests yet.</div>';
+      return;
+    }
+    marioReqList.innerHTML = allChangeRequests.map(function(r){
+      var thread = threadFor(r);
+      var last = thread[thread.length - 1];
+      var awaitingReply = last.sender !== 'mario';
+      return (
+        '<div class="mreq-card" data-id="' + r.id + '">' +
+          '<button type="button" class="mreq-head" data-action="toggle-expand">' +
+            '<div>' +
+              '<div class="mreq-preview">' + escapeHtml(r.message || '') + '</div>' +
+              '<div class="mreq-date">' + fmtDate(r.created_at) + '</div>' +
+            '</div>' +
+            '<span class="status-pill ' + (awaitingReply ? 'new' : 'answered') + '">' + (awaitingReply ? 'New' : 'Answered') + '</span>' +
+          '</button>' +
+          '<div class="mreq-body"><div class="mreq-body-inner">' +
+            '<div class="chat-thread">' +
+              thread.map(function(m){
+                return '<div class="chat-bubble from-' + (m.sender === 'mario' ? 'mario' : 'ysrael') + '">' +
+                  escapeHtml(m.body) +
+                  '<span class="chat-meta">' + (m.sender === 'mario' ? 'Mario' : 'Ysrael') + ' &middot; ' + fmtDate(m.at) + '</span>' +
+                '</div>';
+              }).join('') +
+            '</div>' +
+            '<div class="chat-reply-row">' +
+              '<textarea placeholder="Reply..." data-role="mario-reply-text"></textarea>' +
+              '<button type="button" class="btn chat-send-btn" data-action="send-reply">Send</button>' +
+            '</div>' +
+          '</div></div>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  marioReqList.addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+    var card = e.target.closest('.mreq-card');
+    var id = card.getAttribute('data-id');
+    var r = allChangeRequests.find(function(x){ return String(x.id) === id; });
+
+    if(btn.dataset.action === 'toggle-expand'){
+      card.classList.toggle('expanded');
+      return;
+    }
+
+    if(btn.dataset.action === 'send-reply'){
+      if(!r) return;
+      var textarea = card.querySelector('[data-role="mario-reply-text"]');
+      var body = textarea.value.trim();
+      if(!body) return;
+      var thread = threadFor(r).slice();
+      thread.push({ sender: 'mario', body: body, at: new Date().toISOString() });
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      sb.from('change_requests').update({ messages: thread }).eq('id', r.id).then(function(res){
+        btn.disabled = false;
+        btn.textContent = 'Send';
+        if(res.error) return;
+        r.messages = thread;
+        renderMarioList();
+        var refreshed = marioReqList.querySelector('.mreq-card[data-id="' + id + '"]');
+        if(refreshed) refreshed.classList.add('expanded');
+      });
+    }
+  });
 
   /* swipe-to-delete, iMessage-style: dragging a card's front layer left
      reveals a red Delete button underneath; release past the halfway point
@@ -673,6 +891,10 @@
     changeSubmitBtn.disabled = false;
     changeSubmitBtn.textContent = 'Submit';
     changeOverlay.classList.add('open');
+    if(!previewLoaded){
+      previewLoaded = true;
+      changePreviewFrame.src = 'index.html';
+    }
     setTimeout(function(){ changeText.focus(); }, 350);
   }
   function closeChangePanel(){
@@ -691,7 +913,8 @@
     }
     changeSubmitBtn.disabled = true;
     changeSubmitBtn.textContent = 'Submitting...';
-    sb.from('change_requests').insert({ message: message }).then(function(res){
+    var openingMessage = [{ sender: 'ysrael', body: message, at: new Date().toISOString() }];
+    sb.from('change_requests').insert({ message: message, messages: openingMessage }).then(function(res){
       changeSubmitBtn.disabled = false;
       changeSubmitBtn.textContent = 'Submit';
       if(res.error){
