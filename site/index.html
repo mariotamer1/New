@@ -1967,30 +1967,22 @@
 
       /* The poster attribute on the video shows a real first-frame image the
          instant the page loads, so there's never a blackout while the video
-         itself is still loading. On top of that, hold for a deliberate half
-         second before starting playback — a small intentional pause, not a
-         loading delay. Still readiness-gated (canplay, with a capped
-         fallback) so a slow connection waits for real playability instead of
-         calling play() on a video that isn't buffered yet and silently
-         failing; the poster keeps the screen looking correct the whole time
-         either way. */
-      var INTRO_MIN_DELAY = 500;
-      var introLoadedAt = Date.now();
+         itself is still loading. Playback starts as soon as the video is
+         actually ready (canplay, with a capped fallback) so a slow
+         connection waits for real playability instead of calling play() on
+         a video that isn't buffered yet and silently failing; the poster
+         keeps the screen looking correct the whole time either way. */
       var introPlayAttempted = false;
       function attemptIntroPlay(){
         if(introPlayAttempted) return;
         introPlayAttempted = true;
-        var elapsed = Date.now() - introLoadedAt;
-        var remaining = Math.max(0, INTRO_MIN_DELAY - elapsed);
-        setTimeout(function(){
-          introVideoEl.play().catch(function(){
-            /* autoplay blocked or the video failed outright — don't leave the
-               visitor staring at a dead frame; skip straight to the headline
-               so the page still feels alive and dismissible */
-            startTyping();
-            showLine2();
-          });
-        }, remaining);
+        introVideoEl.play().catch(function(){
+          /* autoplay blocked or the video failed outright — don't leave the
+             visitor staring at a dead frame; skip straight to the headline
+             so the page still feels alive and dismissible */
+          startTyping();
+          showLine2();
+        });
       }
       if(introVideoEl.readyState >= 3 /* HAVE_FUTURE_DATA */){
         attemptIntroPlay();
