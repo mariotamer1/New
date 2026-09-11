@@ -203,7 +203,7 @@
   }
 
   /* ---------- 3D carousel (shared: hero + transformations gallery) ---------- */
-  .c3d-stage{position:relative; width:100%; height:100%;}
+  .c3d-stage{position:relative; width:100%; height:100%; touch-action:pan-y;}
   .c3d-item{
     position:absolute; border-radius:10px; overflow:hidden; background:var(--bg-raised);
     box-shadow:0 24px 60px rgba(0,0,0,0.45); border:1px solid rgba(243,239,228,0.14);
@@ -212,7 +212,10 @@
       width .65s cubic-bezier(.4,0,.2,1), height .65s cubic-bezier(.4,0,.2,1), bottom .65s cubic-bezier(.4,0,.2,1);
     will-change:transform, filter, opacity, left;
   }
-  .c3d-item img{width:100%; height:100%; display:block;}
+  .c3d-item img{
+    width:100%; height:100%; display:block; -webkit-user-drag:none; user-select:none;
+    -webkit-touch-callout:none;
+  }
   .c3d-item[data-role="hidden"]{opacity:0; pointer-events:none;}
   .c3d-item[data-role="center"]{z-index:20; opacity:1; filter:blur(0); transform:translateX(-50%);}
   .c3d-item[data-role="left"]{z-index:10; opacity:.55; filter:blur(2px); transform:translateX(-50%); cursor:pointer;}
@@ -946,13 +949,13 @@
     <div class="reveal" data-c3d>
       <div class="tf3d">
         <div class="c3d-stage">
-          <div class="c3d-item"><img src="ba-transform-1.jpg" alt="Before and after exterior repaint of a modern two-story blue home"></div>
-          <div class="c3d-item"><img src="ba-transform-2.jpg" alt="Before and after exterior repaint of a yellow single-story home"></div>
-          <div class="c3d-item"><img src="ba-transform-3.jpg" alt="Before and after exterior repaint of a modern white and black home"></div>
-          <div class="c3d-item"><img src="ba-transform-4.jpg" alt="Before and after exterior repaint of a townhome from yellow to blue with red brick trim"></div>
-          <div class="c3d-item"><img src="ba-transform-5.jpg" alt="Before and after cabinet painting of a built-in entertainment center from raw wood to white"></div>
-          <div class="c3d-item"><img src="ba-transform-6.jpg" alt="Before and after exterior repaint and siding of a new-construction modern home"></div>
-          <div class="c3d-item"><img src="ba-transform-7.jpg" alt="Before and after exterior repaint of a single-story home from red to blue"></div>
+          <div class="c3d-item"><img src="ba-transform-1.jpg" alt="Before and after exterior repaint of a modern two-story blue home" draggable="false"></div>
+          <div class="c3d-item"><img src="ba-transform-2.jpg" alt="Before and after exterior repaint of a yellow single-story home" draggable="false"></div>
+          <div class="c3d-item"><img src="ba-transform-3.jpg" alt="Before and after exterior repaint of a modern white and black home" draggable="false"></div>
+          <div class="c3d-item"><img src="ba-transform-4.jpg" alt="Before and after exterior repaint of a townhome from yellow to blue with red brick trim" draggable="false"></div>
+          <div class="c3d-item"><img src="ba-transform-5.jpg" alt="Before and after cabinet painting of a built-in entertainment center from raw wood to white" draggable="false"></div>
+          <div class="c3d-item"><img src="ba-transform-6.jpg" alt="Before and after exterior repaint and siding of a new-construction modern home" draggable="false"></div>
+          <div class="c3d-item"><img src="ba-transform-7.jpg" alt="Before and after exterior repaint of a single-story home from red to blue" draggable="false"></div>
         </div>
       </div>
       <div class="tf3d-nav">
@@ -2295,14 +2298,32 @@
       });
 
       var startX = null;
-      root.addEventListener('pointerdown', function(e){ startX = e.clientX; });
-      root.addEventListener('pointerup', function(e){
-        if(startX === null) return;
-        var dx = e.clientX - startX;
+      var startY = null;
+      var pointerId = null;
+      var SWIPE_THRESHOLD = 18;
+      function resetSwipe(){
         startX = null;
-        if(Math.abs(dx) < 32) return;
+        startY = null;
+        pointerId = null;
+      }
+      root.addEventListener('pointerdown', function(e){
+        startX = e.clientX;
+        startY = e.clientY;
+        pointerId = e.pointerId;
+        if(root.setPointerCapture){
+          try { root.setPointerCapture(e.pointerId); } catch(err){}
+        }
+      });
+      root.addEventListener('pointerup', function(e){
+        if(startX === null || e.pointerId !== pointerId) return;
+        var dx = e.clientX - startX;
+        var dy = e.clientY - startY;
+        resetSwipe();
+        if(Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
         go(dx < 0 ? 'next' : 'prev');
       });
+      root.addEventListener('pointercancel', resetSwipe);
+      root.addEventListener('lostpointercapture', resetSwipe);
 
       render();
     }
