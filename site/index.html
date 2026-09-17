@@ -1343,7 +1343,7 @@
         </div>
         <div class="qe-field">
           <label for="qePhone">Phone Number</label>
-          <input id="qePhone" type="tel" required>
+          <input id="qePhone" type="tel" inputmode="tel" required pattern="\d{3}-\d{3}-\d{4}" maxlength="12" title="Enter a 10-digit phone number" placeholder="425-757-8888">
         </div>
         <div class="qe-field">
           <label for="qeDesc">Project details</label>
@@ -1534,6 +1534,23 @@
       var el = document.getElementById(id);
       if(el) el.addEventListener('input', refreshSmsHref);
     });
+
+    /* live phone formatting: 425 -> 425-757 -> 425-757-8888 as they type,
+       capped at 10 digits. The pattern attribute on the field (3-3-4 groups)
+       then rejects anything shorter than a full number on submit. */
+    var qePhoneEl = document.getElementById('qePhone');
+    if(qePhoneEl){
+      qePhoneEl.addEventListener('input', function(){
+        var digits = qePhoneEl.value.replace(/\D/g, '').slice(0, 10);
+        var formatted = digits;
+        if(digits.length > 6){
+          formatted = digits.slice(0, 3) + '-' + digits.slice(3, 6) + '-' + digits.slice(6);
+        } else if(digits.length > 3){
+          formatted = digits.slice(0, 3) + '-' + digits.slice(3);
+        }
+        qePhoneEl.value = formatted;
+      });
+    }
 
     if(qeSubmitLink && qeForm){
       /* Scheduled at the very start of the tap gesture, before 'click' even
