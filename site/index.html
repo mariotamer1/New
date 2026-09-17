@@ -1357,7 +1357,7 @@
           <input type="checkbox" id="qeConsent" required>
           <span>I consent that YGM Painting may contact me by the contact information I wrote above. <a href="consent.html" target="_blank" rel="noopener">Learn more</a></span>
         </label>
-        <button type="submit" class="btn btn-primary qe-submit">Send My Request</button>
+        <a href="#" class="btn btn-primary qe-submit" id="qeSubmitLink">Send My Request</a>
         <button type="button" class="qe-exit js-close-estimate">Exit</button>
         <p id="qeFormError" style="display:none; margin-top:14px; font-size:13.5px; color:#e07a7a;">
           Something went wrong sending that — please call us instead, or try again in a moment.
@@ -1508,7 +1508,7 @@
       });
     }
 
-    var qeSubmitBtn = qeForm ? qeForm.querySelector('.qe-submit') : null;
+    var qeSubmitLink = document.getElementById('qeSubmitLink');
     var qeFormError = document.getElementById('qeFormError');
     var YGM_SMS_NUMBER = '+12063967882';
 
@@ -1519,10 +1519,24 @@
       return 'sms:' + number + '?&body=' + encodeURIComponent(body);
     }
 
-    if(qeForm){
-      qeForm.addEventListener('submit', function(e){
-        e.preventDefault();
+    /* The submit action is a genuine <a href="sms:...">, not a button with a
+       JS-triggered navigation — iOS Safari has repeatedly refused to honor
+       window.location.href reassignment AND a synthetic click() on a
+       detached anchor for a custom scheme, but reliably follows a real
+       anchor whose href is set synchronously inside its own click handler
+       (the browser's default "follow this link" action runs right after,
+       same as if the href had been that value all along). So: no
+       preventDefault() on the success path — we just make sure the right
+       href is in place before the browser gets to it. */
+    if(qeSubmitLink && qeForm){
+      qeSubmitLink.addEventListener('click', function(e){
         if(qeFormError) qeFormError.style.display = 'none';
+
+        if(!qeForm.checkValidity()){
+          e.preventDefault();
+          qeForm.reportValidity();
+          return;
+        }
 
         var payload = {
           name: document.getElementById('qeName').value.trim(),
@@ -1532,9 +1546,10 @@
 
         /* honeypot: a field real visitors never see or fill — bots fill
            everything, so this alone is enough to treat it as spam and skip
-           both the database log and the text message handoff below */
+           both the database log and the text message handoff */
         var qeHoneypot = document.getElementById('qeCompany');
         if(qeHoneypot && qeHoneypot.value.trim() !== ''){
+          e.preventDefault();
           closeQuickEstimate();
           return;
         }
@@ -1547,21 +1562,10 @@
           qeClient.from('submissions').insert([payload]).catch(function(){});
         }
 
-        /* close the modal and reset the button first, so nothing about the
-           page's own state can interfere with the sms: handoff below */
-        closeQuickEstimate();
-        if(qeSubmitBtn){ qeSubmitBtn.disabled = false; qeSubmitBtn.textContent = 'Send My Request'; }
-
-        /* a real <a> click is honored far more reliably by mobile Safari for
-           a custom scheme like sms: than reassigning window.location.href
-           from inside a form handler — this is the standard "trigger a
-           download/external link from JS" pattern for exactly that reason */
         var smsBody = 'YGM Painting - Quote Request\n- ' + payload.details + '\n- ' + payload.name;
-        var smsLink = document.createElement('a');
-        smsLink.href = buildSmsLink(YGM_SMS_NUMBER, smsBody);
-        document.body.appendChild(smsLink);
-        smsLink.click();
-        document.body.removeChild(smsLink);
+        this.href = buildSmsLink(YGM_SMS_NUMBER, smsBody);
+        closeQuickEstimate();
+        /* no e.preventDefault() here — let the tap follow this link natively */
       });
     }
 
