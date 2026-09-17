@@ -1346,10 +1346,6 @@
           <input id="qePhone" type="tel" required>
         </div>
         <div class="qe-field">
-          <label for="qeEmail">Email</label>
-          <input id="qeEmail" type="email" required>
-        </div>
-        <div class="qe-field">
           <label for="qeDesc">Project details</label>
           <textarea id="qeDesc" placeholder="Please describe or tell us the square footage of where you're trying to paint."></textarea>
         </div>
@@ -1516,12 +1512,11 @@
     var qeFormError = document.getElementById('qeFormError');
     var YGM_SMS_NUMBER = '+12063967882';
 
-    /* iOS wants "&body=" after a bare number, Android (and everything else)
-       wants "?body=" — using the wrong one silently drops the prefilled text */
+    /* "?&body=" is the format that survives across iOS versions (some old
+       iOS releases ignore a bare "?", so the redundant "&" is a deliberate
+       belt-and-suspenders) as well as Android and desktop SMS handlers. */
     function buildSmsLink(number, body){
-      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      var sep = isIOS ? '&' : '?';
-      return 'sms:' + number + sep + 'body=' + encodeURIComponent(body);
+      return 'sms:' + number + '?&body=' + encodeURIComponent(body);
     }
 
     if(qeForm){
@@ -1532,31 +1527,33 @@
         var payload = {
           name: document.getElementById('qeName').value.trim(),
           phone: document.getElementById('qePhone').value.trim(),
-          email: document.getElementById('qeEmail').value.trim(),
           details: document.getElementById('qeDesc').value.trim()
         };
 
-        /* spam guard: honeypot field a real visitor never sees or fills,
-           plus a minimum fill time — bots tend to submit instantly */
+        /* honeypot: a field real visitors never see or fill — bots fill
+           everything, so this alone is enough to treat it as spam and skip
+           both the database log and the text message handoff below */
         var qeHoneypot = document.getElementById('qeCompany');
-        var filledTooFast = qeOpenedAt && (Date.now() - qeOpenedAt) < 2500;
-        if((qeHoneypot && qeHoneypot.value.trim() !== '') || filledTooFast){
+        if(qeHoneypot && qeHoneypot.value.trim() !== ''){
           closeQuickEstimate();
           return;
         }
 
-        /* log it to the admin dashboard in the background — best-effort, and
-           doesn't block the text message handoff below if it's slow or fails */
-        if(qeClient){
+        /* a very fast fill is also a spam signal, but a real visitor who
+           types quickly still deserves their text message sent — only skip
+           the admin-dashboard log for these, never the message handoff */
+        var filledTooFast = qeOpenedAt && (Date.now() - qeOpenedAt) < 1200;
+        if(qeClient && !filledTooFast){
           qeClient.from('submissions').insert([payload]).catch(function(){});
         }
 
-        if(qeSubmitBtn){ qeSubmitBtn.textContent = 'Opening Messages...'; }
-        var smsBody = 'YGM Painting - Quote Request\n- ' + payload.details + '\n- ' + payload.name;
-        window.location.href = buildSmsLink(YGM_SMS_NUMBER, smsBody);
-
+        /* close the modal and reset the button first, so nothing about the
+           page's own state can interfere with the sms: handoff below */
         closeQuickEstimate();
         if(qeSubmitBtn){ qeSubmitBtn.disabled = false; qeSubmitBtn.textContent = 'Send My Request'; }
+
+        var smsBody = 'YGM Painting - Quote Request\n- ' + payload.details + '\n- ' + payload.name;
+        window.location.href = buildSmsLink(YGM_SMS_NUMBER, smsBody);
       });
     }
 
