@@ -1353,10 +1353,6 @@
           <label for="qeCompany">Company</label>
           <input id="qeCompany" type="text" tabindex="-1" autocomplete="off">
         </div>
-        <label class="qe-consent-row">
-          <input type="checkbox" id="qeConsent" required>
-          <span>I consent that YGM Painting may contact me by the contact information I wrote above. <a href="consent.html" target="_blank" rel="noopener">Learn more</a></span>
-        </label>
         <a href="#" class="btn btn-primary qe-submit" id="qeSubmitLink">Send My Request</a>
         <button type="button" class="qe-exit js-close-estimate">Exit</button>
         <p id="qeFormError" style="display:none; margin-top:14px; font-size:13.5px; color:#e07a7a;">
@@ -1531,7 +1527,7 @@
       if(!qeSubmitLink) return;
       var name = document.getElementById('qeName').value.trim();
       var details = document.getElementById('qeDesc').value.trim();
-      var smsBody = 'YGM Painting - Quote Request\n- ' + details + '\n- ' + name;
+      var smsBody = 'YGM Painting - Quote Request\n\n- ' + details + '\n\n- ' + name;
       qeSubmitLink.href = buildSmsLink(YGM_SMS_NUMBER, smsBody);
     }
     ['qeName', 'qeDesc'].forEach(function(id){
