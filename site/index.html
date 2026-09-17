@@ -1536,10 +1536,23 @@
     });
 
     if(qeSubmitLink && qeForm){
+      /* Scheduled at the very start of the tap gesture, before 'click' even
+         fires — not inside the click handler. iOS appears to cut the rest
+         of a click handler off the instant it recognizes the tap will hand
+         off to another app, which meant even "setTimeout(...)" placed at
+         the end of that handler sometimes never got a chance to run.
+         pointerdown fires earlier in the gesture, before that handoff
+         logic kicks in, so the timer reliably gets scheduled either way. */
+      var qeCloseTimerForSms = null;
+      qeSubmitLink.addEventListener('pointerdown', function(){
+        qeCloseTimerForSms = setTimeout(closeQuickEstimate, 1000);
+      });
+
       qeSubmitLink.addEventListener('click', function(e){
         if(qeFormError) qeFormError.style.display = 'none';
 
         if(!qeForm.checkValidity()){
+          if(qeCloseTimerForSms){ clearTimeout(qeCloseTimerForSms); qeCloseTimerForSms = null; }
           e.preventDefault();
           qeForm.reportValidity();
           return;
@@ -1566,15 +1579,10 @@
             details: document.getElementById('qeDesc').value.trim()
           }]).catch(function(){});
         }
-
-        /* delayed, not immediate: the moment this tap hands off to
-           Messages, iOS backgrounds the tab and can cut the rest of this
-           handler off before it finishes — a queued timer instead just
-           sits paused while backgrounded and fires as soon as the visitor
-           is back on this tab, so the popup is reliably gone by then */
-        setTimeout(closeQuickEstimate, 1000);
         /* no e.preventDefault() here — the href is already correct from
-           refreshSmsHref(), so the tap's own default action carries it */
+           refreshSmsHref(), so the tap's own default action carries it.
+           Closing the popup itself is already handled by the timer
+           scheduled on pointerdown above. */
       });
     }
 
