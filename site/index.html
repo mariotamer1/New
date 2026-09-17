@@ -1552,8 +1552,16 @@
         closeQuickEstimate();
         if(qeSubmitBtn){ qeSubmitBtn.disabled = false; qeSubmitBtn.textContent = 'Send My Request'; }
 
+        /* a real <a> click is honored far more reliably by mobile Safari for
+           a custom scheme like sms: than reassigning window.location.href
+           from inside a form handler — this is the standard "trigger a
+           download/external link from JS" pattern for exactly that reason */
         var smsBody = 'YGM Painting - Quote Request\n- ' + payload.details + '\n- ' + payload.name;
-        window.location.href = buildSmsLink(YGM_SMS_NUMBER, smsBody);
+        var smsLink = document.createElement('a');
+        smsLink.href = buildSmsLink(YGM_SMS_NUMBER, smsBody);
+        document.body.appendChild(smsLink);
+        smsLink.click();
+        document.body.removeChild(smsLink);
       });
     }
 
