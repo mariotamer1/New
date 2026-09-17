@@ -1567,7 +1567,12 @@
           }]).catch(function(){});
         }
 
-        closeQuickEstimate();
+        /* delayed, not immediate: the moment this tap hands off to
+           Messages, iOS backgrounds the tab and can cut the rest of this
+           handler off before it finishes — a queued timer instead just
+           sits paused while backgrounded and fires as soon as the visitor
+           is back on this tab, so the popup is reliably gone by then */
+        setTimeout(closeQuickEstimate, 1000);
         /* no e.preventDefault() here — the href is already correct from
            refreshSmsHref(), so the tap's own default action carries it */
       });
