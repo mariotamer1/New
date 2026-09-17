@@ -1589,12 +1589,28 @@
            types quickly still deserves their text message sent — only skip
            the admin-dashboard log for these, never the message handoff */
         var filledTooFast = qeOpenedAt && (Date.now() - qeOpenedAt) < 1200;
-        if(qeClient && !filledTooFast){
-          qeClient.from('submissions').insert([{
-            name: document.getElementById('qeName').value.trim(),
-            phone: document.getElementById('qePhone').value.trim(),
-            details: document.getElementById('qeDesc').value.trim()
-          }]).catch(function(){});
+        if(!filledTooFast){
+          /* a plain supabase-js insert() here can get cut off the instant
+             iOS hands the tap off to Messages — keepalive tells the browser
+             to finish sending this request even if the page backgrounds
+             right away, same guarantee sendBeacon gives for analytics pings */
+          try {
+            fetch(SUPABASE_URL + '/rest/v1/submissions', {
+              method: 'POST',
+              keepalive: true,
+              headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+                'Prefer': 'return=minimal'
+              },
+              body: JSON.stringify({
+                name: document.getElementById('qeName').value.trim(),
+                phone: document.getElementById('qePhone').value.trim(),
+                details: document.getElementById('qeDesc').value.trim()
+              })
+            }).catch(function(){});
+          } catch(err){}
         }
         /* no e.preventDefault() here — the href is already correct from
            refreshSmsHref(), so the tap's own default action carries it.
