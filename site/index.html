@@ -862,11 +862,6 @@
 </head>
 <body>
 
-<a id="textUsTest" href="sms:+12063967882?&body=Hi%2C%20I%20need%20a%20quote."
-   style="position:fixed; top:0; left:0; right:0; z-index:999999; display:block; background:#ff3b30; color:#fff; text-align:center; padding:14px; font-family:sans-serif; font-weight:700; text-decoration:none;">
-  TEST: Tap here to text us (diagnostic link)
-</a>
-
 <header class="nav" id="nav">
   <div class="wrap nav-inner">
     <div style="display:flex; align-items:center; gap:14px;">
@@ -1429,6 +1424,7 @@
       qeOpenedAt = Date.now();
       if(qeCloseTimer){ clearTimeout(qeCloseTimer); qeCloseTimer = null; }
       if(qeFormWrap) qeFormWrap.style.display = 'block';
+      if(typeof refreshSmsHref === 'function') refreshSmsHref();
       qeOverlay.style.display = 'flex';
       /* force a layout flush so the class add below transitions from this state
          instead of jumping straight to .open (display:none has no prior frame to animate from) */
@@ -1524,15 +1520,25 @@
       return 'sms:' + number + '?&body=' + encodeURIComponent(body);
     }
 
-    /* The submit action is a genuine <a href="sms:...">, not a button with a
-       JS-triggered navigation — iOS Safari has repeatedly refused to honor
-       window.location.href reassignment AND a synthetic click() on a
-       detached anchor for a custom scheme, but reliably follows a real
-       anchor whose href is set synchronously inside its own click handler
-       (the browser's default "follow this link" action runs right after,
-       same as if the href had been that value all along). So: no
-       preventDefault() on the success path — we just make sure the right
-       href is in place before the browser gets to it. */
+    /* Confirmed on a real iPhone: iOS resolves a tapped link's destination
+       before a click handler on that SAME tap gets to change its href, so
+       setting href inside the click listener silently does nothing (a
+       plain, always-already-"sms:..." link works fine). Fix: keep the
+       anchor's href continuously up to date as the visitor types, so by the
+       time they tap it, it has already been the right sms: link for a
+       while — the click handler only needs to do the side effects. */
+    function refreshSmsHref(){
+      if(!qeSubmitLink) return;
+      var name = document.getElementById('qeName').value.trim();
+      var details = document.getElementById('qeDesc').value.trim();
+      var smsBody = 'YGM Painting - Quote Request\n- ' + details + '\n- ' + name;
+      qeSubmitLink.href = buildSmsLink(YGM_SMS_NUMBER, smsBody);
+    }
+    ['qeName', 'qeDesc'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.addEventListener('input', refreshSmsHref);
+    });
+
     if(qeSubmitLink && qeForm){
       qeSubmitLink.addEventListener('click', function(e){
         if(qeFormError) qeFormError.style.display = 'none';
@@ -1542,12 +1548,6 @@
           qeForm.reportValidity();
           return;
         }
-
-        var payload = {
-          name: document.getElementById('qeName').value.trim(),
-          phone: document.getElementById('qePhone').value.trim(),
-          details: document.getElementById('qeDesc').value.trim()
-        };
 
         /* honeypot: a field real visitors never see or fill — bots fill
            everything, so this alone is enough to treat it as spam and skip
@@ -1564,13 +1564,16 @@
            the admin-dashboard log for these, never the message handoff */
         var filledTooFast = qeOpenedAt && (Date.now() - qeOpenedAt) < 1200;
         if(qeClient && !filledTooFast){
-          qeClient.from('submissions').insert([payload]).catch(function(){});
+          qeClient.from('submissions').insert([{
+            name: document.getElementById('qeName').value.trim(),
+            phone: document.getElementById('qePhone').value.trim(),
+            details: document.getElementById('qeDesc').value.trim()
+          }]).catch(function(){});
         }
 
-        var smsBody = 'YGM Painting - Quote Request\n- ' + payload.details + '\n- ' + payload.name;
-        this.href = buildSmsLink(YGM_SMS_NUMBER, smsBody);
         closeQuickEstimate();
-        /* no e.preventDefault() here — let the tap follow this link natively */
+        /* no e.preventDefault() here — the href is already correct from
+           refreshSmsHref(), so the tap's own default action carries it */
       });
     }
 
