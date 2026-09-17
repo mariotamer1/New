@@ -1361,17 +1361,12 @@
           <input type="checkbox" id="qeConsent" required>
           <span>I consent that YGM Painting may contact me by the contact information I wrote above. <a href="consent.html" target="_blank" rel="noopener">Learn more</a></span>
         </label>
-        <button type="submit" class="btn btn-primary qe-submit">Request Estimate</button>
+        <button type="submit" class="btn btn-primary qe-submit">Send My Request</button>
         <button type="button" class="qe-exit js-close-estimate">Exit</button>
         <p id="qeFormError" style="display:none; margin-top:14px; font-size:13.5px; color:#e07a7a;">
           Something went wrong sending that — please call us instead, or try again in a moment.
         </p>
       </form>
-    </div>
-    <div class="qe-success" id="qeSuccess" style="display:none;">
-      <h3>Thank you!</h3>
-      <p>We'll send over your free estimate within 12–24 hours by email or text!</p>
-      <button type="button" class="qe-exit js-close-estimate">Exit</button>
     </div>
   </div>
 </div>
@@ -1423,7 +1418,6 @@
     var qeOverlay = document.getElementById('qeOverlay');
     var qeForm = document.getElementById('qeForm');
     var qeFormWrap = document.getElementById('qeFormWrap');
-    var qeSuccess = document.getElementById('qeSuccess');
 
     var qeCloseTimer = null;
 
@@ -1434,7 +1428,6 @@
       qeOpenedAt = Date.now();
       if(qeCloseTimer){ clearTimeout(qeCloseTimer); qeCloseTimer = null; }
       if(qeFormWrap) qeFormWrap.style.display = 'block';
-      if(qeSuccess) qeSuccess.style.display = 'none';
       qeOverlay.style.display = 'flex';
       /* force a layout flush so the class add below transitions from this state
          instead of jumping straight to .open (display:none has no prior frame to animate from) */
@@ -1521,6 +1514,15 @@
 
     var qeSubmitBtn = qeForm ? qeForm.querySelector('.qe-submit') : null;
     var qeFormError = document.getElementById('qeFormError');
+    var YGM_SMS_NUMBER = '+12063967882';
+
+    /* iOS wants "&body=" after a bare number, Android (and everything else)
+       wants "?body=" — using the wrong one silently drops the prefilled text */
+    function buildSmsLink(number, body){
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      var sep = isIOS ? '&' : '?';
+      return 'sms:' + number + sep + 'body=' + encodeURIComponent(body);
+    }
 
     if(qeForm){
       qeForm.addEventListener('submit', function(e){
@@ -1534,35 +1536,27 @@
           details: document.getElementById('qeDesc').value.trim()
         };
 
-        function showSuccess(){
-          if(qeFormWrap) qeFormWrap.style.display = 'none';
-          if(qeSuccess) qeSuccess.style.display = 'block';
-        }
-        function showError(){
-          if(qeFormError) qeFormError.style.display = 'block';
-          if(qeSubmitBtn){ qeSubmitBtn.disabled = false; qeSubmitBtn.textContent = 'Request Estimate'; }
-        }
-
         /* spam guard: honeypot field a real visitor never sees or fills,
            plus a minimum fill time — bots tend to submit instantly */
         var qeHoneypot = document.getElementById('qeCompany');
         var filledTooFast = qeOpenedAt && (Date.now() - qeOpenedAt) < 2500;
         if((qeHoneypot && qeHoneypot.value.trim() !== '') || filledTooFast){
-          showSuccess();
+          closeQuickEstimate();
           return;
         }
 
-        if(!qeClient){
-          /* Supabase isn't configured yet — don't silently pretend it worked */
-          showError();
-          return;
+        /* log it to the admin dashboard in the background — best-effort, and
+           doesn't block the text message handoff below if it's slow or fails */
+        if(qeClient){
+          qeClient.from('submissions').insert([payload]).catch(function(){});
         }
 
-        if(qeSubmitBtn){ qeSubmitBtn.disabled = true; qeSubmitBtn.textContent = 'Sending...'; }
-        qeClient.from('submissions').insert([payload]).then(function(res){
-          if(res.error){ showError(); return; }
-          showSuccess();
-        }).catch(function(){ showError(); });
+        if(qeSubmitBtn){ qeSubmitBtn.textContent = 'Opening Messages...'; }
+        var smsBody = 'YGM Painting - Quote Request\n- ' + payload.details + '\n- ' + payload.name;
+        window.location.href = buildSmsLink(YGM_SMS_NUMBER, smsBody);
+
+        closeQuickEstimate();
+        if(qeSubmitBtn){ qeSubmitBtn.disabled = false; qeSubmitBtn.textContent = 'Send My Request'; }
       });
     }
 
