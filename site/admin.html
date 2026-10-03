@@ -285,6 +285,41 @@
   .chat-reply-row textarea:focus-visible{outline:2px solid var(--ochre-light); outline-offset:2px;}
   .chat-send-btn{flex:0 0 auto; padding:12px 18px;}
 
+  /* ---------- content editor (text/photo self-serve edits) ---------- */
+  #contentEditor{display:none;}
+  #contentEditor.show{display:block;}
+  .ce-wrap{max-width:720px; margin:0 auto; padding:40px 20px 140px;}
+  .ce-intro{color:var(--ink-dim); font-size:14.5px; margin-bottom:30px; line-height:1.6;}
+  .ce-section{border:1px solid var(--line); border-radius:8px; padding:22px; margin-bottom:22px;}
+  .ce-section h3{font-size:17px; margin-bottom:4px;}
+  .ce-section-sub{color:var(--ink-faint); font-size:13px; margin-bottom:18px;}
+  .ce-field{margin-bottom:16px;}
+  .ce-field:last-child{margin-bottom:0;}
+  .ce-field label{display:block; font-size:13px; color:var(--ink-faint); margin-bottom:7px;}
+  .ce-field input, .ce-field textarea{
+    width:100%; background:var(--bg); border:1px solid var(--line-strong); border-radius:3px;
+    padding:11px 13px; color:var(--ink); font-size:14.5px; font-family:inherit; line-height:1.5;
+  }
+  .ce-field textarea{min-height:70px; resize:vertical;}
+  .ce-field input:focus-visible, .ce-field textarea:focus-visible{outline:2px solid var(--ochre-light); outline-offset:2px;}
+  .ce-field .ce-hint{color:var(--ink-faint); font-size:12px; margin-top:6px; line-height:1.5;}
+  .ce-photo-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:16px;}
+  .ce-photo-card{text-align:center;}
+  .ce-photo-card img{width:100%; height:110px; object-fit:cover; border-radius:6px; border:1px solid var(--line-strong); margin-bottom:8px; background:var(--bg);}
+  .ce-photo-card label{display:block; font-size:12.5px; color:var(--ink-faint); margin-bottom:7px;}
+  .ce-photo-card input[type=file]{display:none;}
+  .ce-photo-upload-btn{
+    display:inline-block; width:100%; text-align:center; background:none; border:1px solid var(--line-strong);
+    color:var(--ink-dim); padding:9px 10px; border-radius:3px; font-size:12.5px; transition:all .2s var(--ease);
+  }
+  .ce-photo-upload-btn:hover{border-color:var(--ochre-light); color:var(--ochre-light);}
+  .ce-photo-upload-btn.uploading{opacity:.6; pointer-events:none;}
+  .ce-save-bar{
+    position:fixed; left:0; right:0; bottom:0; z-index:50; background:rgba(20,22,26,0.92); backdrop-filter:blur(10px);
+    border-top:1px solid var(--line); padding:14px 20px; display:flex; align-items:center; justify-content:center; gap:14px;
+  }
+  .ce-save-status{color:var(--ink-faint); font-size:13px;}
+
   /* ---------- confirmation popup ---------- */
   .confirm-overlay{
     position:fixed; inset:0; z-index:500; background:rgba(8,9,10,0.7);
@@ -330,6 +365,7 @@
     <div class="home-actions">
       <button type="button" class="btn view-requests-btn" id="viewRequestsBtn">View Requests</button>
       <button type="button" class="btn-outline" id="openChangeBtn">Make Changes to the Website</button>
+      <button type="button" class="btn-outline" id="openContentEditorBtn">Edit Website Content</button>
     </div>
   </div>
 </div>
@@ -365,7 +401,10 @@
   <div class="home-hero">
     <h1>Welcome back, Mario.</h1>
     <p>Website change requests from the team are waiting for you.</p>
-    <button type="button" class="btn view-requests-btn" id="marioViewRequestsBtn">View Requests</button>
+    <div class="home-actions">
+      <button type="button" class="btn view-requests-btn" id="marioViewRequestsBtn">View Requests</button>
+      <button type="button" class="btn-outline" id="marioOpenContentEditorBtn">Edit Website Content</button>
+    </div>
   </div>
 </div>
 
@@ -382,6 +421,28 @@
       <span class="count" id="marioReqCount"></span>
     </div>
     <div id="marioReqList"></div>
+  </div>
+</div>
+
+<div id="contentEditor">
+  <header class="admin-nav">
+    <div class="admin-nav-inner">
+      <div class="logo"><img src="ygm-logo.jpg" alt="YGM Painting"><span>Edit Content</span></div>
+      <button type="button" class="logout-btn" id="contentEditorExitBtn" style="background:none; cursor:pointer;">Exit</button>
+    </div>
+  </header>
+  <div class="ce-wrap">
+    <p class="ce-intro">Change any text or photo on the website here. Edits to text are saved with the button at the bottom — photos save the moment you pick a new one.</p>
+    <div id="ceSections"></div>
+    <div class="ce-section">
+      <h3>Photos</h3>
+      <p class="ce-section-sub">Tap a photo to replace it. It updates on the live site as soon as it uploads.</p>
+      <div class="ce-photo-grid" id="cePhotoGrid"></div>
+    </div>
+  </div>
+  <div class="ce-save-bar">
+    <span class="ce-save-status" id="ceSaveStatus"></span>
+    <button type="button" class="btn" id="ceSaveBtn">Save All Changes</button>
   </div>
 </div>
 
@@ -484,6 +545,16 @@
   var changePreviewFrame = document.getElementById('changePreviewFrame');
   var previewLoaded = false;
 
+  var contentEditor = document.getElementById('contentEditor');
+  var ceSections = document.getElementById('ceSections');
+  var cePhotoGrid = document.getElementById('cePhotoGrid');
+  var ceSaveBtn = document.getElementById('ceSaveBtn');
+  var ceSaveStatus = document.getElementById('ceSaveStatus');
+  var contentEditorExitBtn = document.getElementById('contentEditorExitBtn');
+  var openContentEditorBtn = document.getElementById('openContentEditorBtn');
+  var marioOpenContentEditorBtn = document.getElementById('marioOpenContentEditorBtn');
+  var contentEditorReturnTo = null;
+
   var allSubmissions = [];
   var currentFilter = 'all';
   var replyTargetId = null;
@@ -492,6 +563,7 @@
     loginScreen.style.display = 'none';
     dashboard.classList.remove('show');
     marioDashboard.classList.remove('show');
+    contentEditor.classList.remove('show');
     if(user === 'mario'){
       homeScreen.classList.remove('show');
       marioHomeScreen.classList.add('show');
@@ -506,6 +578,7 @@
     dashboard.classList.remove('show');
     marioHomeScreen.classList.remove('show');
     marioDashboard.classList.remove('show');
+    contentEditor.classList.remove('show');
     loginScreen.style.display = 'flex';
   }
 
@@ -926,6 +999,166 @@
       }
       changeFormView.style.display = 'none';
       changeThanksView.classList.add('show');
+    });
+  });
+
+  /* ---------- content editor ---------- */
+  var CONTENT_SECTIONS = (function(){
+    var sections = [
+      { title: 'Contact Info', sub: 'Used in the footer, the contact section, "Call Now" buttons, and the text-message quote feature.', fields: [
+        { key: 'contact_phone_digits', label: 'Phone Number (10 digits, no dashes)' },
+        { key: 'contact_email', label: 'Email' },
+        { key: 'contact_address', label: 'Street Address' },
+        { key: 'contact_hours', label: 'Business Hours', hint: 'Separate each line with a comma — for example: Mon-Fri 8am-5pm, Sat 9am-2pm, Closed Sunday' }
+      ]},
+      { title: 'Homepage', sub: '', fields: [
+        { key: 'hero_tagline', label: 'Tagline under the intro video' },
+        { key: 'about_heading', label: '"About" section heading' },
+        { key: 'about_body', label: '"About" section paragraph', type: 'textarea' }
+      ]}
+    ];
+    var i;
+    for(i = 1; i <= 4; i++){
+      sections[1].fields.push({ key: 'about_stat_' + i + '_num', label: 'Stat ' + i + ' number' });
+      sections[1].fields.push({ key: 'about_stat_' + i + '_label', label: 'Stat ' + i + ' label' });
+    }
+    var serviceFields = [];
+    for(i = 1; i <= 6; i++){
+      serviceFields.push({ key: 'service_' + i + '_title', label: 'Service ' + i + ' title' });
+      serviceFields.push({ key: 'service_' + i + '_desc', label: 'Service ' + i + ' description', type: 'textarea' });
+    }
+    sections.push({ title: 'Services', sub: 'The six service cards on the homepage.', fields: serviceFields });
+    var storyFields = [];
+    for(i = 1; i <= 4; i++){
+      storyFields.push({ key: 'story_' + i + '_eyebrow', label: 'Step ' + i + ' tag (e.g. "Step one")' });
+      storyFields.push({ key: 'story_' + i + '_heading', label: 'Step ' + i + ' heading' });
+      storyFields.push({ key: 'story_' + i + '_body', label: 'Step ' + i + ' description', type: 'textarea' });
+    }
+    sections.push({ title: '"How We Work" Steps', sub: 'The four-step scrolling section.', fields: storyFields });
+    var faqFields = [];
+    for(i = 1; i <= 6; i++){
+      faqFields.push({ key: 'faq_' + i + '_q', label: 'Question ' + i });
+      faqFields.push({ key: 'faq_' + i + '_a', label: 'Answer ' + i, type: 'textarea' });
+    }
+    sections.push({ title: 'FAQ', sub: '', fields: faqFields });
+    return sections;
+  })();
+
+  var PHOTO_FIELDS = (function(){
+    var fields = [{ key: 'logo_src', label: 'Logo' }];
+    var i;
+    for(i = 1; i <= 7; i++) fields.push({ key: 'gallery_' + i + '_src', label: 'Before/After Photo ' + i });
+    for(i = 1; i <= 4; i++) fields.push({ key: 'story_' + i + '_photo', label: 'How We Work Step ' + i + ' Photo' });
+    return fields;
+  })();
+
+  function buildFieldHtml(f){
+    var tag = f.type === 'textarea' ? 'textarea' : 'input';
+    var attrs = tag === 'input' ? ' type="text"' : '';
+    return '<div class="ce-field">' +
+      '<label>' + f.label + '</label>' +
+      '<' + tag + ' data-key="' + f.key + '"' + attrs + '></' + tag + '>' +
+      (f.hint ? '<div class="ce-hint">' + f.hint + '</div>' : '') +
+      '</div>';
+  }
+
+  function renderContentEditor(map){
+    var html = '';
+    CONTENT_SECTIONS.forEach(function(section){
+      html += '<div class="ce-section"><h3>' + section.title + '</h3>';
+      if(section.sub) html += '<p class="ce-section-sub">' + section.sub + '</p>';
+      section.fields.forEach(function(f){ html += buildFieldHtml(f); });
+      html += '</div>';
+    });
+    ceSections.innerHTML = html;
+    CONTENT_SECTIONS.forEach(function(section){
+      section.fields.forEach(function(f){
+        var el = ceSections.querySelector('[data-key="' + f.key + '"]');
+        if(el) el.value = map[f.key] || '';
+      });
+    });
+
+    var photoHtml = '';
+    PHOTO_FIELDS.forEach(function(p){
+      var src = map[p.key] || '';
+      photoHtml += '<div class="ce-photo-card" data-key="' + p.key + '">' +
+        '<label>' + p.label + '</label>' +
+        '<img src="' + escapeHtml(src) + '" alt="">' +
+        '<label class="ce-photo-upload-btn">Change photo<input type="file" accept="image/*" data-key="' + p.key + '"></label>' +
+        '</div>';
+    });
+    cePhotoGrid.innerHTML = photoHtml;
+  }
+
+  function openContentEditor(returnTo){
+    contentEditorReturnTo = returnTo;
+    homeScreen.classList.remove('show');
+    marioHomeScreen.classList.remove('show');
+    contentEditor.classList.add('show');
+    ceSections.innerHTML = '<p class="ce-section-sub">Loading...</p>';
+    cePhotoGrid.innerHTML = '';
+    ceSaveStatus.textContent = '';
+    sb.from('site_content').select('key,value').then(function(res){
+      var map = {};
+      (res.data || []).forEach(function(row){ map[row.key] = row.value; });
+      renderContentEditor(map);
+    });
+  }
+  function closeContentEditor(){
+    contentEditor.classList.remove('show');
+    if(contentEditorReturnTo === 'mario'){ marioHomeScreen.classList.add('show'); }
+    else { homeScreen.classList.add('show'); }
+  }
+  openContentEditorBtn.addEventListener('click', function(){ openContentEditor('ysrael'); });
+  marioOpenContentEditorBtn.addEventListener('click', function(){ openContentEditor('mario'); });
+  contentEditorExitBtn.addEventListener('click', closeContentEditor);
+
+  ceSaveBtn.addEventListener('click', function(){
+    var rows = [];
+    CONTENT_SECTIONS.forEach(function(section){
+      section.fields.forEach(function(f){
+        var el = ceSections.querySelector('[data-key="' + f.key + '"]');
+        if(el) rows.push({ key: f.key, value: el.value });
+      });
+    });
+    ceSaveBtn.disabled = true;
+    ceSaveBtn.textContent = 'Saving...';
+    sb.from('site_content').upsert(rows, { onConflict: 'key' }).then(function(res){
+      ceSaveBtn.disabled = false;
+      ceSaveBtn.textContent = 'Save All Changes';
+      ceSaveStatus.textContent = res.error ? 'Something went wrong — try again.' : 'Saved — changes are live.';
+      setTimeout(function(){ ceSaveStatus.textContent = ''; }, 3000);
+    });
+  });
+
+  cePhotoGrid.addEventListener('change', function(e){
+    var input = e.target;
+    if(!input || input.tagName !== 'INPUT' || input.type !== 'file') return;
+    var key = input.getAttribute('data-key');
+    var file = input.files && input.files[0];
+    if(!file) return;
+    var card = input.closest('.ce-photo-card');
+    var btn = input.parentElement;
+    var img = card ? card.querySelector('img') : null;
+    btn.classList.add('uploading');
+    btn.firstChild.textContent = 'Uploading...';
+    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    var path = key + '-' + Date.now() + '.' + ext;
+    sb.storage.from('site-photos').upload(path, file, { upsert: true }).then(function(res){
+      if(res.error){
+        btn.classList.remove('uploading');
+        btn.firstChild.textContent = 'Change photo';
+        ceSaveStatus.textContent = 'Photo upload failed — try again.';
+        return;
+      }
+      var publicUrl = sb.storage.from('site-photos').getPublicUrl(path).data.publicUrl;
+      if(img) img.src = publicUrl;
+      btn.classList.remove('uploading');
+      btn.firstChild.textContent = 'Change photo';
+      sb.from('site_content').upsert([{ key: key, value: publicUrl }], { onConflict: 'key' }).then(function(res2){
+        ceSaveStatus.textContent = res2.error ? 'Photo uploaded but failed to save — try again.' : 'Photo updated.';
+        setTimeout(function(){ ceSaveStatus.textContent = ''; }, 2500);
+      });
     });
   });
 })();
