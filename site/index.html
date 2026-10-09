@@ -1974,6 +1974,9 @@
     if(reviewFormOverlay){
       reviewFormOverlay.addEventListener('click', function(e){ if(e.target === reviewFormOverlay) closeReviewForm(); });
     }
+    /* /review is a short link for QR codes and review requests — it loads
+       this same page (see review/index.html) and lands straight on this form */
+    if(/^\/review\/?$/.test(window.location.pathname)) openReviewForm();
 
     var reviewThanksCloseTimer = null;
     function openReviewThanks(){

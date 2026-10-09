@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YGM Painting | Leave a Review</title>
+<meta name="robots" content="noindex, follow">
+</head>
+<body>
+<script>
+  /* Loads the real homepage in place, while keeping "/review" in the address
+     bar — that's what makes it short and stable enough for a QR code or a
+     review-request link. <base href="/"> makes every relative file on the
+     homepage (images, video, other pages) resolve from the site root like
+     normal, even though the visible URL is one level deeper. The homepage's
+     own script detects this path and opens the "Leave a Review" form. */
+  fetch('/index.html').then(function(r){ return r.text(); }).then(function(html){
+    html = html.replace('<head>', '<head><base href="/">');
+    document.open();
+    document.write(html);
+    document.close();
+  }).catch(function(){
+    window.location.replace('/index.html');
+  });
+</script>
+</body>
+</html>
