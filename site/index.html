@@ -1292,7 +1292,10 @@
           <a href="tel:+12063967882" id="popupCallLink">Call Now</a>
           <span class="contact-popup-note">(no wait)</span>
         </div>
-        <div class="contact-popup-value" id="popupPhoneValue">(206) 396-7882</div>
+        <div class="contact-popup-value">
+          <span id="popupPhoneValue">(206) 396-7882</span>
+          <button type="button" class="contact-copy-btn" id="copyPhoneBtn" data-copy="2063967882" aria-label="Copy phone number">Copy</button>
+        </div>
       </div>
     </div>
     <button type="button" class="qe-exit js-close-contact">Exit</button>
@@ -1430,6 +1433,8 @@
           var el = document.getElementById(id);
           if(el) el.textContent = display;
         });
+        var copyPhoneBtn = document.getElementById('copyPhoneBtn');
+        if(copyPhoneBtn) copyPhoneBtn.setAttribute('data-copy', digits);
         var callLinkIds = ['contactCallBtn', 'footerPhoneLink', 'mobileBarCallLink', 'popupCallLink'];
         callLinkIds.forEach(function(id){
           var el = document.getElementById(id);
@@ -1556,17 +1561,17 @@
     }
     window.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeContact(); });
 
-    var copyEmailBtn = document.getElementById('copyEmailBtn');
-    if(copyEmailBtn){
-      copyEmailBtn.addEventListener('click', function(){
-        var text = copyEmailBtn.getAttribute('data-copy');
+    function wireCopyButton(btn){
+      if(!btn) return;
+      btn.addEventListener('click', function(){
+        var text = btn.getAttribute('data-copy');
         function showCopied(){
-          var original = copyEmailBtn.textContent;
-          copyEmailBtn.textContent = 'Copied!';
-          copyEmailBtn.classList.add('copied');
+          var original = btn.textContent;
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
           setTimeout(function(){
-            copyEmailBtn.textContent = original;
-            copyEmailBtn.classList.remove('copied');
+            btn.textContent = original;
+            btn.classList.remove('copied');
           }, 1600);
         }
         if(navigator.clipboard && navigator.clipboard.writeText){
@@ -1585,6 +1590,8 @@
         }
       });
     }
+    wireCopyButton(document.getElementById('copyEmailBtn'));
+    wireCopyButton(document.getElementById('copyPhoneBtn'));
 
     var qeSubmitLink = document.getElementById('qeSubmitLink');
     var qeFormError = document.getElementById('qeFormError');
