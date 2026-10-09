@@ -1754,18 +1754,41 @@
       if(promoCouponView) promoCouponView.style.display = '';
     }
 
+    function randomLetters(n){
+      var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      var out = '';
+      for(var i = 0; i < n; i++){ out += chars.charAt(Math.floor(Math.random() * chars.length)); }
+      return out;
+    }
+
+    /* last 4 digits of the phone + 4 random letters keeps codes short to
+       read off a screenshot while still needing a DB check — 26^4 (about
+       456,976) combinations per last-4-digits group makes a collision on
+       the first try rare, but we verify and retry a few times anyway so
+       no two coupons can ever share a code */
+    function generateUniqueCode(last4, attempt){
+      var code = last4 + randomLetters(4) + '-10%';
+      if(!qeClient || attempt >= 8) return Promise.resolve(code);
+      return qeClient.from('coupons').select('id').eq('code', code).limit(1).then(function(res){
+        var taken = res && res.data && res.data.length > 0;
+        return taken ? generateUniqueCode(last4, attempt + 1) : code;
+      }).catch(function(){ return code; });
+    }
+
     function generateNewCoupon(digits){
-      var code = digits + '-10%';
+      var last4 = digits.slice(-4);
       var expires = new Date();
       expires.setDate(expires.getDate() + 30);
       var expiresIso = expires.toISOString();
-      if(qeClient){
-        qeClient.from('coupons').insert([{ phone: digits, code: code, expires_at: expiresIso }])
-          .then(function(){ showCoupon(code, expiresIso); })
-          .catch(function(){ showCoupon(code, expiresIso); });
-      } else {
-        showCoupon(code, expiresIso);
-      }
+      generateUniqueCode(last4, 0).then(function(code){
+        if(qeClient){
+          qeClient.from('coupons').insert([{ phone: digits, code: code, expires_at: expiresIso }])
+            .then(function(){ showCoupon(code, expiresIso); })
+            .catch(function(){ showCoupon(code, expiresIso); });
+        } else {
+          showCoupon(code, expiresIso);
+        }
+      });
     }
 
     if(promoForm){
