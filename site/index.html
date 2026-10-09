@@ -179,29 +179,6 @@
   .nav-cta:hover{background:var(--ochre-light); transform:translateY(-1px);}
   .nav-toggle{display:none; background:none; border:none; color:var(--ink); font-size:24px;}
 
-  /* ---------- 3-dot menu (left of nav) — hidden until the intro dismisses ---------- */
-  .dots-menu{position:relative; opacity:0; pointer-events:none; transition:opacity .4s var(--ease);}
-  .dots-menu.ready{opacity:1; pointer-events:auto;}
-  .dots-btn{
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
-    width:36px; height:36px; background:none; border:none; border-radius:99px;
-    transition:background .2s var(--ease);
-  }
-  .dots-btn:hover{background:rgba(243,239,228,0.08);}
-  .dots-btn span{display:block; width:4px; height:4px; border-radius:50%; background:var(--ink-dim);}
-  .dots-dropdown{
-    position:absolute; top:calc(100% + 10px); left:0; z-index:220; min-width:200px;
-    background:var(--bg-raised); border:1px solid var(--line-strong); border-radius:6px;
-    padding:8px; box-shadow:0 20px 50px rgba(0,0,0,0.45);
-    opacity:0; transform:translateY(-6px) scale(0.98); pointer-events:none;
-    transition:opacity .2s var(--ease), transform .2s var(--ease);
-  }
-  .dots-dropdown.open{opacity:1; transform:translateY(0) scale(1); pointer-events:auto;}
-  .dots-dropdown a{
-    display:block; padding:11px 14px; font-size:14px; color:var(--ink-dim); border-radius:3px;
-    transition:background .2s var(--ease), color .2s var(--ease);
-  }
-  .dots-dropdown a:hover{background:rgba(243,239,228,0.06); color:var(--ink);}
 
   @media (max-width:860px){
     .nav-links{display:none;}
@@ -866,14 +843,6 @@
   <div class="wrap nav-inner">
     <div style="display:flex; align-items:center; gap:14px;">
       <a href="#" class="logo"><img src="ygm-logo.jpg" alt="YGM Painting logo"></a>
-      <div class="dots-menu" id="dotsMenu">
-        <button class="dots-btn" id="dotsBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-        <div class="dots-dropdown" id="dotsDropdown">
-          <a href="#" class="js-open-estimate">Request a Quote</a>
-        </div>
-      </div>
     </div>
     <ul class="nav-links">
       <li><a href="#services">Services</a></li>
@@ -2049,32 +2018,6 @@
   } catch(e) {}
 
   try {
-    /* 3-dot nav menu — open/close dropdown */
-    var dotsBtn = document.getElementById('dotsBtn');
-    var dotsDropdown = document.getElementById('dotsDropdown');
-    if(dotsBtn && dotsDropdown){
-      dotsBtn.addEventListener('click', function(e){
-        e.stopPropagation();
-        var willOpen = !dotsDropdown.classList.contains('open');
-        dotsDropdown.classList.toggle('open', willOpen);
-        dotsBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-      });
-      document.addEventListener('click', function(e){
-        if(!dotsDropdown.contains(e.target) && e.target !== dotsBtn){
-          dotsDropdown.classList.remove('open');
-          dotsBtn.setAttribute('aria-expanded', 'false');
-        }
-      });
-      dotsDropdown.querySelectorAll('a').forEach(function(a){
-        a.addEventListener('click', function(){
-          dotsDropdown.classList.remove('open');
-          dotsBtn.setAttribute('aria-expanded', 'false');
-        });
-      });
-    }
-  } catch(e) {}
-
-  try {
     /* nav shrink */
     var nav = document.getElementById('nav');
     if(nav){
@@ -2192,8 +2135,6 @@
         window.removeEventListener('wheel', onWheel, {passive:false});
         window.removeEventListener('touchmove', onTouchMove, {passive:false});
         window.removeEventListener('keydown', onKeyDown);
-        var dotsMenuEl = document.getElementById('dotsMenu');
-        if(dotsMenuEl) dotsMenuEl.classList.add('ready');
       }
       function onWheel(e){ if(introDismissed) return; e.preventDefault(); dismissIntro(); }
       function onTouchMove(e){ if(introDismissed) return; e.preventDefault(); dismissIntro(); }
