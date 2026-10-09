@@ -1369,15 +1369,11 @@
     <button class="qe-close js-close-status" aria-label="Close">✕</button>
     <div id="statusFormWrap">
       <h3>Check Quote Status</h3>
-      <p>Enter the phone number and email you used when requesting your estimate.</p>
+      <p>Enter the phone number you used when requesting your estimate.</p>
       <form id="statusForm">
         <div class="qe-field">
           <label for="statusPhone">Phone Number</label>
           <input id="statusPhone" type="tel" required>
-        </div>
-        <div class="qe-field">
-          <label for="statusEmail">Email</label>
-          <input id="statusEmail" type="email" required>
         </div>
         <button type="submit" class="btn btn-primary qe-submit">Check Status</button>
         <button type="button" class="qe-exit js-close-status">Exit</button>
@@ -1781,7 +1777,6 @@
         e.preventDefault();
         if(statusFormError) statusFormError.style.display = 'none';
         var phone = document.getElementById('statusPhone').value.trim();
-        var email = document.getElementById('statusEmail').value.trim();
 
         function showStatusError(){
           if(statusFormError) statusFormError.style.display = 'block';
@@ -1791,14 +1786,14 @@
         if(!qeClient){ showStatusError(); return; }
 
         if(statusSubmitBtn){ statusSubmitBtn.disabled = true; statusSubmitBtn.textContent = 'Checking...'; }
-        qeClient.rpc('check_submission_status', { p_phone: phone, p_email: email }).then(function(res){
+        qeClient.rpc('check_submission_status', { p_phone: phone, p_email: null }).then(function(res){
           if(statusSubmitBtn){ statusSubmitBtn.disabled = false; statusSubmitBtn.textContent = 'Check Status'; }
           if(res.error){ showStatusError(); return; }
 
           var rows = res.data || [];
           if(!statusResults) return;
           if(rows.length === 0){
-            statusResults.innerHTML = '<h3>No request found</h3><p>We couldn\'t find a request with that phone number or email. Double check them, or call us directly.</p><button type="button" class="qe-exit js-close-status">Exit</button>';
+            statusResults.innerHTML = '<h3>No request found</h3><p>We couldn\'t find a request with that phone number. Double check it, or call us directly.</p><button type="button" class="qe-exit js-close-status">Exit</button>';
           } else {
             var html = '<h3 style="margin-bottom:20px;">Chatting with Ysrael (The Owner)</h3>';
             rows.forEach(function(row){
