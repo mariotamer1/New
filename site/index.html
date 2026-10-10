@@ -160,7 +160,7 @@
     -webkit-backdrop-filter:blur(14px) saturate(140%);
     border-bottom:1px solid var(--line);
   }
-  .nav-inner{display:flex; align-items:center; justify-content:space-between; gap:24px; position:relative;}
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; gap:24px;}
   .logo{
     display:flex; align-items:center; gap:8px;
   }
@@ -188,11 +188,12 @@
   .nav-toggle{display:none; background:none; border:none; color:var(--ink); font-size:24px;}
 
   /* ---------- "10% OFF" badge that takes over from the ribbon in the header,
-     once the visitor scrolls past the landing page (see dismissIntro) ---------- */
+     once the visitor scrolls past the landing page (see dismissIntro) — sits
+     right next to the logo so it never fights the nav links for the same
+     centered space the way an absolutely-centered badge did */
   .promo-header-badge{
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     display:flex; align-items:center; gap:7px; border:none; cursor:pointer; white-space:nowrap;
-    background:var(--ochre-light); color:#191305; padding:9px 16px; border-radius:99px;
+    background:var(--ochre-light); color:#191305; padding:9px 16px; border-radius:8px;
     font-size:13px; font-weight:700; letter-spacing:0.02em; font-family:inherit;
     opacity:0; pointer-events:none; transition:opacity .9s var(--ease);
   }
@@ -766,29 +767,29 @@
   /* ---------- promo popup: a light card, by design, unlike the rest of the site's modals ----------
      .qe-modal.promo-modal (not just .promo-modal) so this reliably wins over
      .qe-modal's own background/color despite .qe-modal being declared later */
-  .qe-modal.promo-modal{background:#faf7f1; border-color:rgba(0,0,0,0.1); color:#1c1c1c; position:relative;}
+  .qe-modal.promo-modal{border-color:rgba(0,0,0,0.1); color:#1c1c1c; position:relative;}
   /* smaller than the other modals on purpose — enough room to show the
      background behind it is still a live page, not edge-to-edge */
-  .qe-overlay.promo-overlay{padding:30px 18px;}
-  .qe-modal.promo-modal{max-width:380px; max-height:80vh; padding:24px 22px 28px;}
+  .qe-overlay.promo-overlay{padding:24px 18px;}
+  .qe-modal.promo-modal{max-width:360px; max-height:94vh; padding:18px 18px 18px; overflow-x:hidden;}
   .promo-modal .qe-close{color:#8a8578; z-index:2;}
   .promo-modal .qe-close:hover{color:#1c1c1c;}
-  /* decorative torn-paint-stroke corners; overflow:hidden on the base .qe-modal
-     (set via overflow-y:auto, which forces overflow-x to clip too) keeps these
-     confined to the card without needing to touch that shared rule */
-  .promo-modal::before, .promo-modal::after{
-    content:''; position:absolute; width:220px; height:110px; pointer-events:none; z-index:0;
-  }
-  .promo-modal::before{
-    top:-34px; left:-60px; transform:rotate(-32deg);
-    background:linear-gradient(90deg, rgba(224,168,98,0) 0%, rgba(234,224,206,0.95) 35%, rgba(234,224,206,0.95) 65%, rgba(224,168,98,0) 100%);
-  }
-  .promo-modal::after{
-    bottom:-34px; right:-60px; transform:rotate(-32deg);
-    background:linear-gradient(90deg, rgba(224,168,98,0) 0%, rgba(224,168,98,0.9) 35%, rgba(224,168,98,0.9) 65%, rgba(224,168,98,0) 100%);
+  /* decorative torn-paint-stroke corners, painted as background gradients
+     instead of ::before/::after boxes — a positioned pseudo-element (even one
+     clipped from view) still counts toward the card's scrollHeight/scrollWidth,
+     which was quietly forcing a scrollbar even when the real content fit.
+     A background paints outside normal layout, so it never does that. */
+  .qe-modal.promo-modal{
+    background-color:#faf7f1;
+    background-repeat:no-repeat;
+    background-image:
+      linear-gradient(122deg, rgba(234,224,206,0) 0%, rgba(234,224,206,0.95) 35%, rgba(234,224,206,0.95) 65%, rgba(234,224,206,0) 100%),
+      linear-gradient(122deg, rgba(224,168,98,0) 0%, rgba(224,168,98,0.9) 35%, rgba(224,168,98,0.9) 65%, rgba(224,168,98,0) 100%);
+    background-position: -70px -30px, calc(100% + 70px) calc(100% + 30px);
+    background-size: 220px 110px, 220px 110px;
   }
   .promo-modal > *{position:relative; z-index:1;}
-  .promo-logo{display:block; margin:0 auto 14px; height:46px; width:auto; border-radius:9px; box-shadow:0 8px 20px rgba(0,0,0,0.18);}
+  .promo-logo{display:block; margin:0 auto 10px; height:34px; width:auto; border-radius:7px; box-shadow:0 6px 14px rgba(0,0,0,0.18);}
 
   .promo-icon-row{display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:16px;}
   .promo-spark{width:22px; height:22px; color:var(--ochre-light); flex:0 0 auto;}
@@ -814,41 +815,41 @@
 
   .promo-trust-bar{
     display:flex; align-items:stretch; justify-content:space-around; gap:4px;
-    background:#1c1c1c; border-radius:14px; padding:12px 8px; margin-bottom:16px;
+    background:#1c1c1c; border-radius:10px; padding:6px 6px; margin-bottom:8px;
   }
-  .promo-trust-item{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; flex:1; min-width:0;}
-  .promo-trust-item svg{width:22px; height:22px; color:var(--ochre-light); flex:0 0 auto;}
-  .promo-trust-item span{color:#fff; font-size:10.5px; font-weight:600; text-align:center; line-height:1.25;}
+  .promo-trust-item{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; flex:1; min-width:0;}
+  .promo-trust-item svg{width:14px; height:14px; color:var(--ochre-light); flex:0 0 auto;}
+  .promo-trust-item span{color:#fff; font-size:8px; font-weight:600; text-align:center; line-height:1.1;}
   .promo-trust-divider{width:1px; align-self:stretch; background:rgba(255,255,255,0.22); flex:0 0 auto;}
-  .promo-coupon-heading{font-size:27px; margin-bottom:8px;}
+  .promo-coupon-heading{font-size:17px; margin-bottom:3px;}
   .promo-big-off{
     font-family:'Fraunces', Georgia, serif; font-weight:700; text-align:center; line-height:1;
-    font-size:clamp(38px,11vw,52px); margin-bottom:10px;
+    font-size:clamp(24px,7.5vw,30px); margin-bottom:5px;
   }
   .promo-coupon-sub{
     display:flex; align-items:center; justify-content:center; gap:14px;
-    text-transform:uppercase; letter-spacing:0.14em; font-weight:700; font-size:13.5px; color:#1c1c1c;
-    margin-bottom:18px;
+    text-transform:uppercase; letter-spacing:0.14em; font-weight:700; font-size:12px; color:#1c1c1c;
+    margin-bottom:10px;
   }
   .promo-sub-line{width:26px; height:2px; background:var(--ochre-light); display:inline-block;}
-  .promo-code-label{text-align:center; text-transform:uppercase; letter-spacing:0.1em; font-size:11.5px; color:#8a8578; margin-bottom:8px;}
+  .promo-code-label{text-align:center; text-transform:uppercase; letter-spacing:0.1em; font-size:10.5px; color:#8a8578; margin-bottom:5px;}
   .promo-code-row{
     display:flex; align-items:stretch; background:#efe9dc; border-radius:10px; overflow:hidden;
-    margin-bottom:14px;
+    margin-bottom:8px;
   }
-  .promo-code-text{flex:1; display:flex; align-items:center; justify-content:center; padding:14px 10px; font-size:clamp(17px,5vw,22px); font-weight:700; color:#1c1c1c; word-break:break-all;}
+  .promo-code-text{flex:1; display:flex; align-items:center; justify-content:center; padding:9px 8px; font-size:clamp(15px,4.5vw,19px); font-weight:700; color:#1c1c1c; word-break:break-all;}
   .promo-copy-icon-btn{
-    flex:0 0 auto; display:flex; align-items:center; justify-content:center; width:52px;
+    flex:0 0 auto; display:flex; align-items:center; justify-content:center; width:46px;
     background:var(--ochre-light); border:none; color:#191305; cursor:pointer; transition:background .2s var(--ease);
   }
-  .promo-copy-icon-btn svg{width:19px; height:19px;}
+  .promo-copy-icon-btn svg{width:17px; height:17px;}
   .promo-copy-icon-btn:hover{background:#e8b877;}
   .promo-copy-icon-btn.copied{background:#b7d6a8;}
-  .promo-copy-full-btn{width:100%; margin-top:4px; display:flex; align-items:center; justify-content:center; gap:10px;}
-  .promo-copy-full-btn svg{width:18px; height:18px; flex:0 0 auto;}
+  .promo-copy-full-btn{width:100%; margin-top:2px; display:flex; align-items:center; justify-content:center; gap:10px; padding-top:12px; padding-bottom:12px;}
+  .promo-copy-full-btn svg{width:16px; height:16px; flex:0 0 auto;}
   .promo-copy-full-btn.copied{background:#b7d6a8;}
-  .promo-coupon-expires{text-align:center; color:#6b665c; font-size:13.5px; margin-bottom:14px;}
-  .promo-coupon-note{color:#6b665c; font-size:13px; line-height:1.6; text-align:center; margin-bottom:14px;}
+  .promo-coupon-expires{text-align:center; color:#6b665c; font-size:12px; margin-bottom:8px;}
+  .promo-coupon-note{color:#6b665c; font-size:11.5px; line-height:1.4; text-align:center; margin-bottom:8px;}
 
   .todo-flag{
     display:inline-block; margin-top:10px; font-size:12.5px; color:var(--ochre-light);
@@ -975,14 +976,14 @@
   <div class="wrap nav-inner">
     <div style="display:flex; align-items:center; gap:14px;">
       <a href="#" class="logo"><img src="ygm-logo.jpg" alt="YGM Painting logo"></a>
+      <button type="button" class="promo-header-badge" id="promoHeaderBadge" aria-label="Get 10% off your next painting project">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/>
+          <circle cx="7" cy="7" r="1.3" fill="currentColor" stroke="none"/>
+        </svg>
+        <span>10% OFF</span>
+      </button>
     </div>
-    <button type="button" class="promo-header-badge" id="promoHeaderBadge" aria-label="Get 10% off your next painting project">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/>
-        <circle cx="7" cy="7" r="1.3" fill="currentColor" stroke="none"/>
-      </svg>
-      <span>10% OFF</span>
-    </button>
     <ul class="nav-links">
       <li><a href="#services">Services</a></li>
       <li><a href="#transformations">Our Work</a></li>
@@ -1509,8 +1510,8 @@
 <div class="qe-overlay promo-overlay" id="promoOverlay">
   <div class="qe-modal promo-modal">
     <button class="qe-close" id="promoCloseBtn" aria-label="Close">✕</button>
-    <img src="ygm-logo.jpg" alt="YGM Painting" class="promo-logo">
     <div id="promoOfferView">
+      <img src="ygm-logo.jpg" alt="YGM Painting" class="promo-logo">
       <div class="promo-icon-row">
         <svg class="promo-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h6M9 6l3 3M9 18l3-3"/></svg>
         <div class="promo-icon-circle">
