@@ -100,6 +100,14 @@
 
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
+  /* kills the iOS rubber-band bounce on left/right swipe (briefly shows a
+     black strip at the page edge) without touching touch-action — that was
+     the previous attempt, and it broke the landing page's scroll-dismiss
+     animation because it let the browser start panning natively before
+     the intro section's touchmove handler could preventDefault() it.
+     overscroll-behavior-x only suppresses the bounce itself and doesn't
+     change how/whether JS gets to intercept the gesture. */
+  html, body{overscroll-behavior-x:none; max-width:100%;}
   @media (prefers-reduced-motion: reduce){
     html{scroll-behavior:auto;}
     *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
