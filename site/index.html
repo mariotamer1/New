@@ -744,34 +744,85 @@
   /* ---------- promo popup: a light card, by design, unlike the rest of the site's modals ----------
      .qe-modal.promo-modal (not just .promo-modal) so this reliably wins over
      .qe-modal's own background/color despite .qe-modal being declared later */
-  .qe-modal.promo-modal{background:#faf7f1; border-color:rgba(0,0,0,0.1); color:#1c1c1c;}
-  .promo-modal .qe-close{color:#8a8578;}
+  .qe-modal.promo-modal{background:#faf7f1; border-color:rgba(0,0,0,0.1); color:#1c1c1c; position:relative;}
+  .promo-modal .qe-close{color:#8a8578; z-index:2;}
   .promo-modal .qe-close:hover{color:#1c1c1c;}
+  /* decorative torn-paint-stroke corners; overflow:hidden on the base .qe-modal
+     (set via overflow-y:auto, which forces overflow-x to clip too) keeps these
+     confined to the card without needing to touch that shared rule */
+  .promo-modal::before, .promo-modal::after{
+    content:''; position:absolute; width:220px; height:110px; pointer-events:none; z-index:0;
+  }
+  .promo-modal::before{
+    top:-34px; left:-60px; transform:rotate(-32deg);
+    background:linear-gradient(90deg, rgba(224,168,98,0) 0%, rgba(234,224,206,0.95) 35%, rgba(234,224,206,0.95) 65%, rgba(224,168,98,0) 100%);
+  }
+  .promo-modal::after{
+    bottom:-34px; right:-60px; transform:rotate(-32deg);
+    background:linear-gradient(90deg, rgba(224,168,98,0) 0%, rgba(224,168,98,0.9) 35%, rgba(224,168,98,0.9) 65%, rgba(224,168,98,0) 100%);
+  }
+  .promo-modal > *{position:relative; z-index:1;}
+  .promo-logo{display:block; margin:0 auto 18px; height:56px; width:auto; border-radius:10px; box-shadow:0 8px 20px rgba(0,0,0,0.18);}
+
+  .promo-icon-row{display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:20px;}
+  .promo-spark{width:22px; height:22px; color:var(--ochre-light); flex:0 0 auto;}
+  .promo-spark-right{transform:scaleX(-1);}
   .promo-icon-circle{
     width:62px; height:62px; border-radius:50%; background:var(--ochre-light);
-    display:flex; align-items:center; justify-content:center; margin:0 auto 20px;
+    display:flex; align-items:center; justify-content:center; flex:0 0 auto;
   }
   .promo-icon-circle svg{width:26px; height:26px; color:#191305;}
   .promo-heading, .promo-coupon-heading{text-align:center; color:#1c1c1c; margin-bottom:6px;}
   .promo-heading{font-size:26px;}
-  .promo-sub{text-align:center; color:#6b665c; font-size:15px; margin-bottom:26px;}
-  .promo-modal .qe-field input{background:#fff; border-color:rgba(0,0,0,0.15); color:#1c1c1c;}
-  .promo-modal .qe-field input::placeholder{color:#8a8578; opacity:1;}
+  .promo-accent{color:var(--ochre-light);}
+  .promo-sub{text-align:center; color:#1c1c1c; font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:14px;}
+  .promo-divider{display:block; width:40px; height:2px; background:var(--ochre-light); margin:0 auto 22px;}
+  .promo-modal .promo-phone-field{position:relative;}
+  .promo-modal .promo-phone-field input{padding-left:44px; background:#fff; border-color:rgba(0,0,0,0.15); color:#1c1c1c;}
+  .promo-modal .promo-phone-field input::placeholder{color:#8a8578; opacity:1;}
+  .promo-phone-icon{position:absolute; left:14px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:#8a8578; pointer-events:none;}
   .promo-modal .qe-exit{color:#8a8578;}
   .promo-modal .qe-exit:hover{color:#1c1c1c;}
-  .promo-coupon-heading{font-size:28px; margin-bottom:10px;}
-  .promo-coupon-sub{text-align:center; font-weight:700; color:#1c1c1c; font-size:16px; margin-bottom:4px;}
-  .promo-coupon-expires{text-align:center; color:#6b665c; font-size:13.5px; margin-bottom:24px;}
-  .promo-code-row{display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:24px; flex-wrap:wrap;}
-  .promo-code-text{font-size:clamp(19px,5vw,26px); font-weight:700; color:#1c1c1c; word-break:break-all;}
-  .promo-copy-btn{
-    background:none; border:1px solid rgba(0,0,0,0.2); color:#1c1c1c; flex:0 0 auto;
-    font-size:12.5px; padding:6px 13px; border-radius:99px; cursor:pointer; transition:all .2s var(--ease);
+  .promo-submit-btn{width:100%; margin-top:6px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .promo-arrow{width:20px; height:20px; flex:0 0 auto;}
+
+  .promo-trust-bar{
+    display:flex; align-items:stretch; justify-content:space-around; gap:4px;
+    background:#1c1c1c; border-radius:14px; padding:16px 8px; margin-bottom:24px;
   }
-  .promo-copy-btn:hover{border-color:#1c1c1c;}
-  .promo-copy-btn.copied{border-color:var(--ochre-light); color:#935f16; background:rgba(224,168,98,0.18);}
-  .promo-submit-btn{width:100%; margin-top:6px;}
-  .promo-coupon-note{color:#6b665c; font-size:13px; line-height:1.65; text-align:center; margin-bottom:8px;}
+  .promo-trust-item{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; flex:1; min-width:0;}
+  .promo-trust-item svg{width:22px; height:22px; color:var(--ochre-light); flex:0 0 auto;}
+  .promo-trust-item span{color:#fff; font-size:10.5px; font-weight:600; text-align:center; line-height:1.25;}
+  .promo-trust-divider{width:1px; align-self:stretch; background:rgba(255,255,255,0.22); flex:0 0 auto;}
+  .promo-coupon-heading{font-size:27px; margin-bottom:8px;}
+  .promo-big-off{
+    font-family:'Fraunces', Georgia, serif; font-weight:700; text-align:center; line-height:1;
+    font-size:clamp(38px,11vw,52px); margin-bottom:10px;
+  }
+  .promo-coupon-sub{
+    display:flex; align-items:center; justify-content:center; gap:14px;
+    text-transform:uppercase; letter-spacing:0.14em; font-weight:700; font-size:13.5px; color:#1c1c1c;
+    margin-bottom:26px;
+  }
+  .promo-sub-line{width:26px; height:2px; background:var(--ochre-light); display:inline-block;}
+  .promo-code-label{text-align:center; text-transform:uppercase; letter-spacing:0.1em; font-size:11.5px; color:#8a8578; margin-bottom:8px;}
+  .promo-code-row{
+    display:flex; align-items:stretch; background:#efe9dc; border-radius:10px; overflow:hidden;
+    margin-bottom:14px;
+  }
+  .promo-code-text{flex:1; display:flex; align-items:center; justify-content:center; padding:14px 10px; font-size:clamp(17px,5vw,22px); font-weight:700; color:#1c1c1c; word-break:break-all;}
+  .promo-copy-icon-btn{
+    flex:0 0 auto; display:flex; align-items:center; justify-content:center; width:52px;
+    background:var(--ochre-light); border:none; color:#191305; cursor:pointer; transition:background .2s var(--ease);
+  }
+  .promo-copy-icon-btn svg{width:19px; height:19px;}
+  .promo-copy-icon-btn:hover{background:#e8b877;}
+  .promo-copy-icon-btn.copied{background:#b7d6a8;}
+  .promo-copy-full-btn{width:100%; margin-top:4px; display:flex; align-items:center; justify-content:center; gap:10px;}
+  .promo-copy-full-btn svg{width:18px; height:18px; flex:0 0 auto;}
+  .promo-copy-full-btn.copied{background:#b7d6a8;}
+  .promo-coupon-expires{text-align:center; color:#6b665c; font-size:13.5px; margin-bottom:20px;}
+  .promo-coupon-note{color:#6b665c; font-size:13px; line-height:1.65; text-align:center; margin-bottom:18px;}
 
   .todo-flag{
     display:inline-block; margin-top:10px; font-size:12.5px; color:var(--ochre-light);
@@ -1425,23 +1476,33 @@
 <div class="qe-overlay promo-overlay" id="promoOverlay">
   <div class="qe-modal promo-modal">
     <button class="qe-close" id="promoCloseBtn" aria-label="Close">✕</button>
+    <img src="ygm-logo.jpg" alt="YGM Painting" class="promo-logo">
     <div id="promoOfferView">
-      <div class="promo-icon-circle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="8" width="18" height="4" rx="1"/>
-          <path d="M12 8v13"/>
-          <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/>
-          <path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8"/>
-          <path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8"/>
-        </svg>
+      <div class="promo-icon-row">
+        <svg class="promo-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h6M9 6l3 3M9 18l3-3"/></svg>
+        <div class="promo-icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="8" width="18" height="4" rx="1"/>
+            <path d="M12 8v13"/>
+            <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/>
+            <path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8"/>
+            <path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8"/>
+          </svg>
+        </div>
+        <svg class="promo-spark promo-spark-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h6M9 6l3 3M9 18l3-3"/></svg>
       </div>
-      <h3 class="promo-heading">Get 10% Off</h3>
+      <h3 class="promo-heading">Get <span class="promo-accent">10% Off</span></h3>
       <p class="promo-sub">Your Next Painting Project</p>
+      <span class="promo-divider"></span>
       <form id="promoForm">
-        <div class="qe-field">
+        <div class="qe-field promo-phone-field">
+          <svg class="promo-phone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           <input id="promoPhone" type="tel" inputmode="tel" placeholder="Phone Number" required pattern="\d{3}-\d{3}-\d{4}" maxlength="12" title="Enter a 10-digit phone number">
         </div>
-        <button type="submit" class="btn btn-primary promo-submit-btn">Get My Discount</button>
+        <button type="submit" class="btn btn-primary promo-submit-btn">
+          <span>Get My Discount</span>
+          <svg class="promo-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
         <button type="button" class="qe-exit" id="promoExitBtn1">Exit</button>
         <p id="promoFormError" style="display:none; margin-top:14px; font-size:13.5px; color:#b84848; text-align:center;">
           Something went wrong — please try again in a moment.
@@ -1449,14 +1510,38 @@
       </form>
     </div>
     <div id="promoCouponView" style="display:none;">
+      <div class="promo-trust-bar">
+        <div class="promo-trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9Z"/><path d="M11 3 8 9l4 12 4-12-3-6"/><path d="M2 9h20"/></svg>
+          <span>High Quality</span>
+        </div>
+        <div class="promo-trust-divider"></div>
+        <div class="promo-trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Trusted Local</span>
+        </div>
+        <div class="promo-trust-divider"></div>
+        <div class="promo-trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>Customer Focused</span>
+        </div>
+      </div>
       <h3 class="promo-coupon-heading">Here is your coupon</h3>
-      <p class="promo-coupon-sub">10% off any project</p>
-      <p class="promo-coupon-expires" id="promoExpiresText"></p>
+      <div class="promo-big-off"><span class="promo-accent">10%</span> OFF</div>
+      <p class="promo-coupon-sub"><span class="promo-sub-line"></span>Any Project<span class="promo-sub-line"></span></p>
+      <p class="promo-code-label">Your Discount Code</p>
       <div class="promo-code-row">
         <span class="promo-code-text" id="promoCodeText"></span>
-        <button type="button" class="promo-copy-btn" id="promoCopyBtn" data-copy="" aria-label="Copy discount code">Copy</button>
+        <button type="button" class="promo-copy-icon-btn" id="promoCopyBtn" data-copy="" aria-label="Copy discount code">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
       </div>
-      <p class="promo-coupon-note">Here is your discount code, take a screenshot of this page and when you are ready to get your paint job, please show this screenshot or your code to our staff. Thank You!<br><br>(Your code will also be saved on this website in case you lose your screenshot)</p>
+      <p class="promo-coupon-expires" id="promoExpiresText"></p>
+      <p class="promo-coupon-note">Take a screenshot of this page and show it to our staff when you're ready to get your paint job. Thank you!</p>
+      <button type="button" class="btn btn-primary promo-copy-full-btn" id="promoCopyBtn2" data-copy="">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Code</span>
+      </button>
       <button type="button" class="qe-exit" id="promoExitBtn2">Exit</button>
     </div>
   </div>
@@ -1666,33 +1751,48 @@
     }
     window.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeContact(); });
 
+    function copyTextToClipboard(text, onDone){
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(onDone).catch(function(){});
+      } else {
+        /* fallback for older browsers without the Clipboard API */
+        var temp = document.createElement('textarea');
+        temp.value = text;
+        temp.style.position = 'fixed';
+        temp.style.opacity = '0';
+        document.body.appendChild(temp);
+        temp.focus();
+        temp.select();
+        try{ document.execCommand('copy'); onDone(); }catch(e){}
+        document.body.removeChild(temp);
+      }
+    }
     function wireCopyButton(btn){
       if(!btn) return;
       btn.addEventListener('click', function(){
         var text = btn.getAttribute('data-copy');
-        function showCopied(){
-          var original = btn.textContent;
+        var original = btn.textContent;
+        copyTextToClipboard(text, function(){
           btn.textContent = 'Copied!';
           btn.classList.add('copied');
           setTimeout(function(){
             btn.textContent = original;
             btn.classList.remove('copied');
           }, 1600);
-        }
-        if(navigator.clipboard && navigator.clipboard.writeText){
-          navigator.clipboard.writeText(text).then(showCopied).catch(function(){});
-        } else {
-          /* fallback for older browsers without the Clipboard API */
-          var temp = document.createElement('textarea');
-          temp.value = text;
-          temp.style.position = 'fixed';
-          temp.style.opacity = '0';
-          document.body.appendChild(temp);
-          temp.focus();
-          temp.select();
-          try{ document.execCommand('copy'); showCopied(); }catch(e){}
-          document.body.removeChild(temp);
-        }
+        });
+      });
+    }
+    /* for buttons built from an icon (and maybe a label span) rather than
+       plain text — swapping textContent on these would wipe the icon, so
+       the "copied" state is just a brief class toggle instead */
+    function wireIconCopyButton(btn){
+      if(!btn) return;
+      btn.addEventListener('click', function(){
+        var text = btn.getAttribute('data-copy');
+        copyTextToClipboard(text, function(){
+          btn.classList.add('copied');
+          setTimeout(function(){ btn.classList.remove('copied'); }, 1600);
+        });
       });
     }
     wireCopyButton(document.getElementById('copyEmailBtn'));
@@ -1710,6 +1810,7 @@
     var promoCodeText = document.getElementById('promoCodeText');
     var promoExpiresText = document.getElementById('promoExpiresText');
     var promoCopyBtn = document.getElementById('promoCopyBtn');
+    var promoCopyBtn2 = document.getElementById('promoCopyBtn2');
     var promoCloseTimer = null;
 
     function openPromo(){
@@ -1750,6 +1851,7 @@
       if(promoCodeText) promoCodeText.textContent = code;
       if(promoExpiresText) promoExpiresText.textContent = 'Expires on ' + expiresLabel;
       if(promoCopyBtn) promoCopyBtn.setAttribute('data-copy', code);
+      if(promoCopyBtn2) promoCopyBtn2.setAttribute('data-copy', code);
       if(promoOfferView) promoOfferView.style.display = 'none';
       if(promoCouponView) promoCouponView.style.display = '';
     }
@@ -1818,7 +1920,8 @@
           .catch(function(){ generateNewCoupon(digits); });
       });
     }
-    wireCopyButton(promoCopyBtn);
+    wireIconCopyButton(promoCopyBtn);
+    wireIconCopyButton(promoCopyBtn2);
 
     var qeSubmitLink = document.getElementById('qeSubmitLink');
     var qeFormError = document.getElementById('qeFormError');
