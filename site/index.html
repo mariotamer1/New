@@ -2391,6 +2391,38 @@
   } catch(e) {}
 
   try {
+    /* Blocks the iOS rubber-band bounce (a thin black strip flashing at the
+       page edge) on a left/right swipe anywhere on the site, except inside
+       the swipeable before/after gallery and the two carousels that rely
+       on real horizontal scrolling (story steps, testimonials) — those
+       keep working exactly as before.
+       overscroll-behavior-x alone isn't reliably honored by iOS Safari at
+       the document level, so this does it by hand: watch the first bit of
+       a touch move, and only preventDefault() it when it's more horizontal
+       than vertical — vertical swipes (normal page scrolling) are never
+       touched, so this can't interfere with the landing page's own
+       scroll-dismiss handling the way an earlier touch-action attempt did. */
+    var swipeBlockExempt = '[data-c3d], .story-carousel, .testi-track';
+    var swipeStartX = null, swipeStartY = null, swipeDecided = false;
+    document.addEventListener('touchstart', function(e){
+      if(e.touches.length !== 1) return;
+      swipeStartX = e.touches[0].clientX;
+      swipeStartY = e.touches[0].clientY;
+      swipeDecided = false;
+    }, {passive:true});
+    document.addEventListener('touchmove', function(e){
+      if(swipeStartX === null || e.touches.length !== 1 || swipeDecided) return;
+      if(e.target.closest && e.target.closest(swipeBlockExempt)) { swipeDecided = true; return; }
+      var dx = e.touches[0].clientX - swipeStartX;
+      var dy = e.touches[0].clientY - swipeStartY;
+      if(Math.abs(dx) < 10 && Math.abs(dy) < 10) return; // too small to tell yet
+      swipeDecided = true;
+      if(Math.abs(dx) > Math.abs(dy)) e.preventDefault();
+    }, {passive:false});
+    document.addEventListener('touchend', function(){ swipeStartX = null; swipeStartY = null; }, {passive:true});
+  } catch(e) {}
+
+  try {
     /* nav shrink */
     var nav = document.getElementById('nav');
     if(nav){
