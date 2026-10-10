@@ -100,11 +100,6 @@
 
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
-  /* kills the iOS Safari horizontal rubber-band bounce that was briefly
-     revealing a black strip at the page edge on a left/right swipe —
-     overflow-x alone doesn't stop that elastic bounce gesture, only an
-     actual horizontal scrollbar; touch-action/overscroll-behavior do */
-  html, body{overflow-x:hidden; overscroll-behavior-x:none; touch-action:pan-y; max-width:100%;}
   @media (prefers-reduced-motion: reduce){
     html{scroll-behavior:auto;}
     *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
@@ -117,6 +112,7 @@
     font-size:16px;
     line-height:1.6;
     -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
   }
 
   h1,h2,h3,.display{
@@ -247,7 +243,7 @@
   .story{position:relative; background:var(--bg);}
   .story-carousel-shell{position:relative; max-width:1100px; margin:0 auto;}
   .story-carousel{
-    display:flex; overflow-x:auto; scroll-snap-type:x mandatory; touch-action:pan-x;
+    display:flex; overflow-x:auto; scroll-snap-type:x mandatory;
     border-radius:14px; border:1px solid var(--line-strong);
     box-shadow:0 40px 90px rgba(0,0,0,0.45);
     -webkit-overflow-scrolling:touch; scrollbar-width:none;
@@ -600,7 +596,7 @@
   .rating-badge{display:flex; align-items:center; gap:12px;}
   .rating-badge .num{font-family:'Fraunces',serif; font-size:34px;}
   .stars{color:var(--ochre-light); font-size:15px; letter-spacing:2px;}
-  .testi-track{display:flex; gap:22px; overflow-x:auto; scroll-snap-type:x mandatory; touch-action:pan-x; padding-bottom:10px;}
+  .testi-track{display:flex; gap:22px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:10px;}
   .testi-track::-webkit-scrollbar{height:5px;}
   .testi-track::-webkit-scrollbar-thumb{background:var(--line-strong);}
   .testi-card{
