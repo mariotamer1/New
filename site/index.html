@@ -745,6 +745,10 @@
      .qe-modal.promo-modal (not just .promo-modal) so this reliably wins over
      .qe-modal's own background/color despite .qe-modal being declared later */
   .qe-modal.promo-modal{background:#faf7f1; border-color:rgba(0,0,0,0.1); color:#1c1c1c; position:relative;}
+  /* smaller than the other modals on purpose — enough room to show the
+     background behind it is still a live page, not edge-to-edge */
+  .qe-overlay.promo-overlay{padding:30px 18px;}
+  .qe-modal.promo-modal{max-width:380px; max-height:80vh; padding:24px 22px 28px;}
   .promo-modal .qe-close{color:#8a8578; z-index:2;}
   .promo-modal .qe-close:hover{color:#1c1c1c;}
   /* decorative torn-paint-stroke corners; overflow:hidden on the base .qe-modal
@@ -762,9 +766,9 @@
     background:linear-gradient(90deg, rgba(224,168,98,0) 0%, rgba(224,168,98,0.9) 35%, rgba(224,168,98,0.9) 65%, rgba(224,168,98,0) 100%);
   }
   .promo-modal > *{position:relative; z-index:1;}
-  .promo-logo{display:block; margin:0 auto 18px; height:56px; width:auto; border-radius:10px; box-shadow:0 8px 20px rgba(0,0,0,0.18);}
+  .promo-logo{display:block; margin:0 auto 14px; height:46px; width:auto; border-radius:9px; box-shadow:0 8px 20px rgba(0,0,0,0.18);}
 
-  .promo-icon-row{display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:20px;}
+  .promo-icon-row{display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:16px;}
   .promo-spark{width:22px; height:22px; color:var(--ochre-light); flex:0 0 auto;}
   .promo-spark-right{transform:scaleX(-1);}
   .promo-icon-circle{
@@ -773,7 +777,7 @@
   }
   .promo-icon-circle svg{width:26px; height:26px; color:#191305;}
   .promo-heading, .promo-coupon-heading{text-align:center; color:#1c1c1c; margin-bottom:6px;}
-  .promo-heading{font-size:26px;}
+  .promo-heading{font-size:clamp(32px,8.5vw,38px); font-weight:700; letter-spacing:-0.015em; -webkit-font-smoothing:antialiased;}
   .promo-accent{color:var(--ochre-light);}
   .promo-sub{text-align:center; color:#1c1c1c; font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:14px;}
   .promo-divider{display:block; width:40px; height:2px; background:var(--ochre-light); margin:0 auto 22px;}
@@ -788,7 +792,7 @@
 
   .promo-trust-bar{
     display:flex; align-items:stretch; justify-content:space-around; gap:4px;
-    background:#1c1c1c; border-radius:14px; padding:16px 8px; margin-bottom:24px;
+    background:#1c1c1c; border-radius:14px; padding:12px 8px; margin-bottom:16px;
   }
   .promo-trust-item{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; flex:1; min-width:0;}
   .promo-trust-item svg{width:22px; height:22px; color:var(--ochre-light); flex:0 0 auto;}
@@ -802,7 +806,7 @@
   .promo-coupon-sub{
     display:flex; align-items:center; justify-content:center; gap:14px;
     text-transform:uppercase; letter-spacing:0.14em; font-weight:700; font-size:13.5px; color:#1c1c1c;
-    margin-bottom:26px;
+    margin-bottom:18px;
   }
   .promo-sub-line{width:26px; height:2px; background:var(--ochre-light); display:inline-block;}
   .promo-code-label{text-align:center; text-transform:uppercase; letter-spacing:0.1em; font-size:11.5px; color:#8a8578; margin-bottom:8px;}
@@ -821,8 +825,8 @@
   .promo-copy-full-btn{width:100%; margin-top:4px; display:flex; align-items:center; justify-content:center; gap:10px;}
   .promo-copy-full-btn svg{width:18px; height:18px; flex:0 0 auto;}
   .promo-copy-full-btn.copied{background:#b7d6a8;}
-  .promo-coupon-expires{text-align:center; color:#6b665c; font-size:13.5px; margin-bottom:20px;}
-  .promo-coupon-note{color:#6b665c; font-size:13px; line-height:1.65; text-align:center; margin-bottom:18px;}
+  .promo-coupon-expires{text-align:center; color:#6b665c; font-size:13.5px; margin-bottom:14px;}
+  .promo-coupon-note{color:#6b665c; font-size:13px; line-height:1.6; text-align:center; margin-bottom:14px;}
 
   .todo-flag{
     display:inline-block; margin-top:10px; font-size:12.5px; color:var(--ochre-light);
