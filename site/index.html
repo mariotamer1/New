@@ -2569,6 +2569,10 @@
         var promoRibbonOnDismiss = document.getElementById('promoRibbon');
         var promoHeaderBadgeOnDismiss = document.getElementById('promoHeaderBadge');
         if(promoRibbonOnDismiss) promoRibbonOnDismiss.classList.remove('show');
+        /* only now start loading/priming the next section's video — see
+           primeVScrubVideo's own comment for why this is deliberately not
+           triggered any earlier */
+        if(typeof primeVScrubVideo === 'function') primeVScrubVideo();
         if(promoHeaderBadgeOnDismiss){
           setTimeout(function(){ promoHeaderBadgeOnDismiss.classList.add('show'); }, 350);
         }
@@ -2692,13 +2696,12 @@
       vscrubVideo.addEventListener('error', function(){ videoReady = false; });
 
       /* iOS needs a play()+pause() before it will actually paint a decoded
-         frame for a programmatically-seeked video — done early (muted, so no
-         user gesture is required) rather than waiting for the first scroll,
-         so the frame is ready well before the intro cuts away to reveal this
-         section. Delayed slightly on page load so this video's own download
-         doesn't compete with the intro video for bandwidth right when the
-         intro needs it most — the intro takes several seconds either way,
-         which is plenty of head room before a visitor could scroll this far.
+         frame for a programmatically-seeked video — muted, so no user
+         gesture is required. Triggered from dismissIntro() (see the intro
+         video section) rather than on a timer, so this video's own download
+         never competes with the intro video for bandwidth — it only starts
+         once the visitor has actually scrolled past the intro, which is the
+         same moment this section is about to become visible anyway.
          Retries a couple of times since this can fail transiently while the
          video is still buffering, rather than giving up after one attempt. */
       var vscrubPrimeAttempts = 0;
@@ -2708,7 +2711,6 @@
           if(vscrubPrimeAttempts < 4) setTimeout(primeVScrubVideo, 500);
         });
       }
-      setTimeout(primeVScrubVideo, 1800);
     }
 
     function updateVScrubTarget(){
