@@ -316,14 +316,12 @@
     position:absolute; inset:0; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; padding:0 6%;
   }
-  .intro-copy h1{
-    font-size:clamp(2.6rem, 7vw, 5.4rem); max-width:16ch; color:var(--ink); font-weight:700;
-    line-height:1.0; letter-spacing:-0.03em; margin:0;
+  .intro-logo{
+    display:block; margin:0 auto; width:min(74vw, 420px); height:auto;
+    filter:drop-shadow(0 12px 34px rgba(0,0,0,0.5));
+    opacity:1; transition:opacity 1s ease;
   }
-  .intro-copy h1 div{display:block;}
-  .intro-ch{display:inline-block; opacity:0; transform:translateY(3px); transition:opacity .4s ease, transform .4s ease;}
-  .intro-ch.on{opacity:1; transform:translateY(0);}
-  .intro-ch.space{width:0.28em;}
+  .intro-logo.fade-out{opacity:0;}
   .intro-line2{
     margin-top:28px;
     font-family:'Fraunces',Georgia,serif; font-weight:600; font-style:normal;
@@ -1001,7 +999,7 @@
     <div class="intro-scrim"></div>
     <div class="intro-copy" id="introCopy">
       <div>
-        <h1 id="introLine1"></h1>
+        <img src="ygm-intro-logo.png" alt="YGM Painting — Quality. Detail. Trust." class="intro-logo" id="introLogo">
         <div class="intro-line2" id="introLine2">Brush the wall to start yours</div>
       </div>
     </div>
@@ -2434,46 +2432,25 @@
   } catch(e) {}
 
   try {
-    /* intro video — plays once on load (not scroll-linked), typewriter headline
-       from 1.0-2.5s of the video's own timeline, a smaller line pops in during
-       the video's last second, and both dismiss the first time the viewer scrolls */
+    /* intro video — plays once on load (not scroll-linked). The logo overlay
+       is visible immediately with the video, then fades out starting 1s into
+       the video's own timeline; a smaller scroll hint pops in during the
+       video's last second; both dismiss the first time the viewer scrolls */
     var introVideoEl = document.getElementById('introVideoEl');
-    var introCopy = document.getElementById('introCopy');
-    var introLine1 = document.getElementById('introLine1');
+    var introLogo = document.getElementById('introLogo');
     var introLine2 = document.getElementById('introLine2');
 
-    if(introVideoEl && introLine1){
-      var LINE1_ROWS = ['Every Vision Starts', 'With a Stroke'];
-      var TYPE_START = 1.0;   // seconds into the intro video
-      var TYPE_END = 2.5;
-      var typingStarted = false;
+    if(introVideoEl && introLogo){
+      var LOGO_FADE_START = 1.0;   // seconds into the intro video
+      var logoFadeStarted = false;
       var line2Shown = false;
 
-      var allChars = []; // flat list of {span, isSpace} across both lines, in type order
-      LINE1_ROWS.forEach(function(row, rowIndex){
-        var rowDiv = document.createElement('div');
-        row.split('').forEach(function(ch){
-          var span = document.createElement('span');
-          span.className = 'intro-ch' + (ch === ' ' ? ' space' : '');
-          span.textContent = ch === ' ' ? ' ' : ch;
-          rowDiv.appendChild(span);
-          allChars.push(span);
-        });
-        introLine1.appendChild(rowDiv);
-        if(rowIndex < LINE1_ROWS.length - 1){
-          // spacer between the two lines' typing pace isn't a typed character itself
-        }
-      });
-
-      function startTyping(){
-        if(typingStarted) return;
-        typingStarted = true;
+      function fadeLogoOut(){
+        if(logoFadeStarted) return;
+        logoFadeStarted = true;
+        introLogo.classList.add('fade-out');
         var promoRibbonReveal = document.getElementById('promoRibbon');
         if(promoRibbonReveal) promoRibbonReveal.classList.add('show');
-        var perLetter = ((TYPE_END - TYPE_START) * 1000) / allChars.length;
-        allChars.forEach(function(span, i){
-          setTimeout(function(){ span.classList.add('on'); }, i * perLetter);
-        });
       }
 
       function showLine2(){
@@ -2483,12 +2460,12 @@
       }
 
       introVideoEl.addEventListener('timeupdate', function(){
-        if(!typingStarted && introVideoEl.currentTime >= TYPE_START) startTyping();
+        if(!logoFadeStarted && introVideoEl.currentTime >= LOGO_FADE_START) fadeLogoOut();
         var d = introVideoEl.duration;
         if(!line2Shown && d && introVideoEl.currentTime >= d - 1) showLine2();
       });
       introVideoEl.addEventListener('ended', function(){
-        startTyping();
+        fadeLogoOut();
         showLine2();
       });
 
@@ -2505,9 +2482,9 @@
         introPlayAttempted = true;
         introVideoEl.play().catch(function(){
           /* autoplay blocked or the video failed outright — don't leave the
-             visitor staring at a dead frame; skip straight to the headline
-             so the page still feels alive and dismissible */
-          startTyping();
+             visitor staring at a dead frame; fade the logo out and show the
+             scroll hint so the page still feels alive and dismissible */
+          fadeLogoOut();
           showLine2();
         });
       }
@@ -2518,7 +2495,7 @@
         setTimeout(attemptIntroPlay, 2500);
       }
       introVideoEl.addEventListener('error', function(){
-        startTyping();
+        fadeLogoOut();
         showLine2();
       });
 
