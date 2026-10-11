@@ -810,17 +810,9 @@
   .promo-modal > *{position:relative; z-index:1;}
   .promo-logo{display:block; margin:0 auto 10px; height:34px; width:auto; border-radius:7px; box-shadow:0 6px 14px rgba(0,0,0,0.18);}
 
-  .promo-icon-row{display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:16px;}
-  .promo-spark{width:22px; height:22px; color:var(--ochre-light); flex:0 0 auto;}
-  .promo-spark-right{transform:scaleX(-1);}
-  .promo-icon-circle{
-    width:62px; height:62px; border-radius:50%; background:var(--ochre-light);
-    display:flex; align-items:center; justify-content:center; flex:0 0 auto;
-  }
-  .promo-icon-circle svg{width:26px; height:26px; color:#191305;}
-  .promo-heading, .promo-coupon-heading{text-align:center; color:#1c1c1c; margin-bottom:6px;}
-  .promo-heading{font-size:clamp(32px,8.5vw,38px); font-weight:700; letter-spacing:-0.015em; -webkit-font-smoothing:antialiased;}
+  .promo-heading{text-align:center; color:#1c1c1c; margin-bottom:6px; font-size:clamp(32px,8.5vw,38px); font-weight:700; letter-spacing:-0.015em; -webkit-font-smoothing:antialiased;}
   .promo-accent{color:var(--ochre-light);}
+  .promo-num-dark{color:#1c1c1c;}
   .promo-sub{text-align:center; color:#1c1c1c; font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:14px;}
   .promo-divider{display:block; width:40px; height:2px; background:var(--ochre-light); margin:0 auto 22px;}
   .promo-modal .promo-phone-field{position:relative;}
@@ -834,13 +826,12 @@
 
   .promo-trust-bar{
     display:flex; align-items:stretch; justify-content:space-around; gap:4px;
-    background:#1c1c1c; border-radius:10px; padding:6px 6px; margin-bottom:8px;
+    background:#1c1c1c; border-radius:10px; padding:6px 6px; margin-bottom:16px;
   }
   .promo-trust-item{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; flex:1; min-width:0;}
   .promo-trust-item svg{width:14px; height:14px; color:var(--ochre-light); flex:0 0 auto;}
   .promo-trust-item span{color:#fff; font-size:8px; font-weight:600; text-align:center; line-height:1.1;}
   .promo-trust-divider{width:1px; align-self:stretch; background:rgba(255,255,255,0.22); flex:0 0 auto;}
-  .promo-coupon-heading{font-size:17px; margin-bottom:3px;}
   .promo-big-off{
     font-family:'Fraunces', Georgia, serif; font-weight:700; text-align:center; line-height:1;
     font-size:clamp(24px,7.5vw,30px); margin-bottom:5px;
@@ -1713,20 +1704,7 @@
     <button class="qe-close" id="promoCloseBtn" aria-label="Close">✕</button>
     <div id="promoOfferView">
       <img src="ygm-logo.jpg" alt="YGM Painting" class="promo-logo">
-      <div class="promo-icon-row">
-        <svg class="promo-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h6M9 6l3 3M9 18l3-3"/></svg>
-        <div class="promo-icon-circle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="8" width="18" height="4" rx="1"/>
-            <path d="M12 8v13"/>
-            <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/>
-            <path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8"/>
-            <path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8"/>
-          </svg>
-        </div>
-        <svg class="promo-spark promo-spark-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h6M9 6l3 3M9 18l3-3"/></svg>
-      </div>
-      <h3 class="promo-heading">Get <span class="promo-accent">10% Off</span></h3>
+      <h3 class="promo-heading">Get <span class="promo-num-dark">10%</span> <span class="promo-accent">Off</span></h3>
       <p class="promo-sub">Your Next Painting Project</p>
       <span class="promo-divider"></span>
       <form id="promoForm">
@@ -1761,8 +1739,7 @@
           <span>Customer Focused</span>
         </div>
       </div>
-      <h3 class="promo-coupon-heading">Here is your coupon</h3>
-      <div class="promo-big-off"><span class="promo-accent">10%</span> OFF</div>
+      <div class="promo-big-off"><span class="promo-num-dark">10%</span> OFF</div>
       <p class="promo-coupon-sub"><span class="promo-sub-line"></span>Any Project<span class="promo-sub-line"></span></p>
       <p class="promo-code-label">Your Discount Code</p>
       <div class="promo-code-row">
