@@ -307,7 +307,18 @@
   html.intro-lock, body.intro-lock{overflow:hidden; height:100%;}
   .intro-video{position:fixed; inset:0; z-index:90; background:#0c0d0f;}
   .intro-video.leaving{display:none;}
+  .intro-video.leaving-smooth{opacity:0; pointer-events:none; transition:opacity .5s ease;}
   .intro-stage{position:relative; height:100%; overflow:hidden;}
+  .intro-skip-btn{
+    position:absolute; top:calc(env(safe-area-inset-top, 0px) + 144px); right:20px; z-index:4;
+    background:rgba(12,13,15,0.5); color:#fff; border:1px solid rgba(255,255,255,0.4);
+    padding:8px 18px; border-radius:999px; font-size:13px; font-weight:600;
+    font-family:inherit; letter-spacing:0.02em; cursor:pointer;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    transition:background .25s var(--ease), border-color .25s var(--ease), transform .2s var(--ease);
+  }
+  .intro-skip-btn:hover{background:rgba(12,13,15,0.72); border-color:rgba(255,255,255,0.6);}
+  .intro-skip-btn:active{transform:scale(0.95);}
   .intro-stage video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
   .intro-scrim{
     position:absolute; inset:0;
@@ -1007,6 +1018,7 @@
   <div class="intro-stage">
     <video id="introVideoEl" src="ygm-intro.mp4" poster="intro-poster.jpg" muted playsinline preload="auto" webkit-playsinline="true"></video>
     <div class="intro-scrim"></div>
+    <button type="button" class="intro-skip-btn" id="introSkipBtn" aria-label="Skip intro animation">Skip</button>
     <div class="intro-copy" id="introCopy">
       <img src="ygm-intro-logo.png" alt="YGM Painting — Quality. Detail. Trust." class="intro-logo" id="introLogo">
       <div>
@@ -1140,11 +1152,21 @@
       document.body.classList.add('intro-lock');
 
       var introDismissed = false;
-      function dismissIntro(){
+      function dismissIntro(smooth){
         if(introDismissed) return;
         introDismissed = true;
-        /* instant cut — no transition, no delay */
-        if(introEl) introEl.classList.add('leaving');
+        if(introEl){
+          if(smooth){
+            /* a deliberate tap on Skip gets an actual transition — fades out
+               at a natural pace (not instant, not sluggish) — while a
+               scroll/swipe/key dismissal stays an instant cut, since that
+               already reads as responsive tied to the gesture itself */
+            introEl.classList.add('leaving-smooth');
+            setTimeout(function(){ introEl.classList.add('leaving'); }, 520);
+          } else {
+            introEl.classList.add('leaving');
+          }
+        }
         html.classList.remove('intro-lock');
         document.body.classList.remove('intro-lock');
         window.removeEventListener('wheel', onWheel, {passive:false});
@@ -1177,6 +1199,11 @@
       window.addEventListener('wheel', onWheel, {passive:false});
       window.addEventListener('touchmove', onTouchMove, {passive:false});
       window.addEventListener('keydown', onKeyDown);
+
+      var introSkipBtn = document.getElementById('introSkipBtn');
+      if(introSkipBtn){
+        introSkipBtn.addEventListener('click', function(){ dismissIntro(true); });
+      }
     }
   } catch(e) {}
   })();
