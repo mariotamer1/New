@@ -1020,7 +1020,7 @@
 <section class="vscrub" id="vscrub">
   <div class="vscrub-track" id="vscrubTrack">
     <div class="vscrub-sticky">
-      <video id="vscrubVideo" src="nbp-hero-scroll.mp4" poster="nbp-hero-poster.jpg" muted playsinline preload="auto" webkit-playsinline="true"></video>
+      <video id="vscrubVideo" src="nbp-hero-scroll.mp4" poster="nbp-hero-poster.jpg" muted playsinline preload="metadata" webkit-playsinline="true"></video>
       <div class="vscrub-scrim"></div>
       <div class="vscrub-copy" data-align="right" id="vscrubCopy1">
         <div>
@@ -2513,11 +2513,12 @@
 
       /* The poster attribute on the video shows a real first-frame image the
          instant the page loads, so there's never a blackout while the video
-         itself is still loading. Playback starts as soon as the video is
-         actually ready (canplay, with a capped fallback) so a slow
-         connection waits for real playability instead of calling play() on
-         a video that isn't buffered yet and silently failing; the poster
-         keeps the screen looking correct the whole time either way. */
+         itself is still loading. Playback starts as soon as the current
+         frame is decoded (loadeddata, with a capped fallback) rather than
+         waiting for a deeper future-data buffer — the file is small enough
+         now that the browser keeps up once playback starts, so there's no
+         need to hold off; the poster keeps the screen looking correct the
+         whole time either way. */
       var introPlayAttempted = false;
       function attemptIntroPlay(){
         if(introPlayAttempted) return;
@@ -2530,10 +2531,10 @@
           showLine2();
         });
       }
-      if(introVideoEl.readyState >= 3 /* HAVE_FUTURE_DATA */){
+      if(introVideoEl.readyState >= 2 /* HAVE_CURRENT_DATA */){
         attemptIntroPlay();
       } else {
-        introVideoEl.addEventListener('canplay', attemptIntroPlay, {once:true});
+        introVideoEl.addEventListener('loadeddata', attemptIntroPlay, {once:true});
         setTimeout(attemptIntroPlay, 2500);
       }
       introVideoEl.addEventListener('error', function(){
@@ -2691,10 +2692,13 @@
       vscrubVideo.addEventListener('error', function(){ videoReady = false; });
 
       /* iOS needs a play()+pause() before it will actually paint a decoded
-         frame for a programmatically-seeked video — do this the moment the
-         page loads (muted, so no user gesture is required) rather than
-         waiting for the first scroll, so the frame is already ready and
-         painted well before the intro cuts away to reveal this section.
+         frame for a programmatically-seeked video — done early (muted, so no
+         user gesture is required) rather than waiting for the first scroll,
+         so the frame is ready well before the intro cuts away to reveal this
+         section. Delayed slightly on page load so this video's own download
+         doesn't compete with the intro video for bandwidth right when the
+         intro needs it most — the intro takes several seconds either way,
+         which is plenty of head room before a visitor could scroll this far.
          Retries a couple of times since this can fail transiently while the
          video is still buffering, rather than giving up after one attempt. */
       var vscrubPrimeAttempts = 0;
@@ -2704,7 +2708,7 @@
           if(vscrubPrimeAttempts < 4) setTimeout(primeVScrubVideo, 500);
         });
       }
-      primeVScrubVideo();
+      setTimeout(primeVScrubVideo, 1800);
     }
 
     function updateVScrubTarget(){
