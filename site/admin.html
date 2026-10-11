@@ -151,6 +151,8 @@
   /* ---------- dashboard (list) ---------- */
   #dashboard{display:none;}
   #dashboard.show{display:block;}
+  #couponsScreen{display:none;}
+  #couponsScreen.show{display:block;}
   .wrap{max-width:640px; margin:0 auto; padding:40px 20px 90px;}
   .board-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:28px; flex-wrap:wrap;}
   .board-head h2{font-size:26px;}
@@ -196,6 +198,17 @@
   }
   .status-pill.new{color:var(--ochre-light); border-color:rgba(198,138,62,0.5); background:rgba(198,138,62,0.08);}
   .status-pill.answered{color:var(--sage-light); border-color:rgba(107,125,94,0.5); background:rgba(107,125,94,0.08);}
+  .status-pill.active{color:var(--sage-light); border-color:rgba(107,125,94,0.5); background:rgba(107,125,94,0.08);}
+  .status-pill.expired{color:var(--ink-faint); border-color:var(--line-strong); background:transparent;}
+
+  .coupon-card{
+    border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:12px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .coupon-phone{font-family:'Fraunces',serif; font-size:17px; font-weight:600;}
+  .coupon-code{font-size:13px; color:var(--ink-dim); margin-top:4px; letter-spacing:0.02em;}
+  .coupon-meta{display:flex; align-items:center; gap:14px;}
+  .coupon-dates{font-size:12px; color:var(--ink-faint); text-align:right; line-height:1.5;}
 
   .req-body{
     max-height:0; overflow:hidden; transition:max-height .35s var(--ease);
@@ -364,8 +377,8 @@
     <p>Everything that's come in through the site is waiting for you.</p>
     <div class="home-actions">
       <button type="button" class="btn view-requests-btn" id="viewRequestsBtn">View Requests</button>
+      <button type="button" class="btn-outline" id="viewCouponsBtn">View Customers Who Created a Coupon</button>
       <button type="button" class="btn-outline" id="openChangeBtn">Make Changes to the Website</button>
-      <button type="button" class="btn-outline" id="openContentEditorBtn">Edit Website Content</button>
     </div>
   </div>
 </div>
@@ -388,6 +401,22 @@
       <button class="filter-btn" data-filter="answered">Answered</button>
     </div>
     <div id="reqList"></div>
+  </div>
+</div>
+
+<div id="couponsScreen">
+  <header class="admin-nav">
+    <div class="admin-nav-inner">
+      <div class="logo"><img src="ygm-logo.jpg" alt="YGM Painting"><span>Coupons</span></div>
+      <a href="index.html" class="logout-btn">Return To Home Page</a>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="board-head">
+      <h2>Coupons generated</h2>
+      <span class="count" id="couponCount"></span>
+    </div>
+    <div id="couponList"></div>
   </div>
 </div>
 
@@ -525,6 +554,11 @@
   var marioReqList = document.getElementById('marioReqList');
   var marioReqCount = document.getElementById('marioReqCount');
 
+  var viewCouponsBtn = document.getElementById('viewCouponsBtn');
+  var couponsScreen = document.getElementById('couponsScreen');
+  var couponList = document.getElementById('couponList');
+  var couponCount = document.getElementById('couponCount');
+
   var replyOverlay = document.getElementById('replyOverlay');
   var replyToName = document.getElementById('replyToName');
   var replyText = document.getElementById('replyText');
@@ -551,7 +585,6 @@
   var ceSaveBtn = document.getElementById('ceSaveBtn');
   var ceSaveStatus = document.getElementById('ceSaveStatus');
   var contentEditorExitBtn = document.getElementById('contentEditorExitBtn');
-  var openContentEditorBtn = document.getElementById('openContentEditorBtn');
   var marioOpenContentEditorBtn = document.getElementById('marioOpenContentEditorBtn');
   var contentEditorReturnTo = null;
 
@@ -564,6 +597,7 @@
     dashboard.classList.remove('show');
     marioDashboard.classList.remove('show');
     contentEditor.classList.remove('show');
+    couponsScreen.classList.remove('show');
     if(user === 'mario'){
       homeScreen.classList.remove('show');
       marioHomeScreen.classList.add('show');
@@ -579,6 +613,7 @@
     marioHomeScreen.classList.remove('show');
     marioDashboard.classList.remove('show');
     contentEditor.classList.remove('show');
+    couponsScreen.classList.remove('show');
     loginScreen.style.display = 'flex';
   }
 
@@ -640,6 +675,12 @@
     startMarioAutoRefresh();
   });
 
+  viewCouponsBtn.addEventListener('click', function(){
+    homeScreen.classList.remove('show');
+    couponsScreen.classList.add('show');
+    loadCoupons();
+  });
+
   /* catch the case where the admin already has the dashboard open in a
      background tab and a new request comes in — refresh the moment they
      switch back, instead of waiting for the next poll */
@@ -679,6 +720,55 @@
       return d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' }) + ' at ' +
              d.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
     } catch(e){ return iso; }
+  }
+
+  function fmtPhone(raw){
+    var d = (raw || '').replace(/\D/g, '');
+    if(d.length === 10) return '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6);
+    return raw || '';
+  }
+
+  /* coupons are only ever tied to the phone number that generated them —
+     there's no name/email on the record, since the coupon popup only asks
+     for a phone number in the first place */
+  function fetchCoupons(){
+    sb.from('coupons').select('*').order('created_at', { ascending: false }).then(function(res){
+      if(res.error){
+        couponList.innerHTML = '<div class="empty-state">Could not load coupons: ' + escapeHtml(res.error.message) + '</div>';
+        return;
+      }
+      renderCoupons(res.data || []);
+    });
+  }
+  function loadCoupons(){
+    couponList.innerHTML = '<div class="empty-state">Loading...</div>';
+    fetchCoupons();
+  }
+  function renderCoupons(rows){
+    couponCount.textContent = rows.length + ' total';
+    if(rows.length === 0){
+      couponList.innerHTML = '<div class="empty-state">No coupons generated yet.</div>';
+      return;
+    }
+    var now = Date.now();
+    couponList.innerHTML = rows.map(function(c){
+      var expired = c.expires_at && new Date(c.expires_at).getTime() < now;
+      return (
+        '<div class="coupon-card">' +
+          '<div>' +
+            '<div class="coupon-phone">' + escapeHtml(fmtPhone(c.phone)) + '</div>' +
+            '<div class="coupon-code">' + escapeHtml(c.code || '') + '</div>' +
+          '</div>' +
+          '<div class="coupon-meta">' +
+            '<div class="coupon-dates">' +
+              'Created ' + escapeHtml(fmtDate(c.created_at)) + '<br>' +
+              (expired ? 'Expired ' : 'Expires ') + escapeHtml(fmtDate(c.expires_at)) +
+            '</div>' +
+            '<span class="status-pill ' + (expired ? 'expired' : 'active') + '">' + (expired ? 'Expired' : 'Active') + '</span>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
   }
 
   function render(){
@@ -1109,7 +1199,6 @@
     if(contentEditorReturnTo === 'mario'){ marioHomeScreen.classList.add('show'); }
     else { homeScreen.classList.add('show'); }
   }
-  openContentEditorBtn.addEventListener('click', function(){ openContentEditor('ysrael'); });
   marioOpenContentEditorBtn.addEventListener('click', function(){ openContentEditor('mario'); });
   contentEditorExitBtn.addEventListener('click', closeContentEditor);
 
