@@ -317,11 +317,20 @@
     text-align:center; padding:0 6%;
   }
   .intro-logo{
-    display:block; margin:0 auto; width:min(74vw, 420px); height:auto;
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:min(74vw, 420px); height:auto; pointer-events:none;
     filter:drop-shadow(0 12px 34px rgba(0,0,0,0.5));
-    opacity:1; transition:opacity 1s ease;
+    opacity:1; transition:opacity .65s ease;
   }
   .intro-logo.fade-out{opacity:0;}
+  .intro-copy h1{
+    font-size:clamp(2.6rem, 7vw, 5.4rem); max-width:16ch; color:var(--ink); font-weight:700;
+    line-height:1.0; letter-spacing:-0.03em; margin:0;
+  }
+  .intro-copy h1 div{display:block;}
+  .intro-ch{display:inline-block; opacity:0; transform:translateY(3px); transition:opacity .4s ease, transform .4s ease;}
+  .intro-ch.on{opacity:1; transform:translateY(0);}
+  .intro-ch.space{width:0.28em;}
   .intro-line2{
     margin-top:28px;
     font-family:'Fraunces',Georgia,serif; font-weight:600; font-style:normal;
@@ -998,8 +1007,9 @@
     <video id="introVideoEl" src="ygm-intro.mp4" poster="intro-poster.jpg" muted playsinline preload="auto" webkit-playsinline="true"></video>
     <div class="intro-scrim"></div>
     <div class="intro-copy" id="introCopy">
+      <img src="ygm-intro-logo.png" alt="YGM Painting — Quality. Detail. Trust." class="intro-logo" id="introLogo">
       <div>
-        <img src="ygm-intro-logo.png" alt="YGM Painting — Quality. Detail. Trust." class="intro-logo" id="introLogo">
+        <h1 id="introLine1"></h1>
         <div class="intro-line2" id="introLine2">Brush the wall to start yours</div>
       </div>
     </div>
@@ -2434,16 +2444,44 @@
   try {
     /* intro video — plays once on load (not scroll-linked). The logo overlay
        is visible immediately with the video, then fades out starting 1s into
-       the video's own timeline; a smaller scroll hint pops in during the
-       video's last second; both dismiss the first time the viewer scrolls */
+       the video's own timeline. The typewriter headline starts right as that
+       fade finishes, so the two never overlap. A smaller scroll hint pops in
+       during the video's last second; everything dismisses on first scroll. */
     var introVideoEl = document.getElementById('introVideoEl');
     var introLogo = document.getElementById('introLogo');
+    var introLine1 = document.getElementById('introLine1');
     var introLine2 = document.getElementById('introLine2');
 
-    if(introVideoEl && introLogo){
-      var LOGO_FADE_START = 1.0;   // seconds into the intro video
+    if(introVideoEl && introLogo && introLine1){
+      var LOGO_FADE_START = 1.0;    // seconds into the intro video
+      var LOGO_FADE_MS = 650;       // must match .intro-logo's opacity transition
+      var TYPE_DURATION_MS = 1200;
       var logoFadeStarted = false;
+      var typingStarted = false;
       var line2Shown = false;
+
+      var LINE1_ROWS = ['Every Vision Starts', 'With a Stroke'];
+      var allChars = []; // flat list of <span> across both lines, in type order
+      LINE1_ROWS.forEach(function(row){
+        var rowDiv = document.createElement('div');
+        row.split('').forEach(function(ch){
+          var span = document.createElement('span');
+          span.className = 'intro-ch' + (ch === ' ' ? ' space' : '');
+          span.textContent = ch === ' ' ? ' ' : ch;
+          rowDiv.appendChild(span);
+          allChars.push(span);
+        });
+        introLine1.appendChild(rowDiv);
+      });
+
+      function startTyping(){
+        if(typingStarted) return;
+        typingStarted = true;
+        var perLetter = TYPE_DURATION_MS / allChars.length;
+        allChars.forEach(function(span, i){
+          setTimeout(function(){ span.classList.add('on'); }, i * perLetter);
+        });
+      }
 
       function fadeLogoOut(){
         if(logoFadeStarted) return;
@@ -2451,6 +2489,9 @@
         introLogo.classList.add('fade-out');
         var promoRibbonReveal = document.getElementById('promoRibbon');
         if(promoRibbonReveal) promoRibbonReveal.classList.add('show');
+        /* the typewriter picks up right as the logo finishes fading out,
+           so the two never show on screen at the same time */
+        setTimeout(startTyping, LOGO_FADE_MS);
       }
 
       function showLine2(){
@@ -2466,6 +2507,7 @@
       });
       introVideoEl.addEventListener('ended', function(){
         fadeLogoOut();
+        startTyping();
         showLine2();
       });
 
