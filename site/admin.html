@@ -210,6 +210,30 @@
   .coupon-meta{display:flex; align-items:center; gap:14px;}
   .coupon-dates{font-size:12px; color:var(--ink-faint); text-align:right; line-height:1.5;}
 
+  #visitorsScreen{display:none;}
+  #visitorsScreen.show{display:block;}
+  .stat-tiles{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:28px;}
+  .stat-tile{
+    flex:1; min-width:140px; border:1px solid var(--line); border-radius:10px;
+    padding:18px 20px;
+  }
+  .stat-tile-label{font-size:12.5px; color:var(--ink-faint); margin-bottom:8px;}
+  .stat-tile-value{font-size:32px; font-weight:600; color:var(--ink); line-height:1;}
+  .vchart-card{border:1px solid var(--line); border-radius:10px; padding:22px;}
+  .vchart-title{font-size:13px; color:var(--ink-dim); margin-bottom:22px;}
+  .vchart{display:flex; align-items:flex-end; gap:4px; height:160px; border-bottom:1px solid var(--line-strong);}
+  .vchart-slot{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+    height:100%; min-width:0;
+  }
+  .vchart-bar{
+    width:100%; max-width:22px; background:var(--ochre-light); border-radius:4px 4px 0 0;
+    min-height:2px; transition:opacity .15s var(--ease);
+  }
+  .vchart-bar:hover{opacity:0.8;}
+  .vchart-day{font-size:10px; color:var(--ink-faint); margin-top:8px; white-space:nowrap;}
+  .vchart-empty{color:var(--ink-faint); font-size:14px; padding:30px 0; text-align:center;}
+
   .req-body{
     max-height:0; overflow:hidden; transition:max-height .35s var(--ease);
   }
@@ -378,6 +402,7 @@
     <div class="home-actions">
       <button type="button" class="btn view-requests-btn" id="viewRequestsBtn">View Requests</button>
       <button type="button" class="btn-outline" id="viewCouponsBtn">View Customers Who Created a Coupon</button>
+      <button type="button" class="btn-outline" id="viewVisitorsBtn">Website Visitors</button>
       <button type="button" class="btn-outline" id="openChangeBtn">Make Changes to the Website</button>
     </div>
   </div>
@@ -417,6 +442,25 @@
       <span class="count" id="couponCount"></span>
     </div>
     <div id="couponList"></div>
+  </div>
+</div>
+
+<div id="visitorsScreen">
+  <header class="admin-nav">
+    <div class="admin-nav-inner">
+      <div class="logo"><img src="ygm-logo.jpg" alt="YGM Painting"><span>Visitors</span></div>
+      <a href="index.html" class="logout-btn">Return To Home Page</a>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="board-head">
+      <h2>Website visitors</h2>
+    </div>
+    <div class="stat-tiles" id="visitorStatTiles"></div>
+    <div class="vchart-card">
+      <p class="vchart-title">Unique visitors, last 14 days</p>
+      <div class="vchart" id="visitorChart"></div>
+    </div>
   </div>
 </div>
 
@@ -559,6 +603,11 @@
   var couponList = document.getElementById('couponList');
   var couponCount = document.getElementById('couponCount');
 
+  var viewVisitorsBtn = document.getElementById('viewVisitorsBtn');
+  var visitorsScreen = document.getElementById('visitorsScreen');
+  var visitorStatTiles = document.getElementById('visitorStatTiles');
+  var visitorChart = document.getElementById('visitorChart');
+
   var replyOverlay = document.getElementById('replyOverlay');
   var replyToName = document.getElementById('replyToName');
   var replyText = document.getElementById('replyText');
@@ -598,6 +647,7 @@
     marioDashboard.classList.remove('show');
     contentEditor.classList.remove('show');
     couponsScreen.classList.remove('show');
+    visitorsScreen.classList.remove('show');
     if(user === 'mario'){
       homeScreen.classList.remove('show');
       marioHomeScreen.classList.add('show');
@@ -614,6 +664,7 @@
     marioDashboard.classList.remove('show');
     contentEditor.classList.remove('show');
     couponsScreen.classList.remove('show');
+    visitorsScreen.classList.remove('show');
     loginScreen.style.display = 'flex';
   }
 
@@ -679,6 +730,12 @@
     homeScreen.classList.remove('show');
     couponsScreen.classList.add('show');
     loadCoupons();
+  });
+
+  viewVisitorsBtn.addEventListener('click', function(){
+    homeScreen.classList.remove('show');
+    visitorsScreen.classList.add('show');
+    loadVisitorStats();
   });
 
   /* catch the case where the admin already has the dashboard open in a
@@ -766,6 +823,82 @@
             '</div>' +
             '<span class="status-pill ' + (expired ? 'expired' : 'active') + '">' + (expired ? 'Expired' : 'Active') + '</span>' +
           '</div>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  /* local-timezone day key (not UTC) so "today" in the chart matches what
+     the person looking at the admin page actually means by "today" */
+  function dayKey(d){
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function shortDayLabel(d){
+    return (d.getMonth()+1) + '/' + d.getDate();
+  }
+
+  function loadVisitorStats(){
+    visitorStatTiles.innerHTML = '';
+    visitorChart.innerHTML = '<div class="vchart-empty">Loading…</div>';
+    var since = new Date();
+    since.setDate(since.getDate() - 14);
+    sb.from('page_views').select('created_at,visitor_id').gte('created_at', since.toISOString())
+      .then(function(res){
+        if(res.error){
+          visitorChart.innerHTML = '<div class="vchart-empty">Could not load visitor data: ' + escapeHtml(res.error.message) + '</div>';
+          return;
+        }
+        renderVisitorStats(res.data || []);
+      });
+  }
+
+  function renderVisitorStats(rows){
+    /* bucket visitor ids by the local calendar day they were seen on */
+    var byDay = {}; // dayKey -> Set of visitor_id
+    rows.forEach(function(r){
+      var key = dayKey(new Date(r.created_at));
+      if(!byDay[key]) byDay[key] = new Set();
+      byDay[key].add(r.visitor_id);
+    });
+
+    var days = []; // last 14 days, oldest first
+    for(var i = 13; i >= 0; i--){
+      var d = new Date();
+      d.setDate(d.getDate() - i);
+      days.push(d);
+    }
+
+    var todayKey = dayKey(days[13]);
+    var yesterdayKey = dayKey(days[12]);
+    var todayCount = byDay[todayKey] ? byDay[todayKey].size : 0;
+    var yesterdayCount = byDay[yesterdayKey] ? byDay[yesterdayKey].size : 0;
+
+    var last7Union = new Set();
+    days.slice(7).forEach(function(d){
+      var set = byDay[dayKey(d)];
+      if(set) set.forEach(function(v){ last7Union.add(v); });
+    });
+
+    visitorStatTiles.innerHTML =
+      '<div class="stat-tile"><div class="stat-tile-label">Today</div><div class="stat-tile-value">' + todayCount + '</div></div>' +
+      '<div class="stat-tile"><div class="stat-tile-label">Yesterday</div><div class="stat-tile-value">' + yesterdayCount + '</div></div>' +
+      '<div class="stat-tile"><div class="stat-tile-label">Last 7 days</div><div class="stat-tile-value">' + last7Union.size + '</div></div>';
+
+    var dayCounts = days.map(function(d){ return byDay[dayKey(d)] ? byDay[dayKey(d)].size : 0; });
+    var max = Math.max.apply(null, dayCounts.concat([1])); // avoid divide-by-zero
+
+    visitorChart.innerHTML = days.map(function(d, i){
+      var count = dayCounts[i];
+      var pct = Math.max((count / max) * 100, count > 0 ? 4 : 0);
+      var label = count + ' visitor' + (count === 1 ? '' : 's') + ' on ' + fmtDate(d.toISOString()).split(' at')[0];
+      /* 14 full date labels collide at this width once the month hits double
+         digits — show every other one instead, counting back from today so
+         today's own label always survives */
+      var showLabel = (13 - i) % 2 === 0;
+      return (
+        '<div class="vchart-slot">' +
+          '<div class="vchart-bar" style="height:' + pct + '%" title="' + escapeHtml(label) + '" aria-label="' + escapeHtml(label) + '"></div>' +
+          '<div class="vchart-day">' + (showLabel ? shortDayLabel(d) : '') + '</div>' +
         '</div>'
       );
     }).join('');

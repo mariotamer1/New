@@ -2518,6 +2518,24 @@
   } catch(e) {}
 
   try {
+    /* lightweight, anonymous visitor count for the admin dashboard — no
+       cookies, no personal data, just a random id this browser keeps in
+       localStorage so the admin page can tell a repeat visit from a new
+       one when counting how many different people showed up each day */
+    if(qeClient){
+      var VID_KEY = 'ygm_vid';
+      var visitorId = null;
+      try { visitorId = localStorage.getItem(VID_KEY); } catch(e) {}
+      if(!visitorId){
+        visitorId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() :
+          (Date.now().toString(36) + Math.random().toString(36).slice(2));
+        try { localStorage.setItem(VID_KEY, visitorId); } catch(e) {}
+      }
+      qeClient.from('page_views').insert([{ path: window.location.pathname, visitor_id: visitorId }]).catch(function(){});
+    }
+  } catch(e) {}
+
+  try {
     /* Blocks the iOS rubber-band bounce (a thin black strip flashing at the
        page edge) on a left/right swipe anywhere on the site, except inside
        the swipeable before/after gallery and the two carousels that rely
