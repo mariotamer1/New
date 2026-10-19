@@ -987,7 +987,7 @@
 <!-- ================= INTRO VIDEO (plays once on load) ================= -->
 <section class="intro-video" id="introVideo">
   <div class="intro-stage">
-    <video id="introVideoEl" src="ygm-intro.mp4" poster="intro-poster.jpg" muted playsinline preload="auto" fetchpriority="high" webkit-playsinline="true"></video>
+    <video id="introVideoEl" src="ygm-intro.mp4" poster="intro-poster.jpg" muted playsinline preload="auto" webkit-playsinline="true"></video>
     <div class="intro-scrim"></div>
     <div class="intro-copy" id="introCopy">
       <img alt="YGM Painting — Quality. Detail. Trust." class="intro-logo" id="introLogo">
@@ -1020,7 +1020,15 @@
     var introLine1 = document.getElementById('introLine1');
 
     if(introVideoEl && introLogo && introLine1){
-      var LOGO_ANIM_MS = 4539;   // the animated webp's own total playtime (17f, ~3.75fps)
+      /* Animated WebP/GIF <img>s don't reliably replay from frame 1 on every
+         page load — browsers can reuse an already-decoded animation and just
+         show it sitting on its last frame instead of restarting it. Giving
+         the src a fresh query string each load makes the browser treat it as
+         a distinct image to decode from scratch, so it always plays from the
+         start, on every refresh, every time. */
+      introLogo.src = 'ygm-intro-logo.webp?r=' + Date.now();
+
+      var LOGO_ANIM_MS = 4500;   // the animated webp's own total playtime (45f @10fps)
       var LOGO_FADE_MS = 650;    // must match .intro-logo's opacity transition
       var TYPE_DURATION_MS = 1000;
       var logoSequenceStarted = false;
@@ -1064,59 +1072,35 @@
         setTimeout(fadeLogoOut, LOGO_ANIM_MS);
       }
 
-      /* The background footage and the logo animation are two completely
-         separate files loading independently — left alone, each one starts
-         the instant IT personally finishes downloading, so depending on
-         network conditions either one could win the race on any given load.
-         To make them always start together: preload the logo's bytes via a
-         detached Image() (so nothing is visibly decoding/animating yet),
-         and only reveal it — by handing its now-cached src to the real
-         on-page <img> — at the exact same moment the video's play() call
-         fires, once BOTH are ready. A capped fallback still fires if either
-         one stalls, so a slow/broken resource can never hold the other
-         hostage. */
-      var videoReady = false, imgReady = false, bothStarted = false;
-      var cacheBustedLogoSrc = 'ygm-intro-logo.webp?r=' + Date.now();
-
-      function startBothTogether(){
-        if(bothStarted) return;
-        bothStarted = true;
-        introVideoEl.play().catch(function(){});
-        /* Animated WebP/GIF <img>s don't reliably replay from frame 1 on
-           every page load — browsers can reuse an already-decoded animation
-           and just show it sitting on its last frame instead of restarting
-           it. The cache-busted query string makes the browser treat this as
-           a distinct image to decode from scratch every time, so it always
-           plays from the start — and since it was just preloaded under this
-           exact URL, assigning it here decodes instantly from cache rather
-           than kicking off a fresh download. */
-        introLogo.src = cacheBustedLogoSrc;
-        if(introLogo.complete){
-          startLogoSequence();
-        } else {
-          introLogo.addEventListener('load', startLogoSequence, {once:true});
-          introLogo.addEventListener('error', startLogoSequence, {once:true});
-        }
+      if(introLogo.complete){
+        startLogoSequence();
+      } else {
+        introLogo.addEventListener('load', startLogoSequence, {once:true});
+        introLogo.addEventListener('error', startLogoSequence, {once:true});
+        setTimeout(startLogoSequence, 2500); // backstop if load/error never fire
       }
-      function maybeStartBoth(){
-        if(videoReady && imgReady) startBothTogether();
-      }
-      setTimeout(startBothTogether, 2500); // backstop if either stalls
-
-      var logoPreload = new Image();
-      logoPreload.fetchPriority = 'low'; // let the tiny background video win any bandwidth contention
-      logoPreload.onload = function(){ imgReady = true; maybeStartBoth(); };
-      logoPreload.onerror = function(){ imgReady = true; maybeStartBoth(); };
-      logoPreload.src = cacheBustedLogoSrc;
 
       /* The poster attribute on the video shows a real first-frame image the
-         instant the page loads, so there's never a blackout while either
-         clip is still loading. */
+         instant the page loads, so there's never a blackout while the video
+         itself is still loading. Playback starts as soon as the current
+         frame is decoded (loadeddata, with a capped fallback) rather than
+         waiting for a deeper future-data buffer — the file is small enough
+         now that the browser keeps up once playback starts, so there's no
+         need to hold off; the poster keeps the screen looking correct the
+         whole time either way. This footage is purely decorative behind the
+         logo and the typed line — it has no bearing on their timing, and
+         dismissal is gesture-only (see below), not tied to this video. */
+      var introPlayAttempted = false;
+      function attemptIntroPlay(){
+        if(introPlayAttempted) return;
+        introPlayAttempted = true;
+        introVideoEl.play().catch(function(){});
+      }
       if(introVideoEl.readyState >= 2 /* HAVE_CURRENT_DATA */){
-        videoReady = true;
-        maybeStartBoth();
+        attemptIntroPlay();
       } else {
-        introVideoEl.addEventListener('loadeddata', function(){ videoReady = true; maybeStartBoth(); }, {once:true});
+        introVideoEl.addEventListener('loadeddata', attemptIntroPlay, {once:true});
+        setTimeout(attemptIntroPlay, 2500);
       }
 
       /* Lock the page at the top — no real scrolling happens — until the
