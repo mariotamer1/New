@@ -991,10 +991,7 @@
     <div class="intro-scrim"></div>
     <div class="intro-copy" id="introCopy">
       <img alt="YGM Painting — Quality. Detail. Trust." class="intro-logo" id="introLogo">
-      <div>
-        <h1 id="introLine1"></h1>
-        <div class="intro-line2" id="introLine2">Brush the wall to start yours</div>
-      </div>
+      <h1 id="introLine1"></h1>
     </div>
   </div>
 </section>
@@ -1011,16 +1008,18 @@
      starts the instant it's actually ready, with nothing else in the way. */
   (function(){
   try {
-    /* intro — plays once on load (not scroll-linked), in three beats: the
-       logo animation, then the background painter footage left on its own
-       (logo gone), then straight into the scrolling hero section once that
-       footage finishes. No headline step, no gesture required — though a
-       visitor can still swipe/scroll/press a key to skip ahead early at any
-       point if they don't want to wait for it. */
+    /* intro — plays once on load (not scroll-linked). The logo animation
+       plays with the background painter footage running behind it at the
+       same time; once the logo finishes and fades out, a typed line invites
+       the visitor to scroll while that footage keeps playing behind it.
+       The first scroll/swipe/key press dismisses everything at once and
+       drops straight into the scrolling hero section — that gesture can
+       happen at any point, even before the logo or the line finish. */
     var introVideoEl = document.getElementById('introVideoEl');
     var introLogo = document.getElementById('introLogo');
+    var introLine1 = document.getElementById('introLine1');
 
-    if(introVideoEl && introLogo){
+    if(introVideoEl && introLogo && introLine1){
       /* Animated WebP/GIF <img>s don't reliably replay from frame 1 on every
          page load — browsers can reuse an already-decoded animation and just
          show it sitting on its last frame instead of restarting it. Giving
@@ -1029,21 +1028,42 @@
          start, on every refresh, every time. */
       introLogo.src = 'ygm-intro-logo.webp?r=' + Date.now();
 
-      var LOGO_ANIM_MS = 1333;   // the animated webp's own total playtime (20f @15fps)
+      var LOGO_ANIM_MS = 4500;   // the animated webp's own total playtime (45f @10fps)
       var LOGO_FADE_MS = 650;    // must match .intro-logo's opacity transition
+      var TYPE_DURATION_MS = 1000;
       var logoSequenceStarted = false;
-      var videoEndedHandled = false;
+      var typingStarted = false;
 
-      function advanceToHero(){
-        if(videoEndedHandled) return;
-        videoEndedHandled = true;
-        dismissIntro();
+      var LINE1_ROWS = ['Scroll Down.', 'Watch The Magic Unfold'];
+      var allChars = []; // flat list of <span> across both lines, in type order
+      LINE1_ROWS.forEach(function(row){
+        var rowDiv = document.createElement('div');
+        row.split('').forEach(function(ch){
+          var span = document.createElement('span');
+          span.className = 'intro-ch' + (ch === ' ' ? ' space' : '');
+          span.textContent = ch === ' ' ? ' ' : ch;
+          rowDiv.appendChild(span);
+          allChars.push(span);
+        });
+        introLine1.appendChild(rowDiv);
+      });
+
+      function startTyping(){
+        if(typingStarted) return;
+        typingStarted = true;
+        var perLetter = TYPE_DURATION_MS / allChars.length;
+        allChars.forEach(function(span, i){
+          setTimeout(function(){ span.classList.add('on'); }, i * perLetter);
+        });
       }
 
       function fadeLogoOut(){
         introLogo.classList.add('fade-out');
         var promoRibbonReveal = document.getElementById('promoRibbon');
         if(promoRibbonReveal) promoRibbonReveal.classList.add('show');
+        /* the typed line picks up right as the logo finishes fading out,
+           so the two never show on screen at the same time */
+        setTimeout(startTyping, LOGO_FADE_MS);
       }
 
       function startLogoSequence(){
@@ -1067,18 +1087,14 @@
          waiting for a deeper future-data buffer — the file is small enough
          now that the browser keeps up once playback starts, so there's no
          need to hold off; the poster keeps the screen looking correct the
-         whole time either way. Once this footage finishes playing (it runs
-         a few seconds, well past the logo's own animation), the page moves
-         on to the scrolling hero section on its own. */
+         whole time either way. This footage is purely decorative behind the
+         logo and the typed line — it has no bearing on their timing, and
+         dismissal is gesture-only (see below), not tied to this video. */
       var introPlayAttempted = false;
       function attemptIntroPlay(){
         if(introPlayAttempted) return;
         introPlayAttempted = true;
-        introVideoEl.play().catch(function(){
-          /* autoplay blocked or the clip failed outright — don't leave the
-             visitor stuck waiting on footage that will never play */
-          advanceToHero();
-        });
+        introVideoEl.play().catch(function(){});
       }
       if(introVideoEl.readyState >= 2 /* HAVE_CURRENT_DATA */){
         attemptIntroPlay();
@@ -1086,8 +1102,6 @@
         introVideoEl.addEventListener('loadeddata', attemptIntroPlay, {once:true});
         setTimeout(attemptIntroPlay, 2500);
       }
-      introVideoEl.addEventListener('ended', advanceToHero);
-      introVideoEl.addEventListener('error', advanceToHero);
 
       /* Lock the page at the top — no real scrolling happens — until the
          viewer makes a scroll/swipe/key gesture. That gesture doesn't move
@@ -1719,7 +1733,6 @@
         if(el && map[key]) el.src = map[key];
       }
 
-      setText('introLine2', 'hero_tagline');
       setText('aboutHeading', 'about_heading');
       setText('aboutBody', 'about_body');
       var i;
