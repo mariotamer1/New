@@ -990,7 +990,7 @@
     <video id="introVideoEl" src="ygm-intro.mp4" poster="intro-poster.jpg" muted playsinline preload="auto" webkit-playsinline="true"></video>
     <div class="intro-scrim"></div>
     <div class="intro-copy" id="introCopy">
-      <img src="ygm-intro-logo.webp" alt="YGM Painting — Quality. Detail. Trust." class="intro-logo" id="introLogo">
+      <img alt="YGM Painting — Quality. Detail. Trust." class="intro-logo" id="introLogo">
       <div>
         <h1 id="introLine1"></h1>
         <div class="intro-line2" id="introLine2">Brush the wall to start yours</div>
@@ -1011,32 +1011,45 @@
      starts the instant it's actually ready, with nothing else in the way. */
   (function(){
   try {
-    /* intro — plays once on load (not scroll-linked). The logo is a short
-       animated clip (an animated WebP, so it just plays natively once the
-       <img> loads, no video/canvas machinery needed) over the background
-       footage. The instant it finishes, it fades out and the page moves
-       straight into the hero section below — no headline step, no gesture
-       required. A visitor can still swipe/scroll/press a key to skip ahead
-       early if they don't want to wait for it. */
+    /* intro — plays once on load (not scroll-linked), in three beats: the
+       logo animation, then the background painter footage left on its own
+       (logo gone), then straight into the scrolling hero section once that
+       footage finishes. No headline step, no gesture required — though a
+       visitor can still swipe/scroll/press a key to skip ahead early at any
+       point if they don't want to wait for it. */
     var introVideoEl = document.getElementById('introVideoEl');
     var introLogo = document.getElementById('introLogo');
 
     if(introVideoEl && introLogo){
+      /* Animated WebP/GIF <img>s don't reliably replay from frame 1 on every
+         page load — browsers can reuse an already-decoded animation and just
+         show it sitting on its last frame instead of restarting it. Giving
+         the src a fresh query string each load makes the browser treat it as
+         a distinct image to decode from scratch, so it always plays from the
+         start, on every refresh, every time. */
+      introLogo.src = 'ygm-intro-logo.webp?r=' + Date.now();
+
       var LOGO_ANIM_MS = 1333;   // the animated webp's own total playtime (20f @15fps)
       var LOGO_FADE_MS = 650;    // must match .intro-logo's opacity transition
       var logoSequenceStarted = false;
+      var videoEndedHandled = false;
 
-      function fadeLogoOutThenDismiss(){
+      function advanceToHero(){
+        if(videoEndedHandled) return;
+        videoEndedHandled = true;
+        dismissIntro();
+      }
+
+      function fadeLogoOut(){
         introLogo.classList.add('fade-out');
         var promoRibbonReveal = document.getElementById('promoRibbon');
         if(promoRibbonReveal) promoRibbonReveal.classList.add('show');
-        setTimeout(dismissIntro, LOGO_FADE_MS);
       }
 
       function startLogoSequence(){
         if(logoSequenceStarted) return;
         logoSequenceStarted = true;
-        setTimeout(fadeLogoOutThenDismiss, LOGO_ANIM_MS);
+        setTimeout(fadeLogoOut, LOGO_ANIM_MS);
       }
 
       if(introLogo.complete){
@@ -1054,13 +1067,18 @@
          waiting for a deeper future-data buffer — the file is small enough
          now that the browser keeps up once playback starts, so there's no
          need to hold off; the poster keeps the screen looking correct the
-         whole time either way. This background footage is purely decorative
-         now — it has no bearing on the logo/dismiss timing above. */
+         whole time either way. Once this footage finishes playing (it runs
+         a few seconds, well past the logo's own animation), the page moves
+         on to the scrolling hero section on its own. */
       var introPlayAttempted = false;
       function attemptIntroPlay(){
         if(introPlayAttempted) return;
         introPlayAttempted = true;
-        introVideoEl.play().catch(function(){});
+        introVideoEl.play().catch(function(){
+          /* autoplay blocked or the clip failed outright — don't leave the
+             visitor stuck waiting on footage that will never play */
+          advanceToHero();
+        });
       }
       if(introVideoEl.readyState >= 2 /* HAVE_CURRENT_DATA */){
         attemptIntroPlay();
@@ -1068,6 +1086,8 @@
         introVideoEl.addEventListener('loadeddata', attemptIntroPlay, {once:true});
         setTimeout(attemptIntroPlay, 2500);
       }
+      introVideoEl.addEventListener('ended', advanceToHero);
+      introVideoEl.addEventListener('error', advanceToHero);
 
       /* Lock the page at the top — no real scrolling happens — until the
          viewer makes a scroll/swipe/key gesture. That gesture doesn't move
