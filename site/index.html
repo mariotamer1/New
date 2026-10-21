@@ -1030,6 +1030,7 @@
 
       var LOGO_ANIM_MS = 2250;   // the animated webp's own total playtime (played at 2x speed)
       var LOGO_FADE_MS = 650;    // must match .intro-logo's opacity transition
+      var TYPE_START_DELAY_MS = 2000; // pause after the logo's gone, before the line pops up
       var TYPE_DURATION_MS = 1000;
       var logoSequenceStarted = false;
       var typingStarted = false;
@@ -1061,9 +1062,9 @@
         introLogo.classList.add('fade-out');
         var promoRibbonReveal = document.getElementById('promoRibbon');
         if(promoRibbonReveal) promoRibbonReveal.classList.add('show');
-        /* the typed line picks up right as the logo finishes fading out,
-           so the two never show on screen at the same time */
-        setTimeout(startTyping, LOGO_FADE_MS);
+        /* the typed line waits a beat after the logo finishes fading out
+           (so the two never show at once), then pops up */
+        setTimeout(startTyping, LOGO_FADE_MS + TYPE_START_DELAY_MS);
       }
 
       function startLogoSequence(){
