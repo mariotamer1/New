@@ -78,6 +78,14 @@
     padding:8px 16px; border-radius:3px; font-size:13.5px; transition:all .2s var(--ease); text-decoration:none;
   }
   .logout-btn:hover{border-color:var(--ink); color:var(--ink);}
+  .back-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:38px; height:38px; margin-bottom:20px;
+    border:1px solid var(--line-strong); border-radius:50%;
+    background:transparent; color:var(--ink-dim); font-size:18px; line-height:1;
+    transition:all .2s var(--ease);
+  }
+  .back-btn:hover{border-color:var(--ochre-light); color:var(--ochre-light);}
 
   /* ---------- home screen (View Requests) ---------- */
   #homeScreen{display:none;}
@@ -416,6 +424,7 @@
     </div>
   </header>
   <div class="wrap">
+    <button type="button" class="back-btn" id="reqBackBtn" aria-label="Back">←</button>
     <div class="board-head">
       <h2>Estimate requests</h2>
       <span class="count" id="reqCount"></span>
@@ -437,6 +446,7 @@
     </div>
   </header>
   <div class="wrap">
+    <button type="button" class="back-btn" id="couponBackBtn" aria-label="Back">←</button>
     <div class="board-head">
       <h2>Coupons generated</h2>
       <span class="count" id="couponCount"></span>
@@ -453,6 +463,7 @@
     </div>
   </header>
   <div class="wrap">
+    <button type="button" class="back-btn" id="visitorBackBtn" aria-label="Back">←</button>
     <div class="board-head">
       <h2>Website visitors</h2>
     </div>
@@ -505,6 +516,7 @@
     </div>
   </header>
   <div class="ce-wrap">
+    <button type="button" class="back-btn" id="ceBackBtn" aria-label="Back">←</button>
     <p class="ce-intro">Change any text or photo on the website here. Edits to text are saved with the button at the bottom — photos save the moment you pick a new one.</p>
     <div id="ceSections"></div>
     <div class="ce-section">
@@ -594,6 +606,7 @@
   var reqCount = document.getElementById('reqCount');
   var filterBtns = document.querySelectorAll('.filter-btn');
   var viewRequestsBtn = document.getElementById('viewRequestsBtn');
+  var reqBackBtn = document.getElementById('reqBackBtn');
   var marioViewRequestsBtn = document.getElementById('marioViewRequestsBtn');
   var marioReqList = document.getElementById('marioReqList');
   var marioReqCount = document.getElementById('marioReqCount');
@@ -602,11 +615,13 @@
   var couponsScreen = document.getElementById('couponsScreen');
   var couponList = document.getElementById('couponList');
   var couponCount = document.getElementById('couponCount');
+  var couponBackBtn = document.getElementById('couponBackBtn');
 
   var viewVisitorsBtn = document.getElementById('viewVisitorsBtn');
   var visitorsScreen = document.getElementById('visitorsScreen');
   var visitorStatTiles = document.getElementById('visitorStatTiles');
   var visitorChart = document.getElementById('visitorChart');
+  var visitorBackBtn = document.getElementById('visitorBackBtn');
 
   var replyOverlay = document.getElementById('replyOverlay');
   var replyToName = document.getElementById('replyToName');
@@ -634,6 +649,7 @@
   var ceSaveBtn = document.getElementById('ceSaveBtn');
   var ceSaveStatus = document.getElementById('ceSaveStatus');
   var contentEditorExitBtn = document.getElementById('contentEditorExitBtn');
+  var ceBackBtn = document.getElementById('ceBackBtn');
   var marioOpenContentEditorBtn = document.getElementById('marioOpenContentEditorBtn');
   var contentEditorReturnTo = null;
 
@@ -718,6 +734,11 @@
     loadSubmissions();
     startAutoRefresh();
   });
+  reqBackBtn.addEventListener('click', function(){
+    stopAutoRefresh();
+    dashboard.classList.remove('show');
+    homeScreen.classList.add('show');
+  });
 
   marioViewRequestsBtn.addEventListener('click', function(){
     marioHomeScreen.classList.remove('show');
@@ -731,11 +752,19 @@
     couponsScreen.classList.add('show');
     loadCoupons();
   });
+  couponBackBtn.addEventListener('click', function(){
+    couponsScreen.classList.remove('show');
+    homeScreen.classList.add('show');
+  });
 
   viewVisitorsBtn.addEventListener('click', function(){
     homeScreen.classList.remove('show');
     visitorsScreen.classList.add('show');
     loadVisitorStats();
+  });
+  visitorBackBtn.addEventListener('click', function(){
+    visitorsScreen.classList.remove('show');
+    homeScreen.classList.add('show');
   });
 
   /* catch the case where the admin already has the dashboard open in a
@@ -1333,6 +1362,7 @@
   }
   marioOpenContentEditorBtn.addEventListener('click', function(){ openContentEditor('mario'); });
   contentEditorExitBtn.addEventListener('click', closeContentEditor);
+  ceBackBtn.addEventListener('click', closeContentEditor);
 
   ceSaveBtn.addEventListener('click', function(){
     var rows = [];
