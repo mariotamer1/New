@@ -798,10 +798,9 @@
   }
   .promo-modal > *{position:relative; z-index:1;}
   .promo-logo{display:block; margin:0 auto 10px; height:34px; width:auto; border-radius:7px; box-shadow:0 6px 14px rgba(0,0,0,0.18);}
+  .promo-logo-offer{display:block; margin:0 auto 16px; width:min(86%, 300px); height:auto;}
 
-  .promo-heading{text-align:center; color:#1c1c1c; margin-bottom:6px; font-size:clamp(32px,8.5vw,38px); font-weight:700; letter-spacing:-0.015em; -webkit-font-smoothing:antialiased;}
   .promo-num-dark{color:#1c1c1c;}
-  .promo-sub{text-align:center; color:#1c1c1c; font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:14px;}
   .promo-divider{display:block; width:40px; height:2px; background:var(--ochre-light); margin:0 auto 22px;}
   .promo-modal .promo-phone-field{position:relative;}
   .promo-modal .promo-phone-field input{padding-left:44px; background:#fff; border-color:rgba(0,0,0,0.15); color:#1c1c1c;}
@@ -1660,9 +1659,7 @@
   <div class="qe-modal promo-modal">
     <button class="qe-close" id="promoCloseBtn" aria-label="Close">✕</button>
     <div id="promoOfferView">
-      <img src="ygm-logo.jpg" alt="YGM Painting" class="promo-logo">
-      <h3 class="promo-heading">Get <span class="promo-num-dark">10% Off</span></h3>
-      <p class="promo-sub">Your Next Painting Project</p>
+      <img src="promo-logo-offer.png" alt="YGM Painting — 10% Off Your Next Painting Project" class="promo-logo-offer">
       <span class="promo-divider"></span>
       <form id="promoForm">
         <div class="qe-field promo-phone-field">
